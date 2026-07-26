@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Zayn · Web design for local businesses</title>
   <meta name="description" content="I build fast, polished websites for local businesses. From £300.">
-  <link rel="stylesheet" href="css/styles.css?v=1">
+  <link rel="stylesheet" href="css/styles.css?v=2">
 </head>
 <body>
 
@@ -18,17 +18,17 @@
     <div class="col-left">
 
       <!-- Name block -->
-      <div class="name-block">
+      <div class="name-block fade-block">
         <span class="name">Zayn</span>
-        <span class="name-kicker">Freelance / Web</span>
+        <span class="name-kicker" data-scramble>Freelance / Web</span>
       </div>
 
       <!-- Positioning line -->
-      <p class="positioning">I build fast, polished websites for local businesses. From <span class="price">£300</span>.</p>
+      <p class="positioning fade-block" style="--fade-delay: 120ms;">I build fast, polished websites for local businesses. From <span class="price">£300</span>.</p>
 
       <!-- Index -->
-      <section class="index" aria-labelledby="index-label">
-        <h2 class="section-label" id="index-label">Index</h2>
+      <section class="index fade-block" style="--fade-delay: 180ms;" aria-labelledby="index-label">
+        <h2 class="section-label" id="index-label" data-scramble>Index</h2>
         <div class="index-list">
 
           <button type="button" class="row">
@@ -96,8 +96,8 @@
       </aside>
 
       <!-- How it works -->
-      <section class="how" aria-labelledby="how-label">
-        <h2 class="section-label" id="how-label">How it works</h2>
+      <section class="how fade-block" style="--fade-delay: 240ms;" aria-labelledby="how-label">
+        <h2 class="section-label" id="how-label" data-scramble>How it works</h2>
         <ol class="how-list">
           <li class="how-item">
             <span class="how-index">01</span>
@@ -115,10 +115,10 @@
       </section>
 
       <!-- Proof strip, pinned to the bottom -->
-      <p class="proof">Shipped a game with 3,000,000+ players · BSc Astrophysics · 3 live builds</p>
+      <p class="proof fade-block" style="--fade-delay: 320ms;">Shipped a game with 3,000,000+ players · BSc Astrophysics · 3 live builds</p>
 
       <!-- Footer: email line and copyright, both wired by JS -->
-      <footer class="footer">
+      <footer class="footer fade-block" style="--fade-delay: 350ms;">
         <p class="footer-email" data-email-line></p>
         <p class="footer-copy">© <span data-year></span> Zayn</p>
       </footer>
@@ -127,15 +127,15 @@
 
     <!-- ================= RIGHT COLUMN ================= -->
     <div class="col-right">
-      <section class="panel" aria-label="Project preview">
+      <section class="panel fade-block" style="--fade-delay: 400ms;" aria-label="Project preview">
         <header class="panel-head">
-          <span class="panel-head-label">Preview / No selection</span>
+          <span class="panel-head-label" data-scramble>Preview / No selection</span>
         </header>
         <div class="panel-body">
           <!-- V1 welcome, no selection -->
           <div class="welcome">
             <span class="welcome-glyph" aria-hidden="true">+</span>
-            <span class="welcome-line">Select a project</span>
+            <span class="welcome-line" data-scramble>Select a project</span>
           </div>
         </div>
       </section>
@@ -143,6 +143,6 @@
 
   </main>
 
-  <script src="js/main.js?v=1"></script>
+  <script src="js/main.js?v=2"></script>
 </body>
 </html>

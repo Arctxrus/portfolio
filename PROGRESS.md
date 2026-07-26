@@ -86,3 +86,88 @@ SITE_EMAIL; no console errors.
 - Added a synchronous static paint in the dot-grid resize() so the grid is
   never blank before the first rAF (belt-and-braces, no behavioural change to
   the animated tint).
+
+### Stage 2 - Left column complete
+- Status: BUILT, awaiting verification. All asset references bumped ?v=1 to
+  ?v=2 (css link, js script, two @font-face src). Files changed: index.html,
+  css/styles.css, js/main.js.
+
+- Decode/scramble (main.js initDecode + scrambleElement): chars resolve left
+  to right via rAF, 650ms, linear reveal per frame, on mount, once. Guarded by
+  data-scrambleDone so it never re-fires. Whitespace is held in place (also
+  keeps monospace widths fixed, so no layout shift). Reduced motion: skipped
+  entirely, the final text already in the HTML stays. Pool is uppercase
+  alphanumerics plus "/ # *".
+  data-scramble elements chosen (all short mono UPPER labels, so the decode
+  reads as a coherent "system labels booting" motif and monospace guarantees
+  zero width shift): the welcome line "Select a project" (required by 3.4 V1),
+  the name kicker "Freelance / Web", both section labels "Index" and
+  "How it works", and the panel header label "Preview / No selection".
+  Deliberately NOT scrambled: the numeric row indices and niche tags (tied to
+  row states, would be busy), the proof strip (long, body-like) and prose.
+
+- Block fade-in (CSS .fade-block + main.js initFadeIn): opacity 0 to 1,
+  translateY 6px to 0, 500ms ease. Initial state and transition in CSS;
+  per-block stagger delay set inline via --fade-delay. Seven blocks mapped to
+  the seven spec delays: name-block 0, positioning 120, index 180, how 240,
+  proof 320, footer 350, panel 400 (ms). JS flips .is-in after a double rAF so
+  the from-state paints first. Transform+opacity only, so no post-load layout
+  shift. Reduced motion: CSS forces the blocks visible with no transition.
+
+- Rows 01 to 05 states (CSS): R1 rest unchanged from stage 1. R2 hover
+  (:not(.row--cta):hover) fill --accent-fill-hover, --shadow-row-hover, index
+  to accent, name to ink, tag opacity to 0, glyph opacity 0 to 1 with x -4px
+  to 0; colour/opacity/glyph 160ms, background 160ms, shadow 220ms (from the
+  .row base transition). R3 active (.is-active) fill --accent-fill-active,
+  index accent, name ink, tag hidden, glyph shown, no shadow (so no trails
+  implication) unless also hovered. R4 = .is-active plus :hover: active fill
+  wins (rule ordered after :hover) and the hover shadow still applies.
+  Selection in main.js initRowSelection: one active row at a time, real
+  buttons (enter/space native), aria-pressed reflects the active row. The
+  panel is intentionally untouched (stage 3).
+
+- Row pointer trails (CSS .trail-dot + main.js initRowTrails): 12px dot, blur
+  12px, colours alternate --trail-a / --trail-b, opacity driven by WAAPI over
+  a 2200ms lifetime with offsets at 0, 20ms (delay), 320ms (peak
+  --trail-opacity 0.32), 1000ms (hold), 2200ms (0); node removed on finish.
+  Spawn throttled to at most every 100ms. Fixed to the viewport at the cursor.
+  Not bound at all under reduced motion; each move ignored when pointerType is
+  touch.
+
+- CTA pill row 06 (CSS .row--cta + main.js initCta), replacing the stage 1
+  placeholder. C1 rest: three drift layers (--cta-layer1/2/3 at --cta-bg-size)
+  on the button background with cta-drift 22s ease-in-out infinite (2D
+  four-point background-position path); light pass (--cta-lightpass) on
+  ::before with cta-lightpass 30s (2D reverse path); static edge lift
+  (--cta-edge-lift) on ::after; white inset rim --cta-rim; ink text
+  --cta-text; index --cta-index; radius --radius-pill; overflow hidden to clip
+  the press bloom. C2 hover: drift to 14s, light pass to 19s, filter
+  saturate(1.25) brightness(1.03) over 240ms, plus hover mist (--cta-hover-mist
+  node) following the cursor with a 900ms lag via CSS transition
+  cubic-bezier(0.22,0.61,0.36,1), opacity 0 to 0.5 in 420ms; placed instantly
+  on enter so it does not slide in from the corner. C3 press: one press bloom
+  per pointerdown from the exact pointer/tap point (--cta-press-mist), scale
+  0.25 to 1, opacity 0 to 0.5 to 0 over 600ms ease-out via WAAPI, node removed
+  at 700ms; no scale on the pill itself. C5: no persistent selected class on
+  the CTA (its click never sets .is-active). Reduced motion: CSS sets drift and
+  light pass animation:none with a static background-position; hover mist not
+  bound; press bloom handler returns before spawning. Touch: mist not rendered;
+  press bloom does fire from the tap point (no touch guard on pointerdown).
+
+### Stage 2 deviations / judgement calls
+- Light-pass layer needs a background-size and there is no token for it; used a
+  literal 200% 200% with a comment (the three drift-layer sizes use the
+  --cta-bg-size token as specified).
+- CTA decorative layers use ::before (light pass), ::after (edge lift) and the
+  button background (drift); the label spans are lifted with .row--cta > *
+  { position: relative; z-index: 5 } so text stays above every glow. Mist
+  (z-index 2) and bloom (z-index 3) sit below the text, above the fill.
+- Trail dots are position:fixed on <body> at z-index 2 (above page content);
+  the 12px blur at 0.32 max opacity keeps row text legible. Chosen over
+  per-row absolute nodes to avoid overflow clipping and neighbour overlap.
+- aria-pressed is set on the index rows to expose the single-selection state
+  to assistive tech now; stage 3 adds the aria-live panel announcement.
+- Verification note: the Browser pane could not evaluate this file (file://
+  tab stays document.hidden; javascript_tool timed out, same limitation logged
+  at stage 1). JS was syntax-checked with `node --check` (pass). Full
+  behavioural verification is left to the verifier subagent.

@@ -1,7 +1,9 @@
 /* ==========================================================================
    Zayn portfolio - styles.css
    Stage 1: scaffold, tokens, self-hosted fonts, dot grid, static desktop layout.
-   Vanilla CSS only. UK English. No em dashes.
+   Stage 2: load-in (decode + staggered fade), row states R1 to R4, pointer
+            trails, CTA pill (drift, light pass, rim, edge lift, hover mist,
+            press bloom). Vanilla CSS only. UK English. No em dashes.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -26,7 +28,7 @@
   font-weight: 400 600;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/archivo-latin-var.woff2?v=1') format('woff2');
+  src: url('../fonts/archivo-latin-var.woff2?v=2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -36,7 +38,7 @@
   font-weight: 300 500;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/martian-mono-latin-var.woff2?v=1') format('woff2');
+  src: url('../fonts/martian-mono-latin-var.woff2?v=2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -160,6 +162,27 @@ button {
 a {
   color: inherit;
   text-decoration: none;
+}
+
+/* --------------------------------------------------------------------------
+   Load-in: block fade (CONCEPT.md 3.3 "Block fade-in")
+   opacity 0 to 1, translateY 6px to 0, 500ms ease. Per-block stagger delay is
+   set inline via --fade-delay (0/120/180/240/320/350/400ms across the left
+   column blocks and the panel). Transform + opacity only, so there is no
+   layout shift after the load-in (performance budget, section 2).
+   The .is-in class is added once by main.js after first paint.
+   -------------------------------------------------------------------------- */
+
+.fade-block {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 500ms ease, transform 500ms ease;
+  transition-delay: var(--fade-delay, 0ms);
+}
+
+.fade-block.is-in {
+  opacity: 1;
+  transform: none;
 }
 
 /* --------------------------------------------------------------------------
@@ -351,13 +374,171 @@ a {
   box-shadow: var(--shadow-field-focus);
 }
 
-/* CTA row 06 - structural only at this stage (drift/rim/mist land in stage 2) */
+/* R2 hover (index rows 01 to 05). Motion: 160ms ease, shadow 220ms.
+   Fill --accent-fill-hover, inset hairline and shade via --shadow-row-hover,
+   index to accent, name to ink, tag fades out, glyph fades in (x -4px to 0). */
+.row:not(.row--cta):hover {
+  background: var(--accent-fill-hover);
+  box-shadow: var(--shadow-row-hover);
+}
+
+.row:not(.row--cta):hover .row-index {
+  color: var(--accent);
+}
+
+.row:not(.row--cta):hover .row-name {
+  color: var(--ink);
+}
+
+.row:not(.row--cta):hover .row-tag {
+  opacity: 0;
+}
+
+.row:not(.row--cta):hover .row-glyph {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.row-glyph {
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+/* R3 active, and R4 active plus hover.
+   Fill --accent-fill-active, index accent, name ink, tag hidden, glyph shown.
+   Listed after :hover so the active fill wins when a row is both active and
+   hovered (R4); the hover shadow from :hover still applies. */
+.row.is-active,
+.row.is-active:hover {
+  background: var(--accent-fill-active);
+}
+
+.row.is-active .row-index {
+  color: var(--accent);
+}
+
+.row.is-active .row-name {
+  color: var(--ink);
+}
+
+.row.is-active .row-tag {
+  opacity: 0;
+}
+
+.row.is-active .row-glyph {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* --------------------------------------------------------------------------
+   CTA row 06 - pastel water pill (CONCEPT.md 3.1 tokens, 3.4 C1 to C5)
+   -------------------------------------------------------------------------- */
+
+/* C1 rest: three drifting pastel layers at --cta-bg-size, white inset rim,
+   ink text, index at --cta-index, radius --radius-pill. Fill drift 22s rest.
+   overflow hidden clips the press bloom to the pill. */
 .row--cta {
+  position: relative;
+  overflow: hidden;
   margin-top: var(--sp-14);
   border-bottom: 0;
   border-radius: var(--radius-pill);
   padding: var(--sp-14) var(--sp-18);
-  background: var(--accent-fill-hover);
+  background-image: var(--cta-layer1), var(--cta-layer2), var(--cta-layer3);
+  background-size: var(--cta-bg-size);
+  background-repeat: no-repeat;
+  box-shadow: var(--cta-rim);
+  transition: filter 240ms ease;
+  animation: cta-drift 22s ease-in-out infinite;
+}
+
+/* Light pass (--cta-lightpass), 2D reverse path, 30s rest, on its own layer.
+   Sized larger than the pill so the moving position reads as a light sweep. */
+.row--cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: var(--cta-lightpass);
+  background-size: 200% 200%;   /* no token for the light-pass size */
+  background-repeat: no-repeat;
+  pointer-events: none;
+  animation: cta-lightpass 30s ease-in-out infinite;
+}
+
+/* Static edge lift vignette (--cta-edge-lift). */
+.row--cta::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image: var(--cta-edge-lift);
+  pointer-events: none;
+}
+
+/* Keep the label content above every decorative layer. */
+.row--cta > * {
+  position: relative;
+  z-index: 5;
+}
+
+/* C2 hover: drift quickens to 14s, light pass to 19s, saturate/brighten. */
+.row--cta:hover {
+  filter: saturate(1.25) brightness(1.03);
+  animation-duration: 14s;
+}
+
+.row--cta:hover::before {
+  animation-duration: 19s;
+}
+
+/* Hover mist node (--cta-hover-mist), follows the cursor with 900ms lag. */
+.cta-mist {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200px;
+  height: 200px;
+  border-radius: var(--radius-pill);
+  background: var(--cta-hover-mist);
+  opacity: 0;
+  z-index: 2;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: transform 900ms cubic-bezier(0.22, 0.61, 0.36, 1), opacity 420ms ease;
+  will-change: transform, opacity;
+}
+
+/* Press bloom node (--cta-press-mist), one per press, scale 0.25 to 1. */
+.cta-bloom {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 260px;
+  height: 260px;
+  border-radius: var(--radius-pill);
+  background: var(--cta-press-mist);
+  opacity: 0;
+  z-index: 3;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* CTA fill drift (layer 1 set): background-position, 2D four-point path. */
+@keyframes cta-drift {
+  0%   { background-position: 0% 0%,     100% 100%, 0% 50%; }
+  25%  { background-position: 100% 0%,   0% 100%,   50% 0%; }
+  50%  { background-position: 100% 100%, 0% 0%,     100% 50%; }
+  75%  { background-position: 0% 100%,   100% 0%,   50% 100%; }
+  100% { background-position: 0% 0%,     100% 100%, 0% 50%; }
+}
+
+/* CTA light pass (layer 2): background-position, 2D reverse path. */
+@keyframes cta-lightpass {
+  0%   { background-position: 100% 100%; }
+  25%  { background-position: 0% 100%; }
+  50%  { background-position: 0% 0%; }
+  75%  { background-position: 100% 0%; }
+  100% { background-position: 100% 100%; }
 }
 
 /* Type: Row name (CTA 06) - Archivo 15.5px / 600 / normal / normal / as typed */
@@ -580,6 +761,27 @@ a {
 }
 
 /* --------------------------------------------------------------------------
+   Row pointer trails (CONCEPT.md 3.3 "Row pointer trail")
+   12px dot, blur 12px, colours --trail-a / --trail-b. The opacity timeline
+   (0 to 0.32 with a 20ms delay, hold, then 0.32 to 0) is driven in main.js
+   via the Web Animations API. Fixed to the viewport at the cursor point.
+   -------------------------------------------------------------------------- */
+
+.trail-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  filter: blur(12px);
+  opacity: 0;
+  z-index: 2;
+  pointer-events: none;
+  will-change: opacity, transform;
+}
+
+/* --------------------------------------------------------------------------
    Reduced motion - global guard (JS guards live in main.js)
    -------------------------------------------------------------------------- */
 
@@ -591,5 +793,19 @@ a {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* Load-in shows instantly, no transform or opacity transition. */
+  .fade-block {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* CTA drift and light pass: animation none with a static gradient. */
+  .row--cta,
+  .row--cta::before {
+    animation: none !important;
+    background-position: 0% 0% !important;
   }
 }
