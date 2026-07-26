@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Zayn · Web design for local businesses</title>
+  <meta name="description" content="I build fast, polished websites for local businesses. From £300.">
+  <link rel="stylesheet" href="css/styles.css?v=1">
+</head>
+<body>
+
+  <!-- Decorative dot grid, behind everything -->
+  <canvas id="dot-grid" class="dot-grid" aria-hidden="true"></canvas>
+
+  <main class="page">
+
+    <!-- ================= LEFT COLUMN ================= -->
+    <div class="col-left">
+
+      <!-- Name block -->
+      <div class="name-block">
+        <span class="name">Zayn</span>
+        <span class="name-kicker">Freelance / Web</span>
+      </div>
+
+      <!-- Positioning line -->
+      <p class="positioning">I build fast, polished websites for local businesses. From <span class="price">£300</span>.</p>
+
+      <!-- Index -->
+      <section class="index" aria-labelledby="index-label">
+        <h2 class="section-label" id="index-label">Index</h2>
+        <div class="index-list">
+
+          <button type="button" class="row">
+            <span class="row-index">01</span>
+            <span class="row-name">Blackthorn &amp; Co.</span>
+            <span class="row-end">
+              <span class="row-tag">Barbershop</span>
+              <span class="row-glyph" aria-hidden="true">+</span>
+            </span>
+          </button>
+
+          <button type="button" class="row">
+            <span class="row-index">02</span>
+            <span class="row-name">Barker &amp; Bloom</span>
+            <span class="row-end">
+              <span class="row-tag">Dog Grooming</span>
+              <span class="row-glyph" aria-hidden="true">+</span>
+            </span>
+          </button>
+
+          <button type="button" class="row">
+            <span class="row-index">03</span>
+            <span class="row-name">Until the Last Star</span>
+            <span class="row-end">
+              <span class="row-tag">WebGL</span>
+              <span class="row-glyph" aria-hidden="true">+</span>
+            </span>
+          </button>
+
+          <button type="button" class="row">
+            <span class="row-index">04</span>
+            <span class="row-name">About</span>
+            <span class="row-end">
+              <span class="row-glyph" aria-hidden="true">+</span>
+            </span>
+          </button>
+
+          <button type="button" class="row">
+            <span class="row-index">05</span>
+            <span class="row-name">Pricing</span>
+            <span class="row-end">
+              <span class="row-glyph" aria-hidden="true">+</span>
+            </span>
+          </button>
+
+          <button type="button" class="row row--cta">
+            <span class="row-index">06</span>
+            <span class="row-name">Get in touch</span>
+            <span class="row-end">
+              <span class="row-tag">Same Day Reply</span>
+              <span class="row-glyph" aria-hidden="true">+</span>
+            </span>
+          </button>
+
+        </div>
+      </section>
+
+      <!-- Hidden testimonials slot: real markup and styles, no content yet -->
+      <aside class="testimonials" hidden aria-label="Client testimonial">
+        <blockquote class="testimonial-quote"></blockquote>
+        <div class="testimonial-meta">
+          <span class="testimonial-name"></span>
+          <span class="testimonial-biz"></span>
+        </div>
+      </aside>
+
+      <!-- How it works -->
+      <section class="how" aria-labelledby="how-label">
+        <h2 class="section-label" id="how-label">How it works</h2>
+        <ol class="how-list">
+          <li class="how-item">
+            <span class="how-index">01</span>
+            <span class="how-text">You reply to my email</span>
+          </li>
+          <li class="how-item">
+            <span class="how-index">02</span>
+            <span class="how-text">I build you a free homepage mockup</span>
+          </li>
+          <li class="how-item">
+            <span class="how-index">03</span>
+            <span class="how-text">Live in about two weeks</span>
+          </li>
+        </ol>
+      </section>
+
+      <!-- Proof strip, pinned to the bottom -->
+      <p class="proof">Shipped a game with 3,000,000+ players · BSc Astrophysics · 3 live builds</p>
+
+      <!-- Footer: email line and copyright, both wired by JS -->
+      <footer class="footer">
+        <p class="footer-email" data-email-line></p>
+        <p class="footer-copy">© <span data-year></span> Zayn</p>
+      </footer>
+
+    </div>
+
+    <!-- ================= RIGHT COLUMN ================= -->
+    <div class="col-right">
+      <section class="panel" aria-label="Project preview">
+        <header class="panel-head">
+          <span class="panel-head-label">Preview / No selection</span>
+        </header>
+        <div class="panel-body">
+          <!-- V1 welcome, no selection -->
+          <div class="welcome">
+            <span class="welcome-glyph" aria-hidden="true">+</span>
+            <span class="welcome-line">Select a project</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <script src="js/main.js?v=1"></script>
+</body>
+</html>

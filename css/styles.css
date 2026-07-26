@@ -1,0 +1,595 @@
+/* ==========================================================================
+   Zayn portfolio - styles.css
+   Stage 1: scaffold, tokens, self-hosted fonts, dot grid, static desktop layout.
+   Vanilla CSS only. UK English. No em dashes.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Self-hosted fonts (variable woff2, latin subset, font-display: swap)
+
+   Source: Google Fonts CSS v2 API, queried with a desktop Chrome user agent
+   which returns variable woff2 URLs. Files downloaded once into fonts/ so
+   there is no runtime dependency on Google's servers.
+
+   Archivo (weights 400 to 600), latin subset:
+     https://fonts.googleapis.com/css2?family=Archivo:wght@400..600&display=swap
+     -> https://fonts.gstatic.com/s/archivo/v25/k3kPo8UDI-1M0wlSV9XAw6lQkqWY8Q82sLydOxI.woff2
+
+   Martian Mono (weights 300 to 500), latin subset:
+     https://fonts.googleapis.com/css2?family=Martian+Mono:wght@300..500&display=swap
+     -> https://fonts.gstatic.com/s/martianmono/v6/2V0PKIcADoYhV6w87xrTKjs4CYElh_VS9YA4TlTnaTq9wQ.woff2
+   -------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 400 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url('../fonts/archivo-latin-var.woff2?v=1') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Martian Mono';
+  font-style: normal;
+  font-weight: 300 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url('../fonts/martian-mono-latin-var.woff2?v=1') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* --------------------------------------------------------------------------
+   Design tokens - reproduced verbatim from CONCEPT.md 3.1
+   -------------------------------------------------------------------------- */
+
+:root {
+  /* Ground & ink */
+  --ground:            #FAFAFA;
+  --ink:               #141416;
+  --ink-body:          #43434A;
+  --ink-mid:           #54545C;
+  --grey-label:        #8E8E96;
+  --grey-soft:         #A6A6AE;
+  --grey-placeholder:  #9A9AA2;
+
+  /* Accent, sea blue */
+  --accent:            #1A6FD4;
+  --accent-rgb:        26,111,212;
+  --accent-fill-active:#E7F1FB;
+  --accent-fill-hover: #EDF4FC;
+  --accent-hairline:   rgba(26,111,212,0.16);
+  --accent-innershade: rgba(26,111,212,0.08);
+  --accent-ghost:      rgba(26,111,212,0.07);
+
+  /* Pointer trails (row hover) */
+  --trail-a:           #8FC3EE;
+  --trail-b:           #B9DDF5;
+  --trail-opacity:     0.32;
+
+  /* Borders & surfaces */
+  --border:            #E8E8EC;
+  --border-width:      1px;      /* the only border width on the page */
+  --surface-white:     #FFFFFF;
+  --surface-field:     #FAFAFA;
+  --surface-preview:   #F4F4F7;
+  --surface-panelhead: rgba(250,250,250,0.7);
+  --submit-ink:        #141416;
+  --submit-ink-hover:  #000000;
+
+  /* CTA pill (row 06), pastel water fill drifting on x and y */
+  --cta-layer1: radial-gradient(70% 180% at 20% 15%, #DCEEF9 0%, rgba(220,238,249,0) 62%);
+  --cta-layer2: radial-gradient(60% 170% at 75% 85%, #CFDDF3 0%, rgba(207,221,243,0) 64%);
+  --cta-layer3: linear-gradient(100deg, #D6E9F7, #C6D9F1, #D9E7F6, #D6E9F7);
+  --cta-bg-size: 260% 260%, 240% 240%, 300% 200%;
+  --cta-lightpass: radial-gradient(55% 150% at 50% 50%, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0) 68%);
+  --cta-edge-lift: radial-gradient(120% 160% at 50% 50%, rgba(255,255,255,0) 42%, rgba(255,255,255,0.34) 100%);
+  --cta-rim:    inset 0 0 0 1px rgba(255,255,255,0.62), inset 0 1px 0 rgba(255,255,255,0.85);
+  --cta-hover-mist: radial-gradient(circle, rgba(233,246,253,0.55) 0%, rgba(233,246,253,0.26) 44%, rgba(233,246,253,0) 72%);
+  --cta-press-mist: radial-gradient(circle, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.40) 42%, rgba(255,255,255,0) 72%);
+  --cta-text:          #141416;
+  --cta-index:         rgba(20,20,22,0.5);
+
+  /* Dot grid (canvas, fixed, behind everything) */
+  --dot-rest:  rgba(20,20,22,0.06);
+  --dot-warm:  rgb(26,111,212);
+  --dot-size:  1.5px;  --dot-spacing: 26px;
+
+  /* Radii, exactly two values */
+  --radius-pill:    999px;
+  --radius-surface: 16px;
+
+  /* Spacing scale (all values in use) */
+  --sp-2: 2px;  --sp-4: 4px;  --sp-6: 6px;  --sp-10: 10px; --sp-12: 12px;
+  --sp-14: 14px; --sp-16: 16px; --sp-18: 18px; --sp-22: 22px; --sp-26: 26px;
+  --sp-32: 32px; --sp-36: 36px; --sp-48: 48px; --sp-56: 56px; --sp-76: 76px;
+  --sp-80: 80px;
+  /* Row vertical padding 11px. Field padding 14px 18px. Submit 15px 26px. */
+
+  /* Shadows: no drop shadows anywhere, inset only */
+  --shadow-row-hover: inset 0 0 0 1px rgba(26,111,212,0.16), inset 0 -3px 12px rgba(26,111,212,0.08);
+  --shadow-field-focus: inset 0 0 0 1px #1A6FD4;
+}
+
+/* --------------------------------------------------------------------------
+   Non-token helpers (font families, z-layers). Families are not tokenised in
+   3.1; kept out of the verbatim block above and declared here instead.
+   -------------------------------------------------------------------------- */
+
+:root {
+  --font-sans: 'Archivo', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'Martian Mono', ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Menlo, Consolas, monospace;
+  --font-system: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Reset & base
+   -------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--ground);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* --------------------------------------------------------------------------
+   Dot grid canvas - fixed, behind everything, decorative
+   -------------------------------------------------------------------------- */
+
+.dot-grid {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   Page shell - desktop layout (CONCEPT.md 3.1 layout paragraph)
+   -------------------------------------------------------------------------- */
+
+.page {
+  position: relative;
+  z-index: 1;
+  height: 100vh;
+  min-height: 860px;
+  display: grid;
+  grid-template-columns: 460px 1fr;
+  gap: var(--sp-80);
+  padding: var(--sp-76) var(--sp-76) var(--sp-56);
+}
+
+/* Left column: flex column, proof strip pinned to the bottom */
+.col-left {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Name block
+   -------------------------------------------------------------------------- */
+
+.name-block {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-14);
+}
+
+/* Type: Name "Zayn" - Archivo 31px / 600 / -0.015em / normal / as typed */
+.name {
+  font-family: var(--font-sans);
+  font-size: 31px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: normal;
+  color: var(--ink);
+}
+
+/* Type: FREELANCE / WEB - Mono 10px / 400 / normal / normal / UPPER */
+.name-kicker {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: normal;
+  line-height: normal;
+  text-transform: uppercase;
+  color: var(--grey-label);
+}
+
+/* --------------------------------------------------------------------------
+   Positioning line
+   -------------------------------------------------------------------------- */
+
+/* Type: Positioning line - Archivo 16px / 400 / normal / 1.6 / sentence */
+.positioning {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--ink-body);
+  margin-top: var(--sp-22);
+  max-width: 34ch;
+}
+
+/* Type: "£300" inline - Mono 14px / 400 / normal / inherit / accent colour */
+.price {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: inherit;
+  color: var(--accent);
+}
+
+/* --------------------------------------------------------------------------
+   Index (rows 01 to 06)
+   -------------------------------------------------------------------------- */
+
+/* Type: INDEX / HOW IT WORKS labels - Mono 10px / 400 / normal / normal / UPPER */
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: normal;
+  text-transform: uppercase;
+  color: var(--grey-label);
+}
+
+.index {
+  margin-top: var(--sp-48);
+}
+
+.index-list {
+  margin-top: var(--sp-16);
+  border-top: var(--border-width) solid var(--border);
+}
+
+/* A single index row (R1 rest state) */
+.row {
+  position: relative;
+  display: grid;
+  grid-template-columns: 26px 1fr auto;
+  align-items: center;
+  column-gap: var(--sp-16);
+  width: 100%;
+  padding: 11px var(--sp-4);
+  text-align: left;
+  border-bottom: var(--border-width) solid var(--border);
+  background: transparent;
+  transition: background 160ms ease, box-shadow 220ms ease;
+}
+
+/* Type: Row index 01 to 06 - Mono 11px / 400 / normal / normal / zero padded */
+.row-index {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  line-height: normal;
+  color: var(--grey-soft);
+  transition: color 160ms ease;
+}
+
+/* Type: Row name - Archivo 15.5px / 500 / normal / normal / as typed */
+.row-name {
+  font-family: var(--font-sans);
+  font-size: 15.5px;
+  font-weight: 500;
+  line-height: normal;
+  color: var(--ink-mid);
+  transition: color 160ms ease;
+}
+
+/* End cell holds the niche tag and the (hidden at rest) expand glyph */
+.row-end {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+/* Type: Niche tag - Mono 10px / 400 / normal / normal / UPPER */
+.row-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: normal;
+  text-transform: uppercase;
+  color: var(--grey-soft);
+  transition: opacity 160ms ease;
+}
+
+/* Type: Expand glyph (rows/CTA) - system 14px / 400 / normal / 1 */
+.row-glyph {
+  position: absolute;
+  right: 0;
+  font-family: var(--font-system);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--accent);
+  opacity: 0;              /* R1 rest: glyph hidden. Reveal is stage 2. */
+  transform: translateX(-4px);
+  pointer-events: none;
+}
+
+/* Focus-visible: accent inset ring, same treatment as field focus (CONCEPT 10) */
+.row:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-field-focus);
+}
+
+/* CTA row 06 - structural only at this stage (drift/rim/mist land in stage 2) */
+.row--cta {
+  margin-top: var(--sp-14);
+  border-bottom: 0;
+  border-radius: var(--radius-pill);
+  padding: var(--sp-14) var(--sp-18);
+  background: var(--accent-fill-hover);
+}
+
+/* Type: Row name (CTA 06) - Archivo 15.5px / 600 / normal / normal / as typed */
+.row--cta .row-name {
+  font-weight: 600;
+  color: var(--cta-text);
+}
+
+.row--cta .row-index {
+  color: var(--cta-index);
+}
+
+.row--cta .row-tag {
+  color: var(--ink-mid);
+}
+
+.row--cta:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-field-focus);
+}
+
+/* --------------------------------------------------------------------------
+   Hidden testimonials slot (real markup and styles, no content yet)
+   -------------------------------------------------------------------------- */
+
+.testimonials {
+  margin-top: var(--sp-22);
+}
+
+.testimonial-quote {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  font-style: normal;
+  line-height: 1.5;
+  color: var(--ink-body);
+}
+
+.testimonial-meta {
+  display: flex;
+  gap: var(--sp-6);
+  margin-top: var(--sp-6);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--grey-label);
+}
+
+/* --------------------------------------------------------------------------
+   How it works
+   -------------------------------------------------------------------------- */
+
+.how {
+  margin-top: var(--sp-48);
+}
+
+.how-list {
+  margin-top: var(--sp-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-12);
+}
+
+.how-item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-12);
+}
+
+/* Type: How-it-works index - Mono 10px / 400 / normal / normal / zero padded */
+.how-index {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: normal;
+  color: var(--grey-soft);
+}
+
+/* Type: How-it-works text - Archivo 13.5px / 400 / normal / normal / sentence */
+.how-text {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: normal;
+  color: var(--ink-body);
+}
+
+/* --------------------------------------------------------------------------
+   Proof strip - pinned to the bottom of the left column
+   -------------------------------------------------------------------------- */
+
+/* Type: Proof strip - Mono 10.5px / 400 / normal / 1.7 / UPPER */
+.proof {
+  margin-top: auto;
+  padding-top: var(--sp-32);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  line-height: 1.7;
+  text-transform: uppercase;
+  color: var(--grey-label);
+}
+
+/* --------------------------------------------------------------------------
+   Footer
+   -------------------------------------------------------------------------- */
+
+.footer {
+  margin-top: var(--sp-16);
+}
+
+/* Type: Footer email line - Archivo 13px / 400 / normal / normal / sentence */
+.footer-email {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: normal;
+  color: var(--ink-body);
+}
+
+.footer-email a {
+  color: var(--accent);
+}
+
+.footer-email a:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-field-focus);
+  border-radius: var(--sp-2);
+}
+
+.footer-copy {
+  margin-top: var(--sp-6);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--grey-soft);
+}
+
+/* --------------------------------------------------------------------------
+   Right column - preview panel (V1 welcome, shown statically)
+   -------------------------------------------------------------------------- */
+
+.col-right {
+  min-height: 0;
+}
+
+.panel {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-surface);
+  overflow: hidden;
+  background: var(--surface-preview);
+}
+
+.panel-head {
+  flex: 0 0 auto;
+  padding: var(--sp-16) var(--sp-22);
+  border-bottom: var(--border-width) solid var(--border);
+  background: var(--surface-panelhead);
+}
+
+/* Type: Panel header label - Mono 10.5px / 400 / normal / normal / UPPER */
+.panel-head-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  line-height: normal;
+  text-transform: uppercase;
+  color: var(--grey-label);
+}
+
+/* Panel body: 1fr by 1fr grid so every state centres */
+.panel-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  place-items: center;
+}
+
+/* V1 welcome, no selection */
+.welcome {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+/* Type: Expand glyph (welcome) - system 340px / 400 / normal / 0.8 */
+.welcome-glyph {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-system);
+  font-size: 340px;
+  font-weight: 400;
+  line-height: 0.8;
+  color: var(--accent-ghost);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Type: Welcome line - Mono 11px / 400 / 0.1em / normal / UPPER */
+.welcome-line {
+  position: relative;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  line-height: normal;
+  text-transform: uppercase;
+  color: var(--grey-label);
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion - global guard (JS guards live in main.js)
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
