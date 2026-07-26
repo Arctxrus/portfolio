@@ -3,6 +3,8 @@
    Stage 1: single email constant, footer wiring, dot grid canvas.
    Stage 2: decode/scramble, block fade-in, row selection (R1 to R4),
             row pointer trails, CTA hover mist and press bloom.
+   Stage 3: panel controller (row/CTA to view swap, V5 animation, active-state
+            sync, aria-live announcement, contact-form submit stub).
    Vanilla JS only. UK English. No em dashes.
    ========================================================================== */
 
@@ -313,23 +315,115 @@ function initFadeIn() {
 }
 
 /* --------------------------------------------------------------------------
-   Row selection (CONCEPT.md 3.4 R3 active). One active index row at a time.
-   Real buttons, so enter/space fire click natively; focus-visible ring is
-   already styled in CSS. The panel does not change yet (that is stage 3);
-   only the active-class and aria-pressed logic is wired here.
+   Panel controller (CONCEPT.md 3.4 V2 to V5, sections 5, 6, 10)
+
+   Rows 01 to 05 swap the panel to their V2 project or V3 section view; the CTA
+   row 06 swaps to the V4 form (C4). Index rows carry the single-selection
+   active state (R3) and aria-pressed; the CTA never keeps a selected style
+   (C5), and selecting it clears any active index row so the two stay in sync.
+
+   Each selection: update active states, then run the V5 swap (body fades and
+   lifts 6px in 130ms, content switches at the midpoint, reverse 130ms). Under
+   reduced motion the content swaps instantly with no animation. The new panel
+   header text is mirrored into a polite aria-live region for a concise
+   announcement. Re-selecting the already-shown view is a no-op (no replay).
    -------------------------------------------------------------------------- */
 
-function initRowSelection() {
-  const rows = document.querySelectorAll('.row:not(.row--cta)');
-  rows.forEach(function (row) {
+const SWAP_HALF = 130;   /* ms: out phase; the in phase mirrors it (260 total) */
+
+function initPanel() {
+  const panelBody = document.querySelector('.panel-body');
+  const headerLabel = document.querySelector('.panel-head-label');
+  const liveRegion = document.querySelector('[data-panel-live]');
+  const rows = Array.prototype.slice.call(document.querySelectorAll('.row'));
+  const indexRows = rows.filter(function (row) {
+    return !row.classList.contains('row--cta');
+  });
+
+  if (!panelBody || !rows.length) {
+    return;
+  }
+
+  indexRows.forEach(function (row) {
     row.setAttribute('aria-pressed', 'false');
-    row.addEventListener('click', function () {
-      rows.forEach(function (other) {
-        const isThis = other === row;
-        other.classList.toggle('is-active', isThis);
-        other.setAttribute('aria-pressed', isThis ? 'true' : 'false');
-      });
+  });
+
+  let currentView = null;   /* V1 welcome is showing; no view key yet. */
+  let swapTimer = 0;
+
+  function renderView(viewKey) {
+    const tpl = document.getElementById('view-' + viewKey);
+    if (!tpl) {
+      return;
+    }
+    panelBody.replaceChildren(tpl.content.cloneNode(true));
+  }
+
+  function announce(text) {
+    if (liveRegion) {
+      liveRegion.textContent = text;
+    }
+  }
+
+  function commit(viewKey, headerText) {
+    renderView(viewKey);
+    if (headerLabel) {
+      headerLabel.textContent = headerText;
+    }
+    announce(headerText);
+  }
+
+  function swap(viewKey, headerText) {
+    if (prefersReducedMotion()) {
+      commit(viewKey, headerText);   /* instant, content still swaps */
+      return;
+    }
+    window.clearTimeout(swapTimer);
+    panelBody.classList.add('is-swapping');   /* out: opacity 0, translateY 6px */
+    swapTimer = window.setTimeout(function () {
+      commit(viewKey, headerText);             /* switch at the midpoint */
+      /* Flush the opacity 0 state with the new content, then drop the class so
+         the body eases back in (130ms). A layout read is used rather than rAF
+         so the fade-in is not left stuck when the tab is backgrounded. */
+      void panelBody.offsetWidth;
+      panelBody.classList.remove('is-swapping');
+    }, SWAP_HALF);
+  }
+
+  function select(row) {
+    const viewKey = row.dataset.view;
+    if (!viewKey || viewKey === currentView) {
+      return;   /* judgement call: do not replay the swap for the active view */
+    }
+
+    /* Active state (R3). CTA is never active; selecting it clears every row. */
+    indexRows.forEach(function (r) {
+      const active = (r === row);
+      r.classList.toggle('is-active', active);
+      r.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
+
+    const nameEl = row.querySelector('.row-name');
+    const name = nameEl ? nameEl.textContent : '';
+    const headerText = 'Preview / ' + name;
+
+    swap(viewKey, headerText);
+    currentView = viewKey;
+  }
+
+  rows.forEach(function (row) {
+    row.addEventListener('click', function () {
+      select(row);
+    });
+  });
+
+  /* Stage 3 submit stub: prevent default so nothing navigates. The fetch
+     wiring, success/failure states and honeypot handling arrive at stage 4. */
+  panelBody.addEventListener('submit', function (event) {
+    const form = event.target.closest('[data-contact-form]');
+    if (form) {
+      event.preventDefault();
+    }
   });
 }
 
@@ -508,7 +602,7 @@ function init() {
   initDotGrid();
   initDecode();
   initFadeIn();
-  initRowSelection();
+  initPanel();
   initRowTrails();
   initCta();
 }

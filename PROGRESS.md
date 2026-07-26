@@ -1,4 +1,4 @@
-# PROGRESS — Zayn Portfolio
+# PROGRESS · Zayn Portfolio
 
 Stage log, decisions and deviations for the build defined in CONCEPT.md.
 House rules: UK English, no em dashes, instrument then fix, commit per stage.
@@ -9,8 +9,10 @@ House rules: UK English, no em dashes, instrument then fix, commit per stage.
       spec says REPLACE email. It lives in a single constant (`SITE_EMAIL` in
       js/main.js, mirrored once in index.html for the no-JS footer text). Swap
       before deploy.
-- [ ] Panel sub lines for the three projects: drafted at stage 3, need approval.
-- [ ] About and Pricing prose: drafted at stage 3, need approval.
+- [ ] Panel sub lines for the three projects: drafted at stage 3, in the page,
+      need approval (see DRAFT FOR APPROVAL below).
+- [ ] About and Pricing prose: drafted at stage 3, in the page, need approval
+      (see DRAFT FOR APPROVAL below).
 - [ ] docs/de-vibe-audit.md: the agreed checklist was not supplied in this
       workspace. A draft checklist will be written at stage 8 and submitted for
       approval before the audit runs.
@@ -19,6 +21,36 @@ House rules: UK English, no em dashes, instrument then fix, commit per stage.
 - [ ] Stage 6 video capture depends on the live demo sites and headed Chromium
       with GPU; may be marked blocked with exact local commands.
 - [ ] Stage 10 waits on the confirmed deployed URL.
+
+## DRAFT FOR APPROVAL (stage 3 copy)
+
+All drafted at stage 3 and implemented in the page. Nothing invented: the three
+sub lines were written after fetching each live homepage and checking the actual
+content (booking forms, price sections, tech). Awaiting Zayn's sign-off.
+
+Panel sub lines (mono, lower case, middle dot separators):
+- Blackthorn & Co.: `single page · price menu · booking form · arctxrus.github.io/blackthorn-demo`
+  (verified: one page with anchor nav, a priced service menu, and a real
+  booking form with phone + date fields, id "booking-form".)
+- Barker & Bloom: `single page · prices by dog size · booking form · arctxrus.github.io/barker-bloom-demo`
+  (verified: one page, a prices-by-size section, and a stepper booking request
+  form, id "bookForm".)
+- Until the Last Star: `webgl · scroll-driven timeline of the universe · arctxrus.github.io/cosmic-dawn`
+  (verified: Three.js WebGL canvas scene, scroll-driven timeline from the first
+  instant to the death of the last star.)
+
+About (V3, ~51 words):
+> I'm Zayn, a physics graduate who shipped a game played by more than three
+> million people. These days I build fast, polished websites for local
+> businesses, the kind of shop or salon that deserves better than the usual
+> off-the-peg site. I work quickly and directly: no agencies, no templates,
+> no jargon.
+
+Pricing (V3, three mono-labelled lines plus an honest-floor note):
+- WEBSITES FROM £300 - A single page, written and built for your business.
+- CARE PLAN FROM £25/MONTH - Hosting, edits, and keeping it fast.
+- FREE HOMEPAGE MOCKUP - Reply to the email and see it before you pay.
+- Note: `"From" prices are honest floors: a bigger job is quoted higher.`
 
 ## Decisions and deviations
 
@@ -35,7 +67,7 @@ House rules: UK English, no em dashes, instrument then fix, commit per stage.
 - PROGRESS.md, verify/, references/REFERENCES.md created.
 - Agent team created in .claude/agents/ (coder, verifier, triage).
 
-### Stage 1 — Scaffold
+### Stage 1 · Scaffold
 - Status: VERIFIED PASS (verifier run 2026-07-26, 0 FAILs, screenshots in
   verify/stage-1/). Carry-forward flag: --grey-label and --grey-soft text on
   --ground is below WCAG AA at desktop rest; CONCEPT section 10 scopes the
@@ -153,6 +185,104 @@ SITE_EMAIL; no console errors.
   light pass animation:none with a static background-position; hover mist not
   bound; press bloom handler returns before spawning. Touch: mist not rendered;
   press bloom does fire from the tap point (no touch guard on pointerdown).
+
+### Stage 3 - Panel views (V1 to V5), keyboard, aria-live
+- Status: BUILT, awaiting verification. All asset references bumped ?v=2 to
+  ?v=3 (css link, js script, two @font-face src). New media references in the
+  view templates carry ?v=3. Files changed: index.html, css/styles.css,
+  js/main.js, PROGRESS.md.
+
+- View system: V1 welcome stays in the markup as the initial panel content.
+  V2 (three projects), V3 (About, Pricing) and V4 (form) live as
+  `<template id="view-...">` blocks at the end of index.html and are cloned
+  into `.panel-body` by main.js `initPanel` on selection. This keeps the real
+  markup in HTML (verifier-visible, tokens in CSS) and gives natural
+  lazy-loading: a project's placeholder video only enters the DOM when its row
+  is chosen (section 5).
+
+- V2 project view: framed preview area (16/9, `--surface-preview`, 1px
+  `--border`, `--radius-surface`) that is itself an anchor to the live URL
+  (target _blank, rel noopener); a `<video>` inside with poster wired to the
+  future media path and autoplay/muted/loop/playsinline/preload="none" per
+  section 5, source pointing at the future webm. Then project title (Archivo
+  34px/600/-0.015em), mono sub line (10.5px lower), a caption bar with a 1px
+  top rule (mono 10.5px/0.04em/UPPER, exact section-4 captions), and a quiet
+  secondary "Visit live site" pill (ink outline, `--radius-pill`, NOT the CTA
+  treatment) to the same URL, target _blank rel noopener.
+
+- Placeholder media: the real webm/poster arrive at stage 6. Until then the
+  framed `--surface-preview` box is the placeholder. A `<video>` whose poster
+  and source 404 shows no broken-image icon (unlike `<img>`); the styled
+  surface shows instead. Verified over http: the webm requests return 404 as
+  expected and there are no console errors. Stage 6 drops the files in at the
+  same paths; no markup change needed.
+
+- V3 About/Pricing views: as V2 without a caption bar. About is a single
+  Archivo 14px paragraph (~51 words, section-6 shape: two sentences on who,
+  one on how). Pricing is three mono-labelled lines (no table, no cards) with
+  the "£" figures in accent, plus a small honest-floor note. Drafts recorded
+  above.
+
+- V4 form view: white card, `--radius-surface` 16px, 440px wide, centred in
+  the body. Mono "GET IN TOUCH" label; three fields (Name, Business, textarea
+  rows=4 resize:none "What do you need built?") with F1 rest
+  (`--surface-field` + `--border`), F2 focus (accent border, white background,
+  inset accent ring `--shadow-field-focus`, no outer halo, 150ms) and F3
+  filled via `:not(:placeholder-shown)`. Submit pill uses `--submit-ink`,
+  white 600 label, no border/shadow, hover to `--submit-ink-hover` in 150ms,
+  no press state, label "Send · I typically reply same day". POST skeleton in
+  place (method="post", action="" for the Formspree endpoint, name attributes,
+  honeypot `_gotcha`); a submit stub in JS prevents default so nothing
+  navigates. Stage 4 only adds the fetch wiring and success/failure states.
+
+- V5 swap: `.panel-body` fades to opacity 0 and translateY 6px over 130ms
+  (`.is-swapping`), content is committed at the midpoint, then the class is
+  dropped to ease back in (130ms; 260ms total). Reduced motion: `initPanel`
+  calls `commit()` directly, so the content still swaps with no animation.
+
+- Keyboard and aria: rows are the stage-2 real buttons; enter/space select
+  natively. On selection the visible panel header becomes "PREVIEW / <name>"
+  and the same text is mirrored into a visually-hidden
+  `role="status" aria-live="polite"` region for a concise announcement.
+  Decorative glyphs stay aria-hidden; the placeholder videos are
+  aria-hidden/tabindex=-1 so the anchor is the single focus stop. Verified
+  keyboard-only: focus is retained on the row after activation.
+
+- Row-to-panel wiring: rows 01 to 05 swap to their V2/V3 view and take the
+  single-selection active state (R3, aria-pressed). The CTA row 06 swaps to V4
+  and clears every index row's active state, so the two stay in sync; the CTA
+  itself never gets a persistent selected style (C5) and carries no
+  aria-pressed. Verified: after selecting the CTA no index row is active.
+
+### Stage 3 deviations / judgement calls
+- Re-selecting the already-shown view is a no-op (no swap replay): `initPanel`
+  tracks `currentView` and returns early when the clicked row matches. Chosen
+  because replaying the 260ms fade for the row you are already on reads as a
+  glitch, not feedback. Verified: re-clicking the active row does not
+  re-render the view node.
+- Swap fade-in is removed with a layout flush (`void offsetWidth`) then a
+  synchronous class removal inside the midpoint timeout, rather than
+  `requestAnimationFrame`. rAF is paused in a backgrounded tab, which left the
+  panel stuck at opacity 0; the timer + flush approach clears reliably whether
+  or not the tab is visible (confirmed: opacity returns to 1 in the
+  backgrounded pane). Behaviour in a visible tab is unchanged (out-phase
+  already painted the opacity-0 state, so removing the class transitions in).
+- Panel header for every view uses the "Preview / <name>" pattern (CONCEPT
+  specifies it for V2; extended to V3 About/Pricing and V4 "Preview / Get in
+  touch" for a consistent panel identity and a clean aria-live string).
+- Preview area kept on `--surface-preview` with a 1px `--border` frame even
+  though the panel itself is `--surface-preview`; the border defines it as an
+  intentional media frame rather than a same-colour blend.
+- Fields and the form card both use `--radius-surface` (only two radii exist;
+  a text input at `--radius-pill` would over-round the textarea).
+- Honeypot field (`_gotcha`) added now as part of the POST skeleton so stage 4
+  is pure wiring; it is off-screen, out of the tab order and aria-hidden.
+- Verification note: the browser pane tab stays backgrounded, so screenshots
+  time out (same limitation logged at stages 1 and 2). All behaviour above was
+  verified programmatically over a local http server via the pane's JS console
+  (views, copy, video attributes, swap timing, active-state sync, aria-live,
+  keyboard focus, submit stub, 404 media as expected, no console errors).
+  Visual/screenshot verification is left to the verifier subagent.
 
 ### Stage 2 deviations / judgement calls
 - Light-pass layer needs a background-size and there is no token for it; used a

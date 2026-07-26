@@ -1,0 +1,507 @@
+{
+  "v1": {
+    "header_text": "Preview / No selection",
+    "welcome_line_text": "Select a project",
+    "glyph_style": {
+      "fontSize": "340px",
+      "fontWeight": "400",
+      "lineHeight": "272px",
+      "color": "rgba(26, 111, 212, 0.07)"
+    }
+  },
+  "v2": {
+    "blackthorn": {
+      "header_text": "Preview / Blackthorn & Co.",
+      "preview_style": {
+        "bg": "rgb(244, 244, 247)",
+        "borderRadius": "16px",
+        "href": "https://arctxrus.github.io/blackthorn-demo/",
+        "target": "_blank",
+        "rel": "noopener"
+      },
+      "title_style": {
+        "fontFamily": "Archivo, system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "34px",
+        "fontWeight": "600",
+        "letterSpacing": "-0.51px",
+        "text": "Blackthorn & Co."
+      },
+      "sub_style": {
+        "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+        "fontSize": "10.5px",
+        "textTransform": "lowercase",
+        "text": "single page · price menu · booking form · arctxrus.github.io/blackthorn-demo"
+      },
+      "caption_style": {
+        "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+        "fontSize": "10.5px",
+        "letterSpacing": "0.42px",
+        "textTransform": "uppercase",
+        "borderTopWidth": "1px",
+        "borderTopStyle": "solid",
+        "borderTopColor": "rgb(232, 232, 236)",
+        "text": "Built to turn phone-scrollers into booked chairs"
+      },
+      "visit_pill": {
+        "border": "1px solid rgb(20, 20, 22)",
+        "borderRadius": "999px",
+        "href": "https://arctxrus.github.io/blackthorn-demo/",
+        "target": "_blank",
+        "rel": "noopener",
+        "text": "\n        Visit live site ↗\n      "
+      },
+      "video_info": {
+        "tagName": "VIDEO",
+        "networkState": 3,
+        "error": null
+      },
+      "iframe_count": 0
+    },
+    "barker": {
+      "header_text": "Preview / Barker & Bloom",
+      "preview_style": {
+        "bg": "rgb(244, 244, 247)",
+        "borderRadius": "16px",
+        "href": "https://arctxrus.github.io/barker-bloom-demo/",
+        "target": "_blank",
+        "rel": "noopener"
+      },
+      "title_style": {
+        "fontFamily": "Archivo, system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "34px",
+        "fontWeight": "600",
+        "letterSpacing": "-0.51px",
+        "text": "Barker & Bloom"
+      },
+      "sub_style": {
+        "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+        "fontSize": "10.5px",
+        "textTransform": "lowercase",
+        "text": "single page · prices by dog size · booking form · arctxrus.github.io/barker-bloom-demo"
+      },
+      "caption_style": {
+        "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+        "fontSize": "10.5px",
+        "letterSpacing": "0.42px",
+        "textTransform": "uppercase",
+        "borderTopWidth": "1px",
+        "borderTopStyle": "solid",
+        "borderTopColor": "rgb(232, 232, 236)",
+        "text": "Built to keep the grooming diary full without phone tag"
+      },
+      "visit_pill": {
+        "border": "1px solid rgb(20, 20, 22)",
+        "borderRadius": "999px",
+        "href": "https://arctxrus.github.io/barker-bloom-demo/",
+        "target": "_blank",
+        "rel": "noopener",
+        "text": "\n        Visit live site ↗\n      "
+      },
+      "video_info": {
+        "tagName": "VIDEO",
+        "networkState": 3,
+        "error": null
+      },
+      "iframe_count": 0
+    },
+    "star": {
+      "header_text": "Preview / Until the Last Star",
+      "preview_style": {
+        "bg": "rgb(244, 244, 247)",
+        "borderRadius": "16px",
+        "href": "https://arctxrus.github.io/cosmic-dawn/",
+        "target": "_blank",
+        "rel": "noopener"
+      },
+      "title_style": {
+        "fontFamily": "Archivo, system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+        "fontSize": "34px",
+        "fontWeight": "600",
+        "letterSpacing": "-0.51px",
+        "text": "Until the Last Star"
+      },
+      "sub_style": {
+        "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+        "fontSize": "10.5px",
+        "textTransform": "lowercase",
+        "text": "webgl · scroll-driven timeline of the universe · arctxrus.github.io/cosmic-dawn"
+      },
+      "caption_style": {
+        "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+        "fontSize": "10.5px",
+        "letterSpacing": "0.42px",
+        "textTransform": "uppercase",
+        "borderTopWidth": "1px",
+        "borderTopStyle": "solid",
+        "borderTopColor": "rgb(232, 232, 236)",
+        "text": "Built to show the web can feel like a game"
+      },
+      "visit_pill": {
+        "border": "1px solid rgb(20, 20, 22)",
+        "borderRadius": "999px",
+        "href": "https://arctxrus.github.io/cosmic-dawn/",
+        "target": "_blank",
+        "rel": "noopener",
+        "text": "\n        Visit live site ↗\n      "
+      },
+      "video_info": {
+        "tagName": "VIDEO",
+        "networkState": 3,
+        "error": null
+      },
+      "iframe_count": 0
+    }
+  },
+  "v3": {
+    "about_header": "Preview / About",
+    "about_caption_present": 0,
+    "about_style": {
+      "fontFamily": "Archivo, system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+      "fontSize": "14px",
+      "text": "I'm Zayn, a physics graduate who shipped a game played by more than three million people. These days I build fast, polished websites for local businesses, the kind of shop or salon that deserves better than the usual off-the-peg site. I work quickly and directly: no agencies, no templates, no jargon."
+    },
+    "about_word_count": 51,
+    "pricing_header": "Preview / Pricing",
+    "pricing_caption_present": 0,
+    "pricing_table_count": 0,
+    "pricing_card_class_count": 0,
+    "price_labels": [
+      {
+        "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+        "fontSize": "11px",
+        "textTransform": "uppercase",
+        "text": "Websites from £300"
+      },
+      {
+        "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+        "fontSize": "11px",
+        "textTransform": "uppercase",
+        "text": "Care plan from £25/month"
+      },
+      {
+        "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+        "fontSize": "11px",
+        "textTransform": "uppercase",
+        "text": "Free homepage mockup"
+      }
+    ]
+  },
+  "v4": {
+    "header": "Preview / Get in touch",
+    "card_style": {
+      "width": "440px",
+      "borderRadius": "16px",
+      "rectWidth": 440
+    },
+    "label_style": {
+      "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+      "fontSize": "10px",
+      "textTransform": "uppercase",
+      "text": "Get in touch"
+    },
+    "placeholders": [
+      "Name",
+      "Business",
+      "What do you need built?"
+    ],
+    "textarea": {
+      "rows": "4",
+      "resize": "none"
+    },
+    "f1_rest": {
+      "bg": "rgb(250, 250, 250)",
+      "borderColor": "rgb(232, 232, 236)",
+      "borderWidth": "1px",
+      "boxShadow": "none",
+      "transitionDuration": "0.15s, 0.15s, 0.15s"
+    },
+    "f2_focus": {
+      "bg": "rgb(255, 255, 255)",
+      "borderColor": "rgb(26, 111, 212)",
+      "borderWidth": "1px",
+      "boxShadow": "rgb(26, 111, 212) 0px 0px 0px 1px inset"
+    },
+    "submit_rest": {
+      "bg": "rgb(20, 20, 22)",
+      "color": "rgb(255, 255, 255)",
+      "fontSize": "14px",
+      "fontWeight": "600",
+      "border": "0px none rgb(255, 255, 255)",
+      "boxShadow": "none",
+      "text": "Send · I typically reply same day",
+      "transitionDuration": "0.15s"
+    },
+    "submit_hover": {
+      "bg": "rgb(0, 0, 0)"
+    },
+    "url_before": "http://localhost:8791/index.html",
+    "url_after": "http://localhost:8791/index.html",
+    "navigated": false,
+    "cta_class_after_open": "row row--cta",
+    "cta_aria_pressed": null,
+    "active_index_rows_after_cta": 0
+  },
+  "swap_timing_samples": [
+    {
+      "t": 7.600000001490116,
+      "opacity": "1",
+      "transform": "none",
+      "classList": "panel-body"
+    },
+    {
+      "t": 28.900000002235174,
+      "opacity": "1",
+      "transform": "none",
+      "classList": "panel-body"
+    },
+    {
+      "t": 44.100000001490116,
+      "opacity": "1",
+      "transform": "none",
+      "classList": "panel-body"
+    },
+    {
+      "t": 57.5,
+      "opacity": "1",
+      "transform": "none",
+      "classList": "panel-body"
+    },
+    {
+      "t": 73.40000000223517,
+      "opacity": "1",
+      "transform": "none",
+      "classList": "panel-body"
+    },
+    {
+      "t": 93.5,
+      "opacity": "1",
+      "transform": "none",
+      "classList": "panel-body"
+    },
+    {
+      "t": 108,
+      "opacity": "1",
+      "transform": "none",
+      "classList": "panel-body"
+    },
+    {
+      "t": 126.70000000298023,
+      "opacity": "1",
+      "transform": "none",
+      "classList": "panel-body"
+    },
+    {
+      "t": 142.60000000149012,
+      "opacity": "1",
+      "transform": "none",
+      "classList": "panel-body"
+    },
+    {
+      "t": 160.90000000223517,
+      "opacity": "1",
+      "transform": "none",
+      "classList": "panel-body"
+    },
+    {
+      "t": 181.30000000074506,
+      "opacity": "1",
+      "transform": "matrix(1, 0, 0, 1, 0, 0)",
+      "classList": "panel-body is-swapping"
+    },
+    {
+      "t": 194.80000000074506,
+      "opacity": "1",
+      "transform": "matrix(1, 0, 0, 1, 0, 0)",
+      "classList": "panel-body is-swapping"
+    },
+    {
+      "t": 207.90000000223517,
+      "opacity": "0.856243",
+      "transform": "matrix(1, 0, 0, 1, 0, 0.862539)",
+      "classList": "panel-body is-swapping"
+    },
+    {
+      "t": 227.70000000298023,
+      "opacity": "0.577386",
+      "transform": "matrix(1, 0, 0, 1, 0, 2.53568)",
+      "classList": "panel-body is-swapping"
+    },
+    {
+      "t": 241.70000000298023,
+      "opacity": "0.339578",
+      "transform": "matrix(1, 0, 0, 1, 0, 3.96253)",
+      "classList": "panel-body is-swapping"
+    },
+    {
+      "t": 257.4000000022352,
+      "opacity": "0.18538",
+      "transform": "matrix(1, 0, 0, 1, 0, 4.88772)",
+      "classList": "panel-body is-swapping"
+    },
+    {
+      "t": 274.1000000014901,
+      "opacity": "0.0891137",
+      "transform": "matrix(1, 0, 0, 1, 0, 5.46532)",
+      "classList": "panel-body is-swapping"
+    },
+    {
+      "t": 290.9000000022352,
+      "opacity": "0.0333582",
+      "transform": "matrix(1, 0, 0, 1, 0, 5.79985)",
+      "classList": "panel-body is-swapping"
+    },
+    {
+      "t": 307.4000000022352,
+      "opacity": "0.00601839",
+      "transform": "matrix(1, 0, 0, 1, 0, 5.96389)",
+      "classList": "panel-body is-swapping"
+    },
+    {
+      "t": 324.9000000022352,
+      "opacity": "0.149851",
+      "transform": "matrix(1, 0, 0, 1, 0, 5.10089)",
+      "classList": "panel-body"
+    },
+    {
+      "t": 342.9000000022352,
+      "opacity": "0.430541",
+      "transform": "matrix(1, 0, 0, 1, 0, 3.41675)",
+      "classList": "panel-body"
+    },
+    {
+      "t": 357.6000000014901,
+      "opacity": "0.66553",
+      "transform": "matrix(1, 0, 0, 1, 0, 2.00682)",
+      "classList": "panel-body"
+    },
+    {
+      "t": 374,
+      "opacity": "0.819115",
+      "transform": "matrix(1, 0, 0, 1, 0, 1.08531)",
+      "classList": "panel-body"
+    },
+    {
+      "t": 390.80000000074506,
+      "opacity": "0.913467",
+      "transform": "matrix(1, 0, 0, 1, 0, 0.519199)",
+      "classList": "panel-body"
+    },
+    {
+      "t": 406.70000000298023,
+      "opacity": "0.968428",
+      "transform": "matrix(1, 0, 0, 1, 0, 0.189433)",
+      "classList": "panel-body"
+    }
+  ],
+  "swap_getAnimations_after_settle": [],
+  "reselect_noop_immediate_same": true,
+  "reselect_noop_after_wait_same": true,
+  "keyboard": {
+    "first_tab_target": {
+      "tag": "BUTTON",
+      "dataView": "blackthorn",
+      "text": "01\n            Blackthorn & Co.\n        "
+    },
+    "found_row01_within_10_tabs": true,
+    "after_enter_header": "Preview / Blackthorn & Co.",
+    "aria_live_after_row01": "Preview / Blackthorn & Co.",
+    "found_visit_pill": true,
+    "tab_path_to_visit_pill": [
+      {
+        "tag": "BUTTON",
+        "cls": "row"
+      },
+      {
+        "tag": "BUTTON",
+        "cls": "row"
+      },
+      {
+        "tag": "BUTTON",
+        "cls": "row"
+      },
+      {
+        "tag": "BUTTON",
+        "cls": "row"
+      },
+      {
+        "tag": "BUTTON",
+        "cls": "row row--cta"
+      },
+      {
+        "tag": "A",
+        "cls": ""
+      },
+      {
+        "tag": "A",
+        "cls": "preview"
+      },
+      {
+        "tag": "A",
+        "cls": "visit-pill"
+      }
+    ],
+    "found_cta_row": true,
+    "after_enter_cta_header": "Preview / Get in touch",
+    "aria_live_after_cta": "Preview / Get in touch",
+    "field_tab_path": [
+      {
+        "tag": "A",
+        "name": null,
+        "cls": ""
+      },
+      {
+        "tag": "INPUT",
+        "name": "name",
+        "cls": "field"
+      },
+      {
+        "tag": "INPUT",
+        "name": "business",
+        "cls": "field"
+      },
+      {
+        "tag": "TEXTAREA",
+        "name": "message",
+        "cls": "field field--area"
+      },
+      {
+        "tag": "BUTTON",
+        "name": null,
+        "cls": "submit"
+      }
+    ],
+    "found_submit_in_tab_order": true,
+    "dot_grid_aria_hidden": "true",
+    "welcome_glyph_aria_hidden_initial": "n/a - view changed"
+  },
+  "welcome_glyph_aria_hidden": "true",
+  "reduced_motion": {
+    "welcome_line_immediate": "Select a project",
+    "name_kicker_immediate": "Freelance / Web",
+    "opacity_immediately_after_click": "1",
+    "content_changed_immediately": true,
+    "trail_dot_count": 0,
+    "cta_mist_count": 0,
+    "cta_animation_name_reduced": "none"
+  },
+  "regression": {
+    "row_hover_style": {
+      "bg": "rgb(237, 244, 252)",
+      "boxShadow": "rgba(26, 111, 212, 0.16) 0px 0px 0px 1px inset, rgba(26, 111, 212, 0.08) 0px -3px 12px 0px inset"
+    },
+    "cta_animation_play_state": "running",
+    "cta_animation_name": "cta-drift"
+  },
+  "em_dash_in_rendered_text": false,
+  "em_dash_in_templates": false,
+  "asset_versions": {
+    "css": "css/styles.css?v=3",
+    "js": "js/main.js?v=3"
+  },
+  "failed_requests": [
+    [
+      "http://localhost:8791/media/blackthorn-preview.webm?v=3",
+      404
+    ]
+  ]
+}

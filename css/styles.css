@@ -3,7 +3,10 @@
    Stage 1: scaffold, tokens, self-hosted fonts, dot grid, static desktop layout.
    Stage 2: load-in (decode + staggered fade), row states R1 to R4, pointer
             trails, CTA pill (drift, light pass, rim, edge lift, hover mist,
-            press bloom). Vanilla CSS only. UK English. No em dashes.
+            press bloom).
+   Stage 3: panel views V2 project (placeholder video, title, sub, caption,
+            visit pill), V3 About/Pricing, V4 contact form, V5 swap animation,
+            aria-live region. Vanilla CSS only. UK English. No em dashes.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -28,7 +31,7 @@
   font-weight: 400 600;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/archivo-latin-var.woff2?v=2') format('woff2');
+  src: url('../fonts/archivo-latin-var.woff2?v=3') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -38,7 +41,7 @@
   font-weight: 300 500;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/martian-mono-latin-var.woff2?v=2') format('woff2');
+  src: url('../fonts/martian-mono-latin-var.woff2?v=3') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -758,6 +761,307 @@ a {
   line-height: normal;
   text-transform: uppercase;
   color: var(--grey-label);
+}
+
+/* --------------------------------------------------------------------------
+   Panel views (CONCEPT.md 3.4 V2 to V5, section 5, section 6)
+
+   The panel body holds exactly one view at a time. V1 welcome is in the markup;
+   V2/V3/V4 are cloned from <template>s by main.js on selection. Every view
+   fills the 1fr by 1fr panel body and is centred by it.
+   -------------------------------------------------------------------------- */
+
+/* Swap animation (V5). Body fades and lifts 6px in 130ms, content switches at
+   the midpoint, reverse 130ms back in (260ms total, driven by main.js toggling
+   .is-swapping). Under reduced motion the global rule below forces this instant;
+   main.js also skips the timing and swaps content immediately. */
+.panel-body {
+  transition: opacity 130ms ease, transform 130ms ease;
+}
+
+.panel-body.is-swapping {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+/* A view fills the body; width is capped for readable prose and framing. */
+.view {
+  width: 100%;
+  max-width: 560px;
+  height: 100%;
+  margin: 0 auto;
+  padding: var(--sp-32);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--sp-18);
+}
+
+/* ---- V2 project view -------------------------------------------------- */
+
+/* Preview area on --surface-preview, framed by the single 1px border so the
+   placeholder surface reads as an intentional media frame, not a broken box.
+   The real webm/poster arrive at stage 6; until then the surface is shown. */
+.preview {
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--surface-preview);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-surface);
+  overflow: hidden;
+}
+
+.preview:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-field-focus);
+}
+
+.preview-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--surface-preview);
+}
+
+/* Type: Panel project title - Archivo 34px / 600 / -0.015em / as typed */
+.project-title {
+  font-family: var(--font-sans);
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: normal;
+  color: var(--ink);
+}
+
+/* Type: Panel sub line - Mono 10.5px / 400 / normal / lower */
+.project-sub {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  line-height: normal;
+  text-transform: lowercase;
+  color: var(--ink-mid);
+}
+
+/* Type: Caption bar - Mono 10.5px / 400 / 0.04em / UPPER, with a 1px top rule */
+.project-caption {
+  padding-top: var(--sp-14);
+  border-top: var(--border-width) solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  color: var(--grey-label);
+}
+
+/* Quiet secondary pill (ink outline), NOT the CTA treatment. */
+.visit-pill {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-6);
+  padding: var(--sp-10) var(--sp-16);
+  border: var(--border-width) solid var(--ink);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink);
+  transition: background 150ms ease, color 150ms ease;
+}
+
+.visit-pill:hover {
+  background: var(--ink);
+  color: var(--surface-white);
+}
+
+.visit-pill:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-field-focus);
+}
+
+/* ---- V3 About / Pricing views ---------------------------------------- */
+
+.view--text {
+  justify-content: center;
+  gap: var(--sp-22);
+}
+
+/* About prose - Archivo 14px per section 6 */
+.about-prose {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--ink-body);
+  max-width: 46ch;
+}
+
+.price-line {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+/* Mono-labelled pricing line (no table, no cards) */
+.price-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: normal;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.price-label .amt {
+  color: var(--accent);
+}
+
+.price-desc {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--ink-body);
+  max-width: 44ch;
+}
+
+.price-note {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  text-transform: uppercase;
+  color: var(--grey-label);
+  max-width: 44ch;
+}
+
+/* ---- V4 contact form view -------------------------------------------- */
+
+.view--form {
+  align-items: center;
+  justify-content: center;
+}
+
+/* White card, 16px radius, 440px wide, centred (CONCEPT 3.4 V4) */
+.contact-card {
+  width: 440px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-16);
+  padding: var(--sp-32);
+  background: var(--surface-white);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-surface);
+}
+
+/* Type: Form label - Mono 10px / 400 / UPPER */
+.form-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: normal;
+  text-transform: uppercase;
+  color: var(--grey-label);
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-12);
+}
+
+/* Type: Form inputs/textarea - Archivo 14px / 400 / sentence.
+   F1 rest: --surface-field, 1px --border. */
+.field {
+  width: 100%;
+  padding: 14px var(--sp-18);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: normal;
+  color: var(--ink);
+  background: var(--surface-field);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-surface);
+  transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.field::placeholder {
+  color: var(--grey-placeholder);
+}
+
+/* F2 focus: accent border, white background, inset accent ring, no outer halo. */
+.field:focus {
+  outline: none;
+  background: var(--surface-white);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-field-focus);
+}
+
+/* F3 filled: as rest with ink text (already --ink; kept explicit for clarity). */
+.field:not(:placeholder-shown) {
+  color: var(--ink);
+}
+
+.field--area {
+  resize: none;
+}
+
+/* Honeypot: off-screen, out of the tab order, hidden from assistive tech. */
+.hp-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Type: Submit button - Archivo 14px / 600. F4 rest: ink pill, white label,
+   no border, no shadow. F5 hover: pure black in 150ms. F6 no press state. */
+.submit {
+  padding: 15px var(--sp-26);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: normal;
+  color: var(--surface-white);
+  background: var(--submit-ink);
+  border: 0;
+  border-radius: var(--radius-pill);
+  transition: background 150ms ease;
+}
+
+.submit:hover {
+  background: var(--submit-ink-hover);
+}
+
+.submit:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-field-focus);
+}
+
+/* Visually hidden aria-live region for panel-change announcements. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* --------------------------------------------------------------------------

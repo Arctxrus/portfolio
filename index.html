@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Zayn · Web design for local businesses</title>
   <meta name="description" content="I build fast, polished websites for local businesses. From £300.">
-  <link rel="stylesheet" href="css/styles.css?v=2">
+  <link rel="stylesheet" href="css/styles.css?v=3">
 </head>
 <body>
 
@@ -31,7 +31,7 @@
         <h2 class="section-label" id="index-label" data-scramble>Index</h2>
         <div class="index-list">
 
-          <button type="button" class="row">
+          <button type="button" class="row" data-view="blackthorn">
             <span class="row-index">01</span>
             <span class="row-name">Blackthorn &amp; Co.</span>
             <span class="row-end">
@@ -40,7 +40,7 @@
             </span>
           </button>
 
-          <button type="button" class="row">
+          <button type="button" class="row" data-view="barker">
             <span class="row-index">02</span>
             <span class="row-name">Barker &amp; Bloom</span>
             <span class="row-end">
@@ -49,7 +49,7 @@
             </span>
           </button>
 
-          <button type="button" class="row">
+          <button type="button" class="row" data-view="star">
             <span class="row-index">03</span>
             <span class="row-name">Until the Last Star</span>
             <span class="row-end">
@@ -58,7 +58,7 @@
             </span>
           </button>
 
-          <button type="button" class="row">
+          <button type="button" class="row" data-view="about">
             <span class="row-index">04</span>
             <span class="row-name">About</span>
             <span class="row-end">
@@ -66,7 +66,7 @@
             </span>
           </button>
 
-          <button type="button" class="row">
+          <button type="button" class="row" data-view="pricing">
             <span class="row-index">05</span>
             <span class="row-name">Pricing</span>
             <span class="row-end">
@@ -74,7 +74,7 @@
             </span>
           </button>
 
-          <button type="button" class="row row--cta">
+          <button type="button" class="row row--cta" data-view="form">
             <span class="row-index">06</span>
             <span class="row-name">Get in touch</span>
             <span class="row-end">
@@ -132,17 +132,130 @@
           <span class="panel-head-label" data-scramble>Preview / No selection</span>
         </header>
         <div class="panel-body">
-          <!-- V1 welcome, no selection -->
+          <!-- V1 welcome, no selection. Replaced on first selection by main.js. -->
           <div class="welcome">
             <span class="welcome-glyph" aria-hidden="true">+</span>
             <span class="welcome-line" data-scramble>Select a project</span>
           </div>
         </div>
+        <!-- Panel changes announced here (concise, the panel header text). -->
+        <div class="sr-only" role="status" aria-live="polite" data-panel-live></div>
       </section>
     </div>
 
   </main>
 
-  <script src="js/main.js?v=2"></script>
+  <!-- ================= PANEL VIEW TEMPLATES =================
+       Cloned into the panel body by main.js on selection (natural lazy-load:
+       the placeholder video only enters the DOM once its project is chosen).
+       Media paths point at files that arrive at stage 6; until then the framed
+       --surface-preview area is the placeholder. -->
+
+  <!-- V2 - 01 Blackthorn & Co. -->
+  <template id="view-blackthorn">
+    <div class="view view--project">
+      <a class="preview" href="https://arctxrus.github.io/blackthorn-demo/" target="_blank" rel="noopener"
+         aria-label="Open the Blackthorn and Co. live site in a new tab">
+        <video class="preview-video" poster="media/blackthorn-poster.jpg?v=3"
+               autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
+          <source src="media/blackthorn-preview.webm?v=3" type="video/webm">
+        </video>
+      </a>
+      <h3 class="project-title">Blackthorn &amp; Co.</h3>
+      <p class="project-sub">single page · price menu · booking form · arctxrus.github.io/blackthorn-demo</p>
+      <p class="project-caption">Built to turn phone-scrollers into booked chairs</p>
+      <a class="visit-pill" href="https://arctxrus.github.io/blackthorn-demo/" target="_blank" rel="noopener">
+        Visit live site <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </template>
+
+  <!-- V2 - 02 Barker & Bloom -->
+  <template id="view-barker">
+    <div class="view view--project">
+      <a class="preview" href="https://arctxrus.github.io/barker-bloom-demo/" target="_blank" rel="noopener"
+         aria-label="Open the Barker and Bloom live site in a new tab">
+        <video class="preview-video" poster="media/barker-bloom-poster.jpg?v=3"
+               autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
+          <source src="media/barker-bloom-preview.webm?v=3" type="video/webm">
+        </video>
+      </a>
+      <h3 class="project-title">Barker &amp; Bloom</h3>
+      <p class="project-sub">single page · prices by dog size · booking form · arctxrus.github.io/barker-bloom-demo</p>
+      <p class="project-caption">Built to keep the grooming diary full without phone tag</p>
+      <a class="visit-pill" href="https://arctxrus.github.io/barker-bloom-demo/" target="_blank" rel="noopener">
+        Visit live site <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </template>
+
+  <!-- V2 - 03 Until the Last Star -->
+  <template id="view-star">
+    <div class="view view--project">
+      <a class="preview" href="https://arctxrus.github.io/cosmic-dawn/" target="_blank" rel="noopener"
+         aria-label="Open the Until the Last Star live site in a new tab">
+        <video class="preview-video" poster="media/until-the-last-star-poster.jpg?v=3"
+               autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
+          <source src="media/until-the-last-star-preview.webm?v=3" type="video/webm">
+        </video>
+      </a>
+      <h3 class="project-title">Until the Last Star</h3>
+      <p class="project-sub">webgl · scroll-driven timeline of the universe · arctxrus.github.io/cosmic-dawn</p>
+      <p class="project-caption">Built to show the web can feel like a game</p>
+      <a class="visit-pill" href="https://arctxrus.github.io/cosmic-dawn/" target="_blank" rel="noopener">
+        Visit live site <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </template>
+
+  <!-- V3 - 04 About -->
+  <template id="view-about">
+    <div class="view view--text">
+      <p class="about-prose">I'm Zayn, a physics graduate who shipped a game played by more than three million people. These days I build fast, polished websites for local businesses, the kind of shop or salon that deserves better than the usual off-the-peg site. I work quickly and directly: no agencies, no templates, no jargon.</p>
+    </div>
+  </template>
+
+  <!-- V3 - 05 Pricing -->
+  <template id="view-pricing">
+    <div class="view view--text view--pricing">
+      <div class="price-line">
+        <span class="price-label">Websites from <span class="amt">£300</span></span>
+        <p class="price-desc">A single page, written and built for your business.</p>
+      </div>
+      <div class="price-line">
+        <span class="price-label">Care plan from <span class="amt">£25/month</span></span>
+        <p class="price-desc">Hosting, edits, and keeping it fast.</p>
+      </div>
+      <div class="price-line">
+        <span class="price-label">Free homepage mockup</span>
+        <p class="price-desc">Reply to the email and see it before you pay.</p>
+      </div>
+      <p class="price-note">"From" prices are honest floors: a bigger job is quoted higher.</p>
+    </div>
+  </template>
+
+  <!-- V4 - 06 Contact form. POST skeleton only; JS wiring (fetch, success and
+       failure states, honeypot handling) is added at stage 4. The submit stub
+       in main.js prevents default so nothing navigates. -->
+  <template id="view-form">
+    <div class="view view--form">
+      <form class="contact-card" method="post" action="" novalidate data-contact-form>
+        <span class="form-label">Get in touch</span>
+        <div class="field-group">
+          <input class="field" type="text" name="name" placeholder="Name" autocomplete="name" required>
+          <input class="field" type="text" name="business" placeholder="Business" autocomplete="organization" required>
+          <textarea class="field field--area" name="message" rows="4" placeholder="What do you need built?" required></textarea>
+        </div>
+        <div class="hp-field" aria-hidden="true">
+          <label>Leave this field empty
+            <input type="text" name="_gotcha" tabindex="-1" autocomplete="off">
+          </label>
+        </div>
+        <button class="submit" type="submit">Send · I typically reply same day</button>
+      </form>
+    </div>
+  </template>
+
+  <script src="js/main.js?v=3"></script>
 </body>
 </html>
