@@ -32,7 +32,9 @@ House rules: UK English, no em dashes, instrument then fix, commit per stage.
 - [x] /favicon.ico 404 (flagged at stage 6): RESOLVED at stage 7. rel=icon
       links are declared; a headed probe confirmed Chromium fetches favicon.svg
       and no longer requests /favicon.ico. No favicon.ico added.
-- [ ] Stage 10 waits on the confirmed deployed URL. When the final URL is known,
+- [ ] Stage 10 waits on Zayn confirming the deployed URL loads for him:
+      https://arctxrus.github.io/portfolio/ (deployed 2026-07-27, Pages built,
+      all assets 200, live smoke clean). When the final URL is known,
       update the CANONICAL SITE URL comment plus og:url, og:image and
       twitter:image in index.html together (they carry the domain literally).
 
@@ -1176,3 +1178,15 @@ Flag rulings applied:
     block), and the focus rings are a separate concern (the stage 8 FLAG 2 fix).
   - Underlines apply at ALL widths (the rules sit outside the media query),
     because link-in-text distinguishability (WCAG 1.4.1) is not viewport-scoped.
+
+### Stage 9 deploy (2026-07-27)
+- GitHub Pages enabled on main branch root. Live at
+  https://arctxrus.github.io/portfolio/ (index 200, css/js/fonts/media/og
+  image/favicon all 200 with ?v=8; live smoke: title correct UTF-8, row swap
+  works, video autoplays, zero console errors).
+- Note on the "?v bump on every push" rule: this PROGRESS-only log push
+  changes no shipped asset, so no bump; the rule's intent is cache
+  correctness for changed assets. Any future push touching shipped files
+  bumps to ?v=9.
+- HOLDING before stage 10 (cosmic-dawn PORTFOLIO_URL) until Zayn confirms
+  the URL loads for him, per instruction.
