@@ -23,6 +23,16 @@ function prefersReducedMotion() {
   return reducedMotionQuery.matches;
 }
 
+/* Real touch device (CONCEPT.md section 8): a coarse pointer with no hover.
+   Used to fully skip binding the pointer-trail and CTA-hover-mist listeners on
+   phones (the dot grid already keys off the same query). The per-event
+   pointerType === 'touch' checks are kept as well, so a hybrid laptop that
+   reports hover/fine still filters its own touch events correctly. */
+const coarsePointerQuery = window.matchMedia('(hover: none) and (pointer: coarse)');
+function isTouchDevice() {
+  return coarsePointerQuery.matches;
+}
+
 /* --------------------------------------------------------------------------
    Contact email - defined exactly once so it can be swapped in one edit.
    Placeholder until the real address is supplied (see PROGRESS.md).
@@ -343,8 +353,28 @@ function initFadeIn() {
 
 const SWAP_HALF = 130;   /* ms: out phase; the in phase mirrors it (260 total) */
 
+/* Panel-into-view scroll (CONCEPT.md section 8). After a selection on mobile the
+   panel header must be on screen. The test is on the panel's top edge, measured
+   in px and independent of viewport height. A visible-fraction test does not
+   work once the panel is frozen at 60vh (stage-5 fix 1): the visible fraction
+   then depends only on viewport height and stops crossing any fixed threshold on
+   tall phones (the crossover sits near 777px, so 780/812/844 never scrolled).
+   Rule: do not scroll when the top edge already sits in a small band near the
+   viewport top (the user tapped a second row after the first scroll settled);
+   otherwise scroll the panel up so its header shows.
+   Tolerance band (judgement call): -8px to 20% of the viewport height. The -8px
+   floor ignores sub-pixel/rounding negatives without a needless re-scroll; the
+   0.2 * vh ceiling treats "panel top within the first fifth of the screen" as
+   already placed, while a panel sitting below the index (well past that fifth)
+   scrolls. Desktop is excluded outright by the mobile-layout media query, not by
+   the geometry, so the panel beside the index never scrolls there. */
+const PANEL_TOP_MIN = -8;         /* px: floor of the already-placed band */
+const PANEL_TOP_BAND = 0.2;       /* ceiling as a fraction of viewport height */
+const mobileLayoutQuery = window.matchMedia('(max-width: 900px)');
+
 function initPanel() {
   const panelBody = document.querySelector('.panel-body');
+  const panel = document.querySelector('.panel');
   const headerLabel = document.querySelector('.panel-head-label');
   const liveRegion = document.querySelector('[data-panel-live]');
   const rows = Array.prototype.slice.call(document.querySelectorAll('.row'));
@@ -392,6 +422,12 @@ function initPanel() {
       headerLabel.textContent = headerText;
     }
     announce(headerText);
+    /* Scroll after the content is in the DOM so the geometry is measured
+       post-swap. commit() runs synchronously on the reduced-motion path and at
+       the swap midpoint on the animated path, so calling from here covers both;
+       calling from select() measured the stale pre-swap box (the animated swap
+       only schedules the content change 130ms later). */
+    scrollPanelIntoView();
   }
 
   function swap(viewKey, headerText) {
@@ -409,6 +445,27 @@ function initPanel() {
       void panelBody.offsetWidth;
       panelBody.classList.remove('is-swapping');
     }, SWAP_HALF);
+  }
+
+  /* Bring the panel into view on selection. Mobile only: on desktop (>900px) the
+     panel sits beside the index and must never scroll, so the whole function is
+     guarded on the mobile-layout media query rather than relying on geometry.
+     The top edge is tested against a fixed px band (see PANEL_TOP_MIN /
+     PANEL_TOP_BAND); if the header is already near the viewport top no re-scroll
+     happens. Reduced motion: an instant jump (no smooth behaviour). */
+  function scrollPanelIntoView() {
+    if (!panel || !mobileLayoutQuery.matches) {
+      return;
+    }
+    const top = panel.getBoundingClientRect().top;
+    const vh = window.innerHeight || document.documentElement.clientHeight;
+    if (top >= PANEL_TOP_MIN && top <= PANEL_TOP_BAND * vh) {
+      return;   /* already at or near the viewport top: do not re-scroll */
+    }
+    panel.scrollIntoView({
+      behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+      block: 'start'
+    });
   }
 
   function select(row) {
@@ -632,6 +689,9 @@ function initRowTrails() {
   if (prefersReducedMotion()) {
     return;   /* not spawned under reduced motion: no listener bound */
   }
+  if (isTouchDevice()) {
+    return;   /* real touch device (section 8): no trails, no listener bound */
+  }
 
   const rows = document.querySelectorAll('.row:not(.row--cta)');
   if (!rows.length) {
@@ -702,8 +762,10 @@ function initCta() {
     return;
   }
 
-  /* Hover mist. Guarded off entirely under reduced motion. */
-  if (!prefersReducedMotion()) {
+  /* Hover mist. Guarded off entirely under reduced motion and on real touch
+     devices (section 8: no hover mist on touch). The per-event pointerType
+     checks below stay for hybrid pointers. */
+  if (!prefersReducedMotion() && !isTouchDevice()) {
     let mist = null;
 
     function ensureMist() {

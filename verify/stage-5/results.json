@@ -1,0 +1,255 @@
+{
+  "w360_scrollWidth_vs_innerWidth": [
+    360,
+    360
+  ],
+  "w360_order": {
+    "name": {
+      "top": 22,
+      "height": 34,
+      "display": "flex"
+    },
+    "positioning": {
+      "top": 78,
+      "height": 51.1875,
+      "display": "block"
+    },
+    "index": {
+      "top": 177.1875,
+      "height": 288,
+      "display": "block"
+    },
+    "panel": {
+      "top": 497.1875,
+      "height": 468,
+      "display": "flex"
+    },
+    "how": {
+      "top": 1013.1875,
+      "height": 97,
+      "display": "block"
+    },
+    "proof": {
+      "top": 1158.1875,
+      "height": 67.6875,
+      "display": "block"
+    },
+    "footer": {
+      "top": 1241.875,
+      "height": 32,
+      "display": "block"
+    },
+    "testimonials": {
+      "top": 0,
+      "height": 0,
+      "display": "none"
+    }
+  },
+  "w360_page_paddingLeft": "22px",
+  "w390_scrollWidth_vs_innerWidth": [
+    390,
+    390
+  ],
+  "w390_order": {
+    "name": {
+      "top": 22,
+      "height": 34,
+      "display": "flex"
+    },
+    "positioning": {
+      "top": 78,
+      "height": 51.1875,
+      "display": "block"
+    },
+    "index": {
+      "top": 177.1875,
+      "height": 288,
+      "display": "block"
+    },
+    "panel": {
+      "top": 497.1875,
+      "height": 506.390625,
+      "display": "flex"
+    },
+    "how": {
+      "top": 1051.578125,
+      "height": 97,
+      "display": "block"
+    },
+    "proof": {
+      "top": 1196.578125,
+      "height": 67.6875,
+      "display": "block"
+    },
+    "footer": {
+      "top": 1280.265625,
+      "height": 32,
+      "display": "block"
+    },
+    "testimonials": {
+      "top": 0,
+      "height": 0,
+      "display": "none"
+    }
+  },
+  "w390_page_paddingLeft": "22px",
+  "w768_scrollWidth_vs_innerWidth": [
+    768,
+    768
+  ],
+  "w768_order": {
+    "name": {
+      "top": 48,
+      "height": 34,
+      "display": "flex"
+    },
+    "positioning": {
+      "top": 104,
+      "height": 51.1875,
+      "display": "block"
+    },
+    "index": {
+      "top": 203.1875,
+      "height": 288,
+      "display": "block"
+    },
+    "panel": {
+      "top": 523.1875,
+      "height": 614.390625,
+      "display": "flex"
+    },
+    "how": {
+      "top": 1185.578125,
+      "height": 97,
+      "display": "block"
+    },
+    "proof": {
+      "top": 1330.578125,
+      "height": 49.84375,
+      "display": "block"
+    },
+    "footer": {
+      "top": 1396.421875,
+      "height": 32,
+      "display": "block"
+    },
+    "testimonials": {
+      "top": 0,
+      "height": 0,
+      "display": "none"
+    }
+  },
+  "w768_page_paddingLeft": "48px",
+  "360_panel_minheight": {
+    "minHeight": "468px",
+    "actualHeightPx": 468,
+    "vh": 780
+  },
+  "360_welcome_glyph_fontsize": "160px",
+  "360_how_y_by_view": {
+    "V1": 1013.1875,
+    "row1_blackthorn_V2": 1023.5625,
+    "row4_about_V3": 1013.1875,
+    "row6_form_V4": 1015.1875
+  },
+  "360_v4_card_box": {
+    "width": 270,
+    "right": 315,
+    "left": 45,
+    "viewportWidth": 360,
+    "scrollWidth": 360
+  },
+  "360_scroll_samples_normal_motion": {
+    "start": 0,
+    "samples": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "360_panel_visible_ratio_after_scroll": 0.5911941468513195,
+  "360_scroll_before_after_reselect_while_visible": [
+    0,
+    490
+  ],
+  "360_reduced_motion_scroll_y0_y1": [
+    0,
+    497
+  ],
+  "touch_media_queries": {
+    "hoverNone": true,
+    "pointerCoarse": true
+  },
+  "touch_row_rest_tag_glyph": {
+    "tagOpacity": "1",
+    "tagDisplay": "block",
+    "glyphOpacity": "1",
+    "glyphPosition": "static"
+  },
+  "touch_row_active_tag_glyph": {
+    "isActive": true,
+    "tagOpacity": "0",
+    "glyphOpacity": "1"
+  },
+  "touch_trail_dot_count_after_tap": 0,
+  "touch_cta_mist_before_after": [
+    0,
+    0
+  ],
+  "touch_cta_bloom_count_immediate": 1,
+  "touch_cta_bloom_count_after_lifetime": 0,
+  "mobile_360_index_tag_colors": {
+    "index": "rgb(84, 84, 92)",
+    "tag": "rgb(84, 84, 92)"
+  },
+  "desktop_1280_rest_colors": {
+    "index": "rgb(166, 166, 174)",
+    "tag": "rgb(166, 166, 174)"
+  },
+  "desktop_focus_visible_colors": {
+    "tag": "blackthorn",
+    "indexColor": "rgb(140, 140, 148)",
+    "tagColor": "rgb(84, 84, 92)"
+  },
+  "desktop_hover_colors": {
+    "indexColor": "rgb(26, 111, 212)",
+    "nameColor": "rgb(20, 20, 22)"
+  },
+  "1440_layout": {
+    "display": "grid",
+    "gridTemplateColumns": "460px 748px",
+    "proofBottom": 796,
+    "colLeftBottom": 844,
+    "windowInnerHeight": 900
+  },
+  "1440_row_hover_state": {
+    "bg": "rgb(237, 244, 252)",
+    "boxShadow": "rgba(26, 111, 212, 0.16) 0px 0px 0px 1px inset, rgba(26, 111, 212, 0.08) 0px -3px 12px 0px inset"
+  },
+  "1440_panel_swap_header": "Preview / Until the Last Star",
+  "1440_console_errors": [
+    "Failed to load resource: the server responded with a status of 404 (File not found)"
+  ],
+  "360_text_content_mojibake_check": {
+    "positioning": "I build fast, polished websites for local businesses. From \u00a3300.",
+    "proof": "Shipped a game with 3,000,000+ players \u00b7 BSc Astrophysics \u00b7 3 live builds",
+    "footerCopy": "\u00a9 2026 Zayn",
+    "footerEmail": "hello@placeholder.invalid \u00b7 typically reply same day"
+  },
+  "360_visit_pill_text": "\n        Visit live site \u2197\n      "
+}

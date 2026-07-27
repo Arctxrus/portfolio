@@ -1,0 +1,159 @@
+{
+  "w360_how_y": {
+    "V1": 1013.1875,
+    "V2_blackthorn": 1013.1875,
+    "V2_barker": 1013.1875,
+    "V2_star": 1013.1875,
+    "V3_about": 1013.1875,
+    "V3_pricing": 1013.1875,
+    "V4_form": 1013.1875
+  },
+  "w360_how_y_delta_from_V1": {
+    "V1": 0.0,
+    "V2_blackthorn": 0.0,
+    "V2_barker": 0.0,
+    "V2_star": 0.0,
+    "V3_about": 0.0,
+    "V3_pricing": 0.0,
+    "V4_form": 0.0
+  },
+  "w360_panel_height_by_view": {
+    "V1": 468,
+    "V2_blackthorn": 468,
+    "V2_barker": 468,
+    "V2_star": 468,
+    "V3_about": 468,
+    "V3_pricing": 468,
+    "V4_form": 468
+  },
+  "w390_how_y": {
+    "V1": 1051.578125,
+    "V2_blackthorn": 1051.578125,
+    "V2_barker": 1051.578125,
+    "V2_star": 1051.578125,
+    "V3_about": 1051.578125,
+    "V3_pricing": 1051.578125,
+    "V4_form": 1051.578125
+  },
+  "w390_how_y_delta_from_V1": {
+    "V1": 0.0,
+    "V2_blackthorn": 0.0,
+    "V2_barker": 0.0,
+    "V2_star": 0.0,
+    "V3_about": 0.0,
+    "V3_pricing": 0.0,
+    "V4_form": 0.0
+  },
+  "w390_panel_height_by_view": {
+    "V1": 506.390625,
+    "V2_blackthorn": 506.390625,
+    "V2_barker": 506.390625,
+    "V2_star": 506.390625,
+    "V3_about": 506.390625,
+    "V3_pricing": 506.390625,
+    "V4_form": 506.390625
+  },
+  "w768_how_y": {
+    "V1": 1185.578125,
+    "V2_blackthorn": 1185.578125,
+    "V2_barker": 1185.578125,
+    "V2_star": 1185.578125,
+    "V3_about": 1185.578125,
+    "V3_pricing": 1185.578125,
+    "V4_form": 1185.578125
+  },
+  "w768_how_y_delta_from_V1": {
+    "V1": 0.0,
+    "V2_blackthorn": 0.0,
+    "V2_barker": 0.0,
+    "V2_star": 0.0,
+    "V3_about": 0.0,
+    "V3_pricing": 0.0,
+    "V4_form": 0.0
+  },
+  "w768_panel_height_by_view": {
+    "V1": 614.390625,
+    "V2_blackthorn": 614.390625,
+    "V2_barker": 614.390625,
+    "V2_star": 614.390625,
+    "V3_about": 614.390625,
+    "V3_pricing": 614.390625,
+    "V4_form": 614.390625
+  },
+  "desktop_preview_aspect_ratio": "16 / 9",
+  "touch_active_tag_glyph_fixed": {
+    "isActive": true,
+    "isHover": true,
+    "tagOpacity": "1",
+    "glyphOpacity": "1"
+  },
+  "desktop_hover_r2_fixed": {
+    "bg": "rgb(237, 244, 252)",
+    "tagOpacity": "0",
+    "glyphOpacity": "1",
+    "indexColor": "rgb(26, 111, 212)"
+  },
+  "desktop_cta_hover_filter_fixed": "saturate(1.25) brightness(1.03)",
+  "360_normal_motion_scroll_start_and_samples": {
+    "start": 0,
+    "samples": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "360_normal_motion_panel_ratio_after": 0.6043002136752137,
+  "360_reselect_while_in_view_before_after": [
+    0,
+    0
+  ],
+  "360_reduced_motion_scroll_y0_y1_fixed": [
+    0,
+    0
+  ],
+  "regress_w360_scrollw_vs_innerw": [
+    360,
+    360
+  ],
+  "regress_w390_scrollw_vs_innerw": [
+    390,
+    390
+  ],
+  "regress_w768_scrollw_vs_innerw": [
+    768,
+    768
+  ],
+  "regress_1440_layout": {
+    "display": "grid",
+    "gridTemplateColumns": "460px 748px"
+  },
+  "regress_1440_row_hover": {
+    "bg": "rgb(237, 244, 252)"
+  },
+  "regress_swap_class_timing": {
+    "early_50ms": true,
+    "late_250ms": false
+  },
+  "regress_1440_console_errors": [
+    "Failed to load resource: the server responded with a status of 404 (File not found)"
+  ]
+}

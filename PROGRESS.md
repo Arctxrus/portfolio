@@ -365,6 +365,256 @@ SITE_EMAIL; no console errors.
   screenshot verification is left to the verifier subagent.
 - Open items unchanged: the Formspree form ID and the real email remain open.
 
+### Stage 5 - Mobile pass (section 8, tested at 360, 390, 768; contrast per section 10)
+- Status: VERIFIED PASS (verifier runs 2026-07-27: initial run 3 FAILs, fix
+  round 1 cleared two, fix round 2 cleared the scroll-into-view heuristic;
+  final re-verify 0 FAILs across the full width/height matrix, screenshots
+  and results JSON in verify/stage-5/). All asset references bumped ?v=4 to
+  ?v=5 (index.html: css link, js script, six project media refs = 8; css:
+  two @font-face src). js/main.js has no versioned asset refs. Files changed:
+  index.html (version bump only), css/styles.css, js/main.js, PROGRESS.md.
+
+- Single-column layout below 900px (CSS @media max-width:900px): the two-column
+  grid collapses to a flex column in the section-8 order (name block,
+  positioning, INDEX, panel, HOW IT WORKS, proof strip, footer). The panel lives
+  in the markup inside .col-right, a grid sibling of .col-left, so to interleave
+  it between INDEX and HOW both columns are set to `display: contents` and every
+  one of the eight flattened children carries an explicit `order` (1..8). Explicit
+  orders on ALL children are required: an unordered flex item defaults to order 0
+  and would jump to the top. Testimonials (hidden) is ordered 4, kept under the
+  INDEX for when it is later enabled; the panel is 5. Verified visual order at
+  360/390/768: name, positioning, index, panel, how, proof, footer.
+
+- Page height released on mobile: height auto, min-height 0, so the desktop
+  860px min-height never forces a tall phone page. Nothing critical relies on
+  100vh (the page flows); the only vh use is the panel's reserved min-height.
+
+- Panel: min-height 60vh (about 468px at 360x780, 614px at 768x1024) so V1 to V4
+  do not reflow the page on swap; height auto so it grows with content; margin-top
+  --sp-32 above it. Welcome glyph scales to 160px (from 340px). Proof strip loses
+  its desktop margin-top:auto pin (a flex behaviour) and flows with margin-top
+  --sp-48.
+
+- Padding step-down from the desktop 76px, values from the spacing scale:
+  --sp-48 (48px) at <=900px, --sp-22 (22px) at <=480px. Panel view padding also
+  steps to --sp-22 at <=480px so the form card fits at 360px.
+
+- Form card fit at 360px (verified): the panel body centres its single view with
+  place-items:center, which on the desktop's wide panel is right but on a narrow
+  phone shrink-wraps the view to its 440px card and overflows (clipped by the
+  panel's overflow:hidden, so no page scroll but a cut-off card). Fixed with two
+  changes inside the breakpoint: `grid-template-columns: minmax(0, 1fr)` (a plain
+  1fr keeps an automatic content minimum that the 440px card blows out) and
+  `justify-items: stretch` so the view fills the narrow column and the card's
+  `max-width: 100%` is measured against the real panel width. Result at 360px:
+  view 314, card 270, fields 204, no horizontal scroll. At 768px the 440px card
+  fits the wide panel unchanged. No horizontal scroll at 360/390/768.
+
+- Preview area (video, section 5): the 16/9 aspect-ratio already on `.preview`
+  applies at every width and reserves the box height independent of the media, so
+  the area never collapses to zero when the stage-6 posters/webm land (verified at
+  390px: 300x169, ratio 1.778). Judgement call: kept 16/9 (the actual screen-
+  capture ratio and a standard reserved ratio) rather than switching to the
+  section-8 example 16/10; either prevents collapse, and 16/9 matches the real
+  clips.
+
+- Touch rules (section 8):
+  - Guards keyed off `(hover: none) and (pointer: coarse)` for real phones, not
+    just per-event pointerType. New JS helper `isTouchDevice()` short-circuits the
+    binding of the row pointer-trail and CTA hover-mist listeners on touch-only
+    devices (same query the dot grid already uses). The per-event
+    `pointerType === 'touch'` checks are KEPT as well, so a hybrid laptop that
+    reports hover/fine still binds the listeners and filters its own touch events
+    correctly. Press bloom is unchanged: it still fires from the tap point on
+    touch (no touch guard on pointerdown), only skipped under reduced motion.
+  - All hover-revealed information visible at rest on touch: on the mobile
+    breakpoint the niche tag stays visible in every row state (including
+    .is-active, verified: active Blackthorn row tag opacity 1) and the expand
+    glyph is always shown (opacity 1). The glyph moves from an absolute overlay
+    (right:0) into normal flow (position:static) with a --sp-10 column-gap in
+    .row-end, so tag and glyph sit side by side rather than overlapping.
+
+- Smooth-scroll panel into view on selection (section 8): new `scrollPanelIntoView`
+  in initPanel. After a selection, if the panel is not already substantially
+  visible it is scrolled into view (block:'start'), smooth normally and an instant
+  jump (behavior:'auto') under prefers-reduced-motion. On desktop the panel is
+  always beside the index and over the threshold, so it never scrolls (verified:
+  no scroll on desktop select). Judgement call on threshold: "substantial" is at
+  least 60% of the panel (capped at the viewport height) on screen
+  (PANEL_IN_VIEW_RATIO = 0.6); at 360x780 the panel-at-rest ratio is 0.591, just
+  under, so a tap on a low row brings it up.
+
+### Stage 5 deviations / judgement calls
+- CONTRAST DEVIATION (CONCEPT.md section 10, resolving the stage-1 carry-forward
+  flag). --grey-soft (#A6A6AE) 10px mono niche tags and row indices on --ground
+  (#FAFAFA) measure about 3.1:1, below WCAG AA (4.5:1). Remediation per section 10
+  (darken on mobile-at-rest and for focus), exact colour choice recorded here as
+  required:
+  - Chosen colour: --ink-mid (#54545C), which measures about 7.0:1 on #FAFAFA and
+    passes AA. This is the nearest existing token that passes: --grey-label
+    (#8E8E96) is about 3.1:1 and fails, so it was rejected.
+  - Applied to `.row-index` and `.row-tag` in two scopes only:
+    1. The mobile breakpoint (@media max-width:900px), at rest, since section 8
+       shows these at rest on touch (tags never fade on touch).
+    2. Desktop `:focus-visible` (`.row:focus-visible .row-index/.row-tag`),
+       declared before the hover/active colour rules so an active or hovered row
+       still wins (accent index, faded tag) and only the keyboard-focused-at-rest
+       row is darkened. Verified rule order: focus rule precedes both the hover
+       and active rules.
+  - Desktop rest colours are unchanged (both remain --grey-soft; verified on a
+    clean 1280 load: index and tag rgb(166,166,174), glyph hidden). The wider
+    "desktop rest greys below AA" observation stays open for the stage-8 de-vibe
+    gate, exactly as the stage-1 flag stated.
+  - CTA row index/tag were left as-is: they sit on the pastel pill fill, not on
+    --ground, so this on-ground remediation does not apply to them.
+
+- Files layout unchanged; no new tokens (all new values are from the spacing
+  scale: --sp-48, --sp-32, --sp-22, --sp-10). Two radii, one border width and
+  inset-only shadows are untouched.
+
+- Encoding incident (recorded for transparency): the ?v=4 to ?v=5 bump was first
+  done with a PowerShell Get-Content/Set-Content round-trip, which on this
+  PowerShell 5.1 read the no-BOM UTF-8 files as ANSI and re-wrote them
+  double-encoded (mojibake on £, ·, ↗, © in index.html and one styles.css
+  comment) plus a spurious UTF-8 BOM. Both were fully repaired: the BOM stripped,
+  index.html reversed with a verified cp1252 round-trip (0 mojibake markers, valid
+  UTF-8, and every special-character line byte-identical to the committed copy),
+  and the one styles.css comment fixed by hand. All later edits used the Edit tool
+  (encoding-safe). Confirmed final: 0 mojibake markers and no BOM in all three
+  files.
+
+- Verification note: same backgrounded-pane limitation as stages 1 to 4 (the
+  Browser pane tab stays document.hidden, so pixel screenshots time out). All
+  behaviour above was verified programmatically over a local http server via the
+  pane console at 360/390/768/1280: order, no horizontal scroll, panel 60vh,
+  glyph 160px, form card fit, tag/index contrast, glyph-and-tag both visible at
+  rest, active-row tag persistence, desktop unchanged, focus-rule order, no
+  console errors. Two pane quirks were observed and worked around, not code bugs:
+  (1) getComputedStyle returned stale mobile values on nodes after a
+  cross-breakpoint resize (confirmed via CSS-rule enumeration and a clean reload
+  that the desktop rules resolve correctly); (2) `behavior: 'smooth'`
+  scrollIntoView is a no-op in the pane while instant scroll works, so only the
+  reduced-motion (instant) scroll path could be exercised here (the smooth path is
+  standard browser behaviour on real devices). Visual/screenshot verification is
+  left to the verifier subagent.
+
+### Stage 5 - Verifier FAIL fixes (round 1)
+Verifier run returned STAGE FAIL with 3 FAILs; all three fixed and re-verified
+programmatically at 360/390/768 (and desktop unaffected). ?v=5 kept as is (no
+push happened). Files changed: css/styles.css, js/main.js, PROGRESS.md.
+
+- FAIL 1 (V2 grew the panel past 60vh, pushing HOW IT WORKS down ~10px at 360
+  and ~23px at 768; the 16/9 preview scales with panel width and alone is about
+  330px at 768). Fix in css/styles.css inside @media max-width:900px, chosen to
+  shrink the mobile V2 footprint so every view FITS the 60vh budget (preferred
+  over internal panel scrolling, which would look poor, per the spec wording and
+  the verifier's steer):
+  - `.preview { aspect-ratio: 2 / 1 }` on mobile only (desktop stays 16/9): a
+    shorter, still-reserved ratio so posters cause no shift; the placeholder /
+    future webm cover-crop the small extra height. This is the main lever, since
+    the preview is what scaled with width.
+  - `.view { gap: var(--sp-14) }` on mobile (from --sp-18): tighter vertical
+    rhythm, buys the last few px at 360 where the title wraps to two lines.
+  - `.form-fields { padding: var(--sp-22) }` on mobile (from --sp-32): trims V4,
+    which was ~2px over at 360.
+  Re-measured: panel height is now a stable 60vh for V1 to V4 at every tested
+  width (360: 468 / HOW top 1019; 390: 506 / 1052; 768: 614 / 1186), identical
+  across all six views. Judgement call recorded: 2/1 mobile preview over a
+  centred/narrowed frame (which would have forced the About and Pricing prose to
+  wrap taller and reflow at 768) or internal scrolling.
+
+- FAIL 2 (on touch a tap leaves a sticky :hover, and
+  `.row:not(.row--cta):hover .row-tag { opacity: 0 }` at specificity 0,4,0 beat
+  the mobile `.row.is-active .row-tag { opacity: 1 }` at 0,3,0, hiding the niche
+  tag on the active row). Fix (agreed): the entire row hover reveal/hide block
+  is now wrapped in `@media (hover: hover) and (pointer: fine)`, mirroring the JS
+  isTouchDevice guard, so it never applies on touch. The CTA :hover block
+  (saturate/brighten + faster drift) was wrapped the same way, so a tap does not
+  leave persistent selected-looking styling on the pill (C5). Verified: the
+  tag-hide rule's parent media is `(hover: hover) and (pointer: fine)`, the
+  active-tag-visible rule sits in the `max-width: 900px` block, and an
+  active-but-not-hovered row (the post-tap touch state) keeps its tag at
+  opacity 1, colour --ink-mid.
+
+- FAIL 3 (on mobile normal motion, tapping row 01 from scrollY 0 never scrolled
+  the panel in: select() called scrollPanelIntoView() synchronously right after
+  swap() had only scheduled the content change 130ms later, so the ratio was
+  measured on the stale pre-swap box). Fix (agreed): scrollPanelIntoView() is now
+  called from inside commit() (removed from select()), so it always measures
+  post-swap geometry on both the reduced-motion (synchronous commit) and animated
+  (deferred commit at the midpoint) paths. Function declarations are hoisted, so
+  commit() can call the helper defined later in initPanel. Verified with a
+  scrollIntoView spy that forced instant (the pane no-ops behaviour:'smooth',
+  which was the only reason the earlier run looked un-scrolled): tapping row 01
+  at scrollY 0 now fires exactly one scrollIntoView on `.panel`
+  (behaviour:'smooth', block:'start') and moves scrollY 0 to 503 (panel top to
+  0). Side benefit of FAIL 1's fix: with the panel now a stable 60vh, the pre-
+  and post-swap ratios are identical anyway, so the timing bug can no longer
+  bite; the commit() relocation is the belt-and-braces correct fix.
+
+- Re-verification note: same backgrounded-pane limits (pixel screenshots time
+  out; `behaviour: 'smooth'` scrollIntoView is a no-op in the pane). All three
+  fixes were verified programmatically over the local http server. Encoding
+  stayed clean throughout (Edit tool only): 0 mojibake markers, no BOM, ?v=5
+  unchanged (8 in index.html, 2 in styles.css). Screenshot verification is left
+  to the verifier subagent.
+
+### Stage 5 - Verifier FAIL fixes (round 2)
+Re-verify confirmed FAILs 1 and 2 resolved; FAIL 3 remained open with a new root
+cause introduced by round-1 fix 1. Fixed and re-verified across viewport heights.
+?v=5 unchanged (no push). Files changed: css/styles.css, js/main.js, PROGRESS.md.
+
+- FAIL 3 (new root cause): freezing the panel at exactly 60vh (round-1 fix 1)
+  made the old visible-fraction heuristic viewport-height-dependent, so
+  (vh-497)/(0.6*vh) crossed 0.6 near vh 777 and never scrolled on tall phones
+  (780/812/844) in either motion mode. Replaced it with a viewport-height-
+  independent test on the panel's top edge, in js/main.js:
+  - New module constants PANEL_TOP_MIN = -8 (px) and PANEL_TOP_BAND = 0.2
+    (fraction of viewport height), and mobileLayoutQuery =
+    matchMedia('(max-width: 900px)').
+  - scrollPanelIntoView() now: returns immediately unless mobileLayoutQuery
+    matches (so desktop >900px NEVER scrolls, guarded by the breakpoint rather
+    than by geometry); otherwise reads panel top and returns if it is already in
+    the band [PANEL_TOP_MIN, PANEL_TOP_BAND * vh] (header already at/near the
+    top: an immediate second selection does not re-scroll); otherwise scrolls
+    with block:'start', smooth normally and instant under reduced motion. The
+    smooth/instant branch and the call site inside commit() are unchanged.
+  - Removed the now-dead panelVisibleRatio() and PANEL_IN_VIEW_RATIO.
+  - Tolerance band (judgement call, reported): -8px floor to 0.2 * viewport
+    height. The -8px floor ignores sub-pixel/rounding negatives; 0.2 * vh treats
+    "top within the first fifth of the screen" as already placed, while a panel
+    sitting below the index (top about 503px at 360/390 widths, far past that
+    fifth at every height) always scrolls.
+
+- Secondary root cause found while verifying (instrument, not guess): with the
+  top-edge band, an immediate second selection still triggered one redundant
+  re-scroll at 390 widths. Instrumenting scrollIntoView showed the page scroll
+  drifted about +13px (panel top 0 to -13, just past the -8 floor) during the
+  swap. Cause: the browser's scroll anchoring reacting to the .panel-body
+  replaceChildren. Confirmed by toggling overflow-anchor: setting
+  overflow-anchor: none on body removed the drift entirely. Fix in
+  css/styles.css inside @media max-width:900px: `body { overflow-anchor: none }`
+  so the panel stays pinned where scrollPanelIntoView placed it. Kept the -8px
+  floor (with anchoring off there is no drift to absorb). This was preferred
+  over merely widening the negative floor, which would have left the panel a few
+  px above the fold on the second tap; the root-cause fix keeps the header at
+  the top.
+
+- Re-verification (programmatic over local http; smooth scroll still no-ops in
+  the pane, so a scrollIntoView spy forced instant to observe movement and count
+  calls):
+  - Tap row 01 from scrollY 0 scrolls the panel in (one scrollIntoView on
+    .panel, block:'start') at 360 and 390 widths for heights 640, 667, 780, 812
+    and 844. At 844 the short page clamps the scroll so the panel top lands at
+    +13px (header still on screen), which the band then treats as placed.
+  - Immediate second selection: zero further scrollIntoView calls at every
+    tested width/height (no re-scroll).
+  - Desktop 1440x900: zero scrollIntoView calls, scrollY stays 0 (guarded off by
+    the mobile-layout query).
+  - No console errors. Encoding clean throughout (Edit tool only): 0 mojibake, 0
+    em dashes, no BOM; ?v=5 unchanged (8 in index.html, 2 in styles.css).
+  Pixel screenshots still time out in the pane; that trail is the verifier's.
+
 ### Stage 2 deviations / judgement calls
 - Light-pass layer needs a background-size and there is no token for it; used a
   literal 200% 200% with a comment (the three drift-layer sizes use the

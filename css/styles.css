@@ -33,7 +33,7 @@
   font-weight: 400 600;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/archivo-latin-var.woff2?v=4') format('woff2');
+  src: url('../fonts/archivo-latin-var.woff2?v=5') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -43,7 +43,7 @@
   font-weight: 300 500;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/martian-mono-latin-var.woff2?v=4') format('woff2');
+  src: url('../fonts/martian-mono-latin-var.woff2?v=5') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -379,29 +379,48 @@ a {
   box-shadow: var(--shadow-field-focus);
 }
 
+/* Contrast (CONCEPT.md section 10): on focus-visible the 10px mono tags and the
+   row indices are darkened from --grey-soft (#A6A6AE, 3.1:1, fails AA) to
+   --ink-mid (#54545C, passes 4.5:1 on --ground). Declared before the hover and
+   active colour rules below so an active or hovered row still wins (accent or
+   faded tag), and this only bites the keyboard-focused-at-rest state. */
+.row:focus-visible .row-index,
+.row:focus-visible .row-tag {
+  color: var(--ink-mid);
+}
+
 /* R2 hover (index rows 01 to 05). Motion: 160ms ease, shadow 220ms.
    Fill --accent-fill-hover, inset hairline and shade via --shadow-row-hover,
-   index to accent, name to ink, tag fades out, glyph fades in (x -4px to 0). */
-.row:not(.row--cta):hover {
-  background: var(--accent-fill-hover);
-  box-shadow: var(--shadow-row-hover);
-}
+   index to accent, name to ink, tag fades out, glyph fades in (x -4px to 0).
 
-.row:not(.row--cta):hover .row-index {
-  color: var(--accent);
-}
+   The whole hover reveal/hide block is gated behind (hover: hover) and
+   (pointer: fine) so it never applies on touch. Without this, a tap leaves a
+   sticky :hover on the tapped row and the tag-hide rule (specificity 0,4,0)
+   would beat the mobile "tag stays visible" rule (0,3,0), hiding the niche tag
+   on the active row (CONCEPT section 8: tags stay visible on touch). This
+   mirrors the JS isTouchDevice guard. */
+@media (hover: hover) and (pointer: fine) {
+  .row:not(.row--cta):hover {
+    background: var(--accent-fill-hover);
+    box-shadow: var(--shadow-row-hover);
+  }
 
-.row:not(.row--cta):hover .row-name {
-  color: var(--ink);
-}
+  .row:not(.row--cta):hover .row-index {
+    color: var(--accent);
+  }
 
-.row:not(.row--cta):hover .row-tag {
-  opacity: 0;
-}
+  .row:not(.row--cta):hover .row-name {
+    color: var(--ink);
+  }
 
-.row:not(.row--cta):hover .row-glyph {
-  opacity: 1;
-  transform: translateX(0);
+  .row:not(.row--cta):hover .row-tag {
+    opacity: 0;
+  }
+
+  .row:not(.row--cta):hover .row-glyph {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .row-glyph {
@@ -486,14 +505,19 @@ a {
   z-index: 5;
 }
 
-/* C2 hover: drift quickens to 14s, light pass to 19s, saturate/brighten. */
-.row--cta:hover {
-  filter: saturate(1.25) brightness(1.03);
-  animation-duration: 14s;
-}
+/* C2 hover: drift quickens to 14s, light pass to 19s, saturate/brighten.
+   Gated behind (hover: hover) and (pointer: fine) so a tap on touch does not
+   leave a sticky saturate/brighten on the pill (which would read as persistent
+   selected styling, against C5). Touch keeps only the sanctioned rest drift. */
+@media (hover: hover) and (pointer: fine) {
+  .row--cta:hover {
+    filter: saturate(1.25) brightness(1.03);
+    animation-duration: 14s;
+  }
 
-.row--cta:hover::before {
-  animation-duration: 19s;
+  .row--cta:hover::before {
+    animation-duration: 19s;
+  }
 }
 
 /* Hover mist node (--cta-hover-mist), follows the cursor with 900ms lag. */
@@ -1174,6 +1198,149 @@ a {
   z-index: 2;
   pointer-events: none;
   will-change: opacity, transform;
+}
+
+/* --------------------------------------------------------------------------
+   Mobile pass (CONCEPT.md section 8, 10). Below 900px the two-column grid
+   collapses to a single column in the section-8 order: name block, positioning,
+   INDEX, panel, HOW IT WORKS, proof strip, footer.
+
+   The panel lives in the markup inside .col-right (a grid sibling of .col-left),
+   so to interleave it between the INDEX and HOW blocks, both columns are set to
+   display: contents and every one of the eight flattened children carries an
+   explicit `order`. Explicit orders on all children are required: an unordered
+   flex item defaults to order 0 and would jump to the top (this also keeps the
+   hidden testimonials slot under the INDEX for when it is later enabled).
+
+   The page height is released here (height auto, min-height 0) so the desktop
+   860px min-height never forces a tall phone page, and nothing critical relies
+   on 100vh: the page simply flows.
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .page {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
+    gap: 0;
+    padding: var(--sp-48);
+  }
+
+  /* Flatten both columns so their children share one flex flow. */
+  .col-left,
+  .col-right {
+    display: contents;
+  }
+
+  /* Section-8 single-column order. Every flattened child is ordered. */
+  .name-block  { order: 1; }
+  .positioning { order: 2; }
+  .index       { order: 3; }
+  .testimonials { order: 4; }   /* hidden; kept under INDEX for later */
+  .panel       { order: 5; }
+  .how         { order: 6; }
+  .proof       { order: 7; }
+  .footer      { order: 8; }
+
+  /* Proof strip is no longer pinned with margin-top auto (a desktop flex
+     behaviour); in single column it just flows. */
+  .proof {
+    margin-top: var(--sp-48);
+  }
+
+  /* Panel sits directly under the INDEX, flows to its content height, and
+     reserves about 60vh so V1 to V4 do not reflow the page as they swap. */
+  .panel {
+    height: auto;
+    min-height: 60vh;
+    margin-top: var(--sp-32);
+  }
+
+  /* Disable scroll anchoring while the single-column layout is active. The panel
+     view swap (replaceChildren on .panel-body) otherwise triggered the browser's
+     scroll-anchoring adjustment and nudged the page scroll by about 13px, which
+     pushed the panel top just past the "already placed" band and caused a
+     redundant re-scroll on an immediate second selection. With anchoring off the
+     panel stays pinned where scrollPanelIntoView put it. */
+  body {
+    overflow-anchor: none;
+  }
+
+  /* Welcome glyph scales down to about 160px (section 8). */
+  .welcome-glyph {
+    font-size: 160px;
+  }
+
+  /* The panel body centres its single view with place-items: center, which on
+     the desktop's wide panel is right. On a narrow phone that shrink-wraps the
+     view to its content, so the 440px form card's max-width: 100% would resolve
+     against an oversized box and overflow (clipped by the panel). Two changes
+     fix it: minmax(0, 1fr) lets the single column shrink below its content's
+     min size (a plain 1fr keeps an automatic content minimum, so the 440px card
+     blows the track out past the panel), and justify-items: stretch fills the
+     view to that column so max-width: 100% inside it (the card, the prose) is
+     measured against the real, narrow panel. */
+  .panel-body {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: stretch;
+  }
+  .view {
+    max-width: 100%;
+    gap: var(--sp-14);   /* tighter vertical rhythm so V2 fits the 60vh budget */
+  }
+
+  /* Panel min-height is about 60vh so V1 to V4 do not reflow the page as they
+     swap (CONCEPT section 8). The only view that overran the budget was V2: its
+     16/9 preview grows with the panel width and alone is about 330px at 768px.
+     Shrink the mobile V2 footprint (preferred over internal scrolling, which
+     would look poor) so every view fits within the min-height and the panel
+     height, and therefore the HOW IT WORKS block below, stays put:
+     - a shorter 2/1 preview on mobile (still a reserved ratio, so posters cause
+       no shift; the video cover-crops the small extra height);
+     - trimmed form-card padding so V4 also fits. */
+  .preview {
+    aspect-ratio: 2 / 1;
+  }
+  .form-fields {
+    padding: var(--sp-22);
+  }
+
+  /* Contrast (section 10): at rest on --ground the 10px mono tags and the row
+     indices are --grey-soft (fails AA); darken them to --ink-mid, which passes
+     4.5:1. Desktop rest colours are untouched (this is inside the breakpoint). */
+  .row-index,
+  .row-tag {
+    color: var(--ink-mid);
+  }
+
+  /* Touch: all hover-revealed information must be visible at rest (section 8).
+     The niche tag stays visible in every row state, and the expand glyph is
+     always shown. The glyph moves from an absolute overlay into normal flow so
+     it sits beside the tag rather than on top of it. */
+  .row-end {
+    column-gap: var(--sp-10);
+  }
+  .row-glyph {
+    position: static;
+    opacity: 1;
+    transform: none;
+  }
+  .row.is-active .row-tag {
+    opacity: 1;   /* beats the desktop active rule (tag hidden) via source order */
+  }
+}
+
+/* Narrow phones: step the padding down again and tighten the panel view padding
+   so the 440px form card (max-width 100%) fits at 360px with no horizontal
+   scroll. Values from the spacing scale. */
+@media (max-width: 480px) {
+  .page {
+    padding: var(--sp-22);
+  }
+  .view {
+    padding: var(--sp-22);
+  }
 }
 
 /* --------------------------------------------------------------------------
