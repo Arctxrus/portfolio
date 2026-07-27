@@ -1,0 +1,185 @@
+{
+  "v2_tall_1440x900": {
+    "viewClientHeight": 716,
+    "viewScrollHeight": 716,
+    "viewOverflowY": "auto",
+    "scrollbarWidth": "none",
+    "viewRect": {
+      "x": 617,
+      "y": 127,
+      "width": 746,
+      "height": 716,
+      "top": 127,
+      "right": 1363,
+      "bottom": 843,
+      "left": 617
+    },
+    "visitRect": {
+      "x": 649,
+      "y": 768.140625,
+      "width": 158.734375,
+      "height": 36,
+      "top": 768.140625,
+      "right": 807.734375,
+      "bottom": 804.140625,
+      "left": 649
+    },
+    "visitVisible": true,
+    "bodyScrollHeight": 900,
+    "bodyClientHeight": 900,
+    "windowInnerHeight": 900
+  },
+  "v2_tall_scroll_before": {
+    "viewScrollTop": 0,
+    "bodyScrollY": 0
+  },
+  "v2_tall_scroll_after": {
+    "viewScrollTop": 0,
+    "bodyScrollY": 0
+  },
+  "v2_tall_visit_after_scroll": {
+    "top": 768.140625,
+    "bottom": 804.140625,
+    "visible": true,
+    "clickable": true
+  },
+  "v2_tall_hit_test": {
+    "isVisitOrChild": true,
+    "elTag": "A.visit-pill"
+  },
+  "v2_mid_1280x720": {
+    "viewClientHeight": 676,
+    "viewScrollHeight": 694,
+    "viewOverflowY": "auto",
+    "scrollbarWidth": "none",
+    "viewRect": {
+      "x": 617,
+      "y": -13,
+      "width": 586,
+      "height": 676,
+      "top": -13,
+      "right": 1203,
+      "bottom": 663,
+      "left": 617
+    },
+    "visitRect": {
+      "x": 649,
+      "y": 613.140625,
+      "width": 158.734375,
+      "height": 36,
+      "top": 613.140625,
+      "right": 807.734375,
+      "bottom": 649.140625,
+      "left": 649
+    },
+    "visitVisible": true,
+    "bodyScrollHeight": 860,
+    "bodyClientHeight": 720,
+    "windowInnerHeight": 720
+  },
+  "v2_mid_scroll_before": {
+    "viewScrollTop": 0,
+    "bodyScrollY": 0
+  },
+  "v2_mid_scroll_after": {
+    "viewScrollTop": 18,
+    "bodyScrollY": 0
+  },
+  "v2_mid_visit_after_scroll": {
+    "top": 735.140625,
+    "bottom": 771.140625,
+    "visible": false,
+    "clickable": false
+  },
+  "v2_mid_hit_test": {
+    "isVisitOrChild": false,
+    "elTag": null
+  },
+  "v2_short_1280x620": {
+    "viewClientHeight": 676,
+    "viewScrollHeight": 694,
+    "viewOverflowY": "auto",
+    "scrollbarWidth": "none",
+    "viewRect": {
+      "x": 617,
+      "y": -113,
+      "width": 586,
+      "height": 676,
+      "top": -113,
+      "right": 1203,
+      "bottom": 563,
+      "left": 617
+    },
+    "visitRect": {
+      "x": 649,
+      "y": 513.140625,
+      "width": 158.734375,
+      "height": 36,
+      "top": 513.140625,
+      "right": 807.734375,
+      "bottom": 549.140625,
+      "left": 649
+    },
+    "visitVisible": true,
+    "bodyScrollHeight": 860,
+    "bodyClientHeight": 620,
+    "windowInnerHeight": 620
+  },
+  "v2_short_scroll_before": {
+    "viewScrollTop": 0,
+    "bodyScrollY": 0
+  },
+  "v2_short_scroll_after": {
+    "viewScrollTop": 18,
+    "bodyScrollY": 0
+  },
+  "v2_short_visit_after_scroll": {
+    "top": 735.140625,
+    "bottom": 771.140625,
+    "visible": false,
+    "clickable": false
+  },
+  "v2_short_hit_test": {
+    "isVisitOrChild": false,
+    "elTag": null
+  },
+  "v2_mobile_360": {
+    "viewClientHeight": 416,
+    "viewScrollHeight": 416,
+    "viewOverflowY": "visible",
+    "scrollbarWidth": "none",
+    "viewRect": {
+      "x": 23,
+      "y": 58.1875,
+      "width": 314,
+      "height": 416,
+      "top": 58.1875,
+      "right": 337,
+      "bottom": 474.1875,
+      "left": 23
+    },
+    "visitRect": {
+      "x": 45,
+      "y": 404.9375,
+      "width": 158.734375,
+      "height": 36,
+      "top": 404.9375,
+      "right": 203.734375,
+      "bottom": 440.9375,
+      "left": 45
+    },
+    "visitVisible": true,
+    "bodyScrollHeight": 1355,
+    "bodyClientHeight": 780,
+    "windowInnerHeight": 780
+  },
+  "v2_mobile_360_panel_height": 468,
+  "v2_mobile_360_60vh_target": 468.0,
+  "mobile_360_how_positions": {
+    "row_0": 1072.1875,
+    "row_1": 550.1875,
+    "row_2": 516.1875,
+    "row_3": 559.1875,
+    "row_4": 647.1875
+  }
+}

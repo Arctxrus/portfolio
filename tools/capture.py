@@ -8,8 +8,8 @@ poster jpg that index.html already references from media/.
 
 Two stages, either of which can run alone:
   1. capture  - scripted, headed recording of each site to tools/_raw/
-  2. process  - ffmpeg trim, crop to 16:9, scale to 800px, strip audio,
-                VP9 to a size-tuned target, and a poster jpg from frame 0
+  2. process  - ffmpeg trim to a loop window, native 1280x720, strip audio,
+                VP9 CRF quality mode, and a 1280-wide poster jpg from frame 0
 
 Usage (run from anywhere, paths are resolved from this file):
   python tools/capture.py                 # capture then process, all three
@@ -36,9 +36,14 @@ RAW_DIR = os.path.join(TOOLS_DIR, "_raw")
 # NATIVE 16:9 viewport (1280x720) so there is no vertical crop. The previous
 # 1280x800 take was centre-cropped to 16:9, which dropped 40px off the top and
 # chopped the Blackthorn nav pill. At 1280x720 the top of each page is captured
-# in full and the output only needs a straight scale to 800x450 (the panel
-# preview box ratio). object-fit: cover then trims a little at the mobile 2/1.
+# in full.
 REC_W, REC_H = 1280, 720
+
+# Output resolution. Client feedback round 2 (item 3, 2026-07-27): the previous
+# 800x450 output looked soft when the panel is shown at ~680px+ and on larger
+# screens. The clips are now exported at NATIVE 1280x720 (no downscale from the
+# 1280x720 take) and quality-tuned so they stay crisp at full panel size.
+OUT_W, OUT_H = 1280, 720
 
 # ANGLE D3D11 on the discrete GPU, so the WebGL demo records its real visuals
 # rather than a software fallback. Confirmed renderer: ANGLE NVIDIA RTX 3060.
@@ -50,10 +55,31 @@ GPU_ARGS = [
     "--disable-features=CalculateNativeWinOcclusion",
 ]
 
-# The size budget per clip (CONCEPT section 5): VP9, about 800px wide, 6 to 8
-# seconds, loop friendly, 300 to 500KB. Posters must stay small (under ~40KB).
-WEBM_MIN_KB, WEBM_MAX_KB = 300, 500
-POSTER_MAX_KB = 40
+# Size budget. Client feedback round 2 (item 3, owner direction): the 300 to
+# 500KB per-clip budget is AMENDED. Quality wins: each clip is VP9 CRF quality
+# mode (constant quality, not a bitrate target) and kept as small as possible
+# while crisp at full panel size. The clips remain lazy-loaded, so the first-load
+# budget is untouched. WEBM_*_KB below is informational only (no enforcement).
+# Posters are re-exported at 1280 wide, target under ~80KB each.
+WEBM_MIN_KB, WEBM_MAX_KB = 300, 500   # informational only, not enforced
+POSTER_MAX_KB = 80
+
+# VP9 constant-quality (CRF) per clip. Lower is crisper and larger. The brief
+# asks for ~32 to 34, tuned by eye on extracted frames. Across 32/33/34 the size
+# moved only ~10% (blackthorn 1504/1436/1364KB) and all three were crisp on
+# decoded webm frames, so 34 (top of range, smallest) is used per the owner's
+# "as small as possible while crisp" direction (see PROGRESS.md round 2).
+DEFAULT_CRF = 34
+
+# Scrollbar suppression (item 4). The owner dislikes the demo sites' scrollbar in
+# the captures. This CSS is injected into each page BEFORE the keeper so the
+# recorded frames carry no scrollbar. Note: hiding the scrollbar reclaims its
+# gutter width; the star (cosmic-dawn) take is checked after injection in case
+# the WebGL scene sizes anything off the scrollbar width.
+NO_SCROLLBAR_CSS = (
+    "html { scrollbar-width: none !important; -ms-overflow-style: none !important; }"
+    "::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }"
+)
 
 # The clip is trimmed to the tail of the raw take: the scripted sequence ends on
 # its closing hold, and any frames after it are static at the same scroll
@@ -87,7 +113,6 @@ PROJECTS = [
         ],
         "verify_nvidia": False,
         "clip_len_s": 7.0,
-        "bitrate": "430k",
     },
     {
         "name": "barker",
@@ -104,7 +129,6 @@ PROJECTS = [
         ],
         "verify_nvidia": False,
         "clip_len_s": 6.0,
-        "bitrate": "470k",
     },
     {
         "name": "star",
@@ -131,7 +155,6 @@ PROJECTS = [
         },
         "verify_nvidia": True,
         "clip_len_s": 7.0,
-        "bitrate": "650k",
     },
 ]
 
@@ -212,6 +235,17 @@ def run_parallax(page, cfg):
         page.wait_for_timeout(step_ms)
 
 
+def inject_no_scrollbar(page):
+    """Item 4: hide the demo site's scrollbar before recording so the captured
+    frames carry none. Injected as a page style tag after load; belt and braces,
+    also re-added on any same-document navigation via an init script is not
+    needed here since the takes do not navigate."""
+    try:
+        page.add_style_tag(content=NO_SCROLLBAR_CSS)
+    except Exception as exc:
+        log(f"    warning: could not inject no-scrollbar CSS: {exc}")
+
+
 def dismiss_overlays(page):
     try:
         page.keyboard.press("Escape")
@@ -261,6 +295,9 @@ def capture_one(project):
             pass
 
         dismiss_overlays(page)
+
+        # Item 4: suppress the scrollbar before the keeper so no frame shows it.
+        inject_no_scrollbar(page)
 
         if project["verify_nvidia"]:
             renderer = page.evaluate(RENDERER_JS)
@@ -335,64 +372,46 @@ def probe_duration(path):
 
 
 def vfilter():
-    # Client feedback round 1 (change 7): the take is already native 16:9
-    # (1280x720), so no crop. A straight scale to 800x450 keeps the full frame,
-    # including the top nav pill. object-fit: cover in the panel handles the
-    # mobile 2/1 ratio.
-    return "scale=800:450"
+    # Client feedback round 2 (item 3): the take is native 16:9 (1280x720) and
+    # the output is native 1280x720 too (no downscale), so the clip stays crisp
+    # at full panel size. A straight scale keeps the full frame including the top
+    # nav pill; object-fit: cover in the panel handles the mobile 2/1 ratio.
+    return f"scale={OUT_W}:{OUT_H}"
 
 
-def encode_webm(raw, out, ss, dur, bitrate):
-    """Two-pass VP9 to a target bitrate. Audio stripped, 30fps, keyframed."""
-    passlog = os.path.join(RAW_DIR, "vp9pass")
+def encode_webm_crf(raw, out, ss, dur, crf):
+    """Single-pass VP9 constant-quality (CRF) encode. Client feedback round 2
+    (item 3): quality mode, not a bitrate target, so the clip is as crisp as CRF
+    dictates and as small as VP9 can make it at that quality. Audio stripped,
+    30fps, keyframed. -b:v 0 selects true constant-quality VP9."""
     common = [
         "ffmpeg", "-y", "-ss", f"{ss:.3f}", "-t", f"{dur:.3f}", "-i", raw,
         "-an", "-vf", vfilter(), "-r", "30",
-        "-c:v", "libvpx-vp9", "-b:v", bitrate,
+        "-c:v", "libvpx-vp9", "-crf", str(crf), "-b:v", "0",
         "-deadline", "good", "-cpu-used", "1",
         "-auto-alt-ref", "1", "-lag-in-frames", "25",
         "-g", "60", "-row-mt", "1",
     ]
-    run(common + ["-pass", "1", "-passlogfile", passlog, "-f", "null", os.devnull])
-    run(common + ["-pass", "2", "-passlogfile", passlog, out])
-
-
-def parse_bitrate(bitrate):
-    return int(bitrate.rstrip("kK")) if bitrate.lower().endswith("k") else int(bitrate) // 1000
-
-
-def encode_webm_tuned(raw, out, ss, dur, bitrate):
-    """Encode, then nudge the bitrate once if the size misses the budget."""
-    encode_webm(raw, out, ss, dur, bitrate)
+    run(common + [out])
     size = kb(out)
-    log(f"    first VP9 pass at {bitrate}: {size:.0f}KB")
-    if WEBM_MIN_KB <= size <= WEBM_MAX_KB:
-        return bitrate, size
-    # Scale the bitrate toward the middle of the budget and re-encode once.
-    mid = (WEBM_MIN_KB + WEBM_MAX_KB) / 2.0
-    br_kbps = parse_bitrate(bitrate)
-    new_kbps = max(120, int(br_kbps * mid / max(size, 1)))
-    new_br = f"{new_kbps}k"
-    log(f"    out of budget, retuning bitrate {bitrate} -> {new_br}")
-    encode_webm(raw, out, ss, dur, new_br)
-    size = kb(out)
-    log(f"    retuned VP9: {size:.0f}KB at {new_br}")
-    return new_br, size
+    log(f"    VP9 crf {crf}: {size:.0f}KB (1280x720, quality mode)")
+    return crf, size
 
 
 def make_poster(webm, poster):
-    """Frame 0 of the processed clip as a jpg, quality tuned under the budget."""
+    """Frame 0 of the processed clip as a jpg, 1280 wide, quality tuned under the
+    ~80KB budget (item 3)."""
     chosen = None
     for q in (3, 4, 5, 6, 8, 10, 12, 15):
         run([
             "ffmpeg", "-y", "-i", webm, "-frames:v", "1",
-            "-q:v", str(q), "-vf", "scale=800:450", poster,
+            "-q:v", str(q), "-vf", f"scale={OUT_W}:{OUT_H}", poster,
         ])
         size = kb(poster)
         chosen = (q, size)
         if size <= POSTER_MAX_KB:
             break
-    log(f"    poster q={chosen[0]}: {chosen[1]:.0f}KB")
+    log(f"    poster q={chosen[0]}: {chosen[1]:.0f}KB (1280 wide)")
     return chosen
 
 
@@ -411,8 +430,10 @@ def process_one(project):
     out = os.path.join(MEDIA_DIR, project["out"] + ".webm")
     poster = os.path.join(MEDIA_DIR, project["poster_out"] + ".jpg")
 
-    log(f"[{project['name']}] encoding webm  (raw {raw_dur:.2f}s, ss={ss:.2f}s, len={dur:.1f}s)")
-    br, size = encode_webm_tuned(raw, out, ss, dur, project["bitrate"])
+    crf = project.get("crf", DEFAULT_CRF)
+    log(f"[{project['name']}] encoding webm  (raw {raw_dur:.2f}s, ss={ss:.2f}s, len={dur:.1f}s, crf={crf})")
+    encode_webm_crf(raw, out, ss, dur, crf)
+    size = kb(out)
     make_poster(out, poster)
     log(f"[{project['name']}] done: {os.path.basename(out)} {size:.0f}KB, "
         f"{os.path.basename(poster)} {kb(poster):.0f}KB")

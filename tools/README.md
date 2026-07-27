@@ -59,11 +59,18 @@ that changes the visuals. Run from the repo root.
 
 ## Output shape and budget
 
-- 800x450 (16:9), VP9, no audio, 30fps, 6 to 8 seconds.
-- webm tuned to land in 300 to 500KB; poster jpg tuned under about 40KB.
-- The recorded 1280x800 viewport is centre-cropped to 16:9 then scaled to
-  800px wide, so the clip fills the desktop 16/9 preview box with no crop.
-  `object-fit: cover` handles the mobile 2/1 box (trims the extra height).
+- Native 1280x720 (16:9), VP9, no audio, 30fps, 6 to 8 seconds.
+- Client feedback round 2 (2026-07-27): the clips are exported at native
+  1280x720 (no downscale) in VP9 CRF quality mode (`DEFAULT_CRF = 34`, within
+  the sanctioned 32 to 34) so they stay crisp at full panel size. The 300 to
+  500KB per-clip budget is AMENDED by owner direction: quality wins, each clip
+  is kept as small as CRF makes it while crisp. Clips stay lazy-loaded, so the
+  first-load budget is untouched. Poster jpgs are exported at 1280 wide, under
+  about 80KB.
+- The scrollbar is suppressed before recording (`NO_SCROLLBAR_CSS`, injected via
+  `page.add_style_tag`), so no frame shows the demo site's scrollbar.
+- `object-fit: cover` handles the mobile 2/1 box (trims the extra height); the
+  desktop project view shows the clip large with a bottom fade cue.
 
 ## Tuning knobs
 

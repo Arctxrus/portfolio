@@ -381,14 +381,23 @@ function initPanel() {
   const indexRows = rows.filter(function (row) {
     return !row.classList.contains('row--cta');
   });
+  const ctaRow = rows.filter(function (row) {
+    return row.classList.contains('row--cta');
+  })[0] || null;
 
   if (!panelBody || !rows.length) {
     return;
   }
 
+  /* Client feedback round 2 (item 1): the CTA now carries aria-pressed too, so
+     the six rows form one single-selection group with exactly one pressed at a
+     time. It starts unpressed like the index rows. */
   indexRows.forEach(function (row) {
     row.setAttribute('aria-pressed', 'false');
   });
+  if (ctaRow) {
+    ctaRow.setAttribute('aria-pressed', 'false');
+  }
 
   let currentView = null;   /* V1 welcome is showing; no view key yet. */
   let swapTimer = 0;
@@ -480,6 +489,19 @@ function initPanel() {
       r.classList.toggle('is-active', active);
       r.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
+
+    /* CTA grow-and-push (item 1). The CTA is not an index row, so the loop above
+       already clears every index row when the CTA is chosen. The CTA carries a
+       parallel `is-open` class (grow only, NO colour/selection styling; see the
+       .row--cta.is-open CSS rule) plus aria-pressed, kept in sync so exactly one
+       of the six rows is pressed at a time. Selecting any index row sets
+       is-open false and aria-pressed false, so the CTA clears the moment another
+       view opens (per the brief). */
+    if (ctaRow) {
+      const ctaSelected = (row === ctaRow);
+      ctaRow.classList.toggle('is-open', ctaSelected);
+      ctaRow.setAttribute('aria-pressed', ctaSelected ? 'true' : 'false');
+    }
 
     const nameEl = row.querySelector('.row-name');
     const name = nameEl ? nameEl.textContent : '';

@@ -1403,3 +1403,177 @@ brief agreed, CONCEPT still holds.
   headless Playwright pass over file:// (reduced-motion for deterministic swaps);
   the capture ran in real headed GPU Chromium. Numbers above are measured, not
   estimated. Screenshot/visual sign-off remains the verifier's.
+
+## Client feedback round 2 (CONCEPT amendments, owner-directed 2026-07-27)
+
+Six owner-directed amendments plus a cache-bust. These SUPERSEDE the noted
+CONCEPT / round-1 rows where they conflict; each supersession is called out.
+
+- Status: BUILT, awaiting verification. Files changed: css/styles.css,
+  index.html, js/main.js, tools/capture.py, tools/README.md, media/*.webm
+  (three), media/*.jpg (three posters), PROGRESS.md. All shipped asset refs
+  bumped ?v=9 to ?v=10 (a push follows): 13 in index.html, 2 in css/styles.css,
+  0 in js/main.js. Encoding clean (Edit tool + sed only, no BOM, valid UTF-8, no
+  em dashes; grep confirms 0 remaining ?v=9; £300 x8, arrow x10, middle dot x14
+  intact). All page changes measured/screenshotted with a headless Playwright
+  pass over file://; the three clips re-recorded in real headed GPU Chromium.
+
+### Item 1 - CTA grows too (C5 amended)
+- When the form view (V4) is active, the CTA row 06 now grows exactly like an
+  index row: vertical padding --sp-14 to --sp-18 (+8px total height), the same
+  ~200ms ease as the index-row grow, so it pushes its neighbour (measured: the
+  HOW block moves down 8.0px on desktop). It gains NO white card, border or
+  accent styling: only padding changes, so the pastel drift fill, white inset
+  rim (--cta-rim), edge lift, hover mist and press bloom are untouched.
+- STATE APPROACH (reported): a PARALLEL `is-open` class carries the grow (CSS
+  `.row--cta.is-open { padding: var(--sp-18) var(--sp-18) }`), deliberately NOT
+  `.is-active`, so none of the `.row.is-active` colour/border/shadow rules can
+  ever match the CTA. Horizontal padding stays --sp-18 (the CTA rest value), so
+  only the vertical grow reads. The CTA transition gained `padding 200ms ease`.
+- ARIA-PRESSED APPROACH (reported): aria-pressed was EXTENDED to the CTA, so the
+  six rows form one single-selection group with exactly one pressed at a time.
+  In js/main.js initPanel: the CTA starts aria-pressed="false"; select() toggles
+  the CTA's `is-open` + aria-pressed true only when the CTA is chosen, and the
+  index-row loop (CTA is not an index row) already clears every index row when
+  the CTA is chosen. Selecting any index row sets the CTA is-open false and
+  aria-pressed false, so it CLEARS the moment another view opens (per the brief).
+  Verified: cta rest padTop 14px / aria false; index row active padTop 18px /
+  aria true, CTA aria false; CTA open padTop 18px / aria true, bg transparent (no
+  colour), borderColor transparent (no border), box-shadow still inset (rim, no
+  drop shadow), the previously-active index row aria back to false.
+- SUPERSEDES CONCEPT 3.4 C5 "no persistent selected styling on the pill" to the
+  amended "no colour/selection styling, but it does grow while its view is
+  active", and supersedes round-1 change-5's "the CTA does NOT grow".
+- Reduced motion: the global 3.3 guard forces the padding transition instant, so
+  the CTA grow applies with no animation, matching the index-row grow. No new
+  listeners bound, no nodes spawned.
+
+### Item 2 - Button shape: 999px pill to --radius-surface (16px)
+- The submit button moves from --radius-pill (999px) to --radius-surface (16px),
+  the new button language. The "Visit live site" pill ALSO moves to 16px for
+  consistency: FLAGGED as the coder's judgement call for the owner to veto (both
+  changes recorded here as required).
+- RADIUS CONSUMERS AUDIT (grep of css/styles.css after the change): the
+  two-radii rule stands. All 12 `border-radius` declarations resolve to exactly
+  two tokens: 9 use --radius-surface (.row, .row--cta, .panel, .visit-pill,
+  .field, .submit, .form-status, .contact-card, .preview) and 3 use
+  --radius-pill (.cta-mist, .cta-bloom, .trail-dot). So --radius-pill is NOT
+  defined-but-unused: it still serves the three fully-round decorative nodes
+  (a 999px radius renders them as circles). No raw 999px or 50% appears in any
+  border-radius. SUPERSEDES the "pill" wording for the submit and the visit
+  control (CONCEPT section 5 "quiet secondary pill" and the submit F4 pill).
+
+### Item 3 - Preview quality: native 1280x720, VP9 CRF
+- Root cause of the softness: round 1 output 800x450, which upscaled soft in the
+  panel at ~680px+ and on larger screens. tools/capture.py now exports at NATIVE
+  1280x720 (no downscale from the 1280x720 take; OUT_W/OUT_H) in VP9 CRF quality
+  mode (`-crf N -b:v 0`), not a bitrate target.
+- CRF CHOSEN: 34. Tuned by eye on decoded webm frames at 1280x720. Across CRF
+  32/33/34 the size moved only ~10% (blackthorn 1504/1436/1364KB) and all were
+  crisp, so 34 (top of the sanctioned 32 to 34 range, smallest) was taken per
+  the owner's "as small as possible while crisp" direction.
+- BUDGET AMENDED (owner direction, recorded): the 300 to 500KB per-clip budget
+  no longer applies; quality wins, each clip is as small as CRF makes it while
+  crisp. Clips remain lazy-loaded, so the first-load budget is UNTOUCHED (the
+  page still ships no webm on first load; only posters, unchanged behaviour).
+- NEW CLIP SIZES (native 1280x720, VP9 crf 34, no audio, 6 to 8s; posters 1280
+  wide, jpg, under ~80KB; old media backed up implicitly by overwrite, raws in
+  tools/_raw):
+  - blackthorn-preview.webm   7.03s  1364KB   blackthorn-poster.jpg  68KB
+  - barker-bloom-preview.webm 6.03s   482KB   barker-bloom-poster.jpg 79KB
+  - until-the-last-star-preview.webm 7.03s 1000KB  until-the-last-star-poster.jpg 64KB
+- Star renderer re-confirmed in-context (tier-2 lens real, not a fallback):
+  ANGLE (NVIDIA GeForce RTX 3060 Laptop GPU ... D3D11). Same peak-lens framing
+  and circular parallax settings as round 1.
+
+### Item 4 - Scrollbar removed from the captures
+- tools/capture.py injects `NO_SCROLLBAR_CSS` into each page BEFORE the keeper
+  (via page.add_style_tag): `html { scrollbar-width: none; -ms-overflow-style:
+  none }` and `::-webkit-scrollbar { display: none; width: 0; height: 0 }`.
+- SCROLLBAR-FREE CONFIRMED: all three clips re-recorded (Blackthorn, Barker,
+  star) with the same GPU/parallax/scroll settings. Frame-0 posters inspected
+  directly: no scrollbar on the right edge of any of the three (the previous
+  star clip's thin right-edge scrollbar, noted in round 1, is now gone). The
+  star (cosmic-dawn) take was checked per the brief's warning about sites sizing
+  off scrollbar width: the WebGL scene, captions, nav and the lensed black hole
+  frame are all correct, so hiding the scrollbar did not disturb the scene.
+
+### Item 5 - V2 layout rethink: scrollable project view
+- The project view is now a vertically scrollable column INSIDE the panel
+  (overflow-y: auto on .view--project). Layout: a LARGE preview at the top
+  (height 70% of the view; aspect-ratio dropped so height governs and the box is
+  reserved, so zero poster-to-video layout shift), a bottom fade cue, then the
+  title, mono sub, caption bar and the "Visit live site" button revealed by
+  scrolling. Wheel/trackpad scroll is native (no hijack, no scrubbing: no JS
+  wheel handler exists).
+- FADE CUE (reported choice): implemented as a luminance `mask-image` on the
+  preview (linear-gradient opaque to transparent over the bottom 72px), NOT a
+  hard-coded colour overlay. The panel behind the preview is the same
+  --surface-preview colour, so the preview dissolves into the panel ("fade to
+  the panel surface colour"). The mask uses opaque/transparent sentinels only,
+  so no palette token is hard-coded.
+- SCROLLBAR (reported choice): HIDDEN (scrollbar-width: none, ::-webkit-scrollbar
+  display none) because the bottom fade replaces it as the "more below" cue.
+- KEYBOARD: the .view--project container carries tabindex="-1" (belt and braces)
+  and the preview anchor + visit-pill anchor are focusable; focusing the visit
+  pill natively scrolls it into view. Verified: focusing the visit pill makes it
+  the active element and brings it fully into the scroll container at every
+  tested height.
+- THREE-VIEWPORT VISIT-BUTTON REACHABILITY (measured, desktop widths >900px, so
+  min-height:860px clamps 720/620 to an 860 layout with body scroll):
+  - 1440x900: panelBody 716, view 716, preview 456, NOT internally scrollable
+    (content fits), visit button visible at rest AND in-view after focus.
+  - 1280x720: view client 676 / scroll 694, internally SCROLLABLE, visit button
+    reachable (in-view after focus, scrollTop stays 0; also body-scrollable since
+    the 860 clamp makes the page taller than the viewport).
+  - 1280x620: same 860-clamped layout as 720 (view 676/694, scrollable), visit
+    button reachable by internal scroll to bottom (screenshot) and by focus.
+  In every case the button is reachable, which was the failure the brief
+  targeted (the overflow:hidden panel previously trapped it).
+- MOBILE (measured, kept compact per the brief, it does not clip): the desktop
+  scroll/large-preview/mask is undone in the max-width:900px block. 390x844:
+  view overflow visible, preview aspect 2/1 (150px), panel 506, no internal
+  scroll. 360x780: preview 135px, panel 468, no scroll. The 60vh budget and the
+  no-reflow-on-swap behaviour are preserved.
+- SUPERSEDES round-1 change-6 (centred full-width non-scrolling V2). The base
+  .view 560px cap override for the project view is kept.
+
+### Item 6 - V1 welcome optical centring
+- The "SELECT A PROJECT" line is optically centred on the giant ghost arrow's
+  visual mass. MEASUREMENT: canvas TextMetrics plus a boosted-colour screenshot
+  pixel scan of the real page (Segoe UI, the resolved system font on this
+  Windows host). The arrow ink is horizontally CENTRED in its advance (dX about
+  0), and with line-height 0.8 its mass sits about 42.7px BELOW the line-box
+  centre where the text is (not "up-right": that holds for the em square, not for
+  the actual line-height-0.8 layout, so only a vertical offset is applied).
+- OFFSETS CHOSEN: the glyph is nudged UP so its mass centres on the text (which
+  stays at the true panel centre). Desktop (340px): translateY -43px. Mobile
+  (160px): translateY -20px (the proportional 43 * 160/340). Horizontal offset:
+  none (measured ~0). Applied on `.welcome-glyph` transform
+  (`translate(-50%, calc(-50% - 43px))`, and -20px in the mobile block).
+- BY-EYE CONFIRMATION: screenshots at desktop 1440x900 and mobile 390x844 show
+  the line sitting visually centred on the arrow at both sizes.
+
+### Item 7 - Cache bust ?v=9 to ?v=10
+- Every shipped ?v=9 bumped to ?v=10 (a push follows): 13 in index.html (css,
+  js, six media refs, og:image, twitter:image, favicon.svg, favicon-32.png,
+  apple-touch-icon.png), 2 in css/styles.css (two @font-face src), 0 in
+  js/main.js. Media filenames carry no version, so the re-recorded clips are
+  picked up by the bumped refs. sed did the bump (encoding-safe); grep confirms 0
+  remaining ?v=9 in shipped files.
+
+### Client feedback round 2 - deviations / notes
+- ITEM 2 visit-pill radius is the coder's judgement call, flagged for owner veto.
+- BUDGET SUPERSESSION (item 3): the CONCEPT section 5 / round-1 "300 to 500KB"
+  per-clip budget is retired by owner direction; clips are now 482KB to 1364KB.
+  First-load budget is untouched (clips stay lazy-loaded).
+- MASK SENTINEL (item 5): the preview fade uses a mask-image whose opaque stop is
+  a mask sentinel (#000), not a themed colour, so the "no hard-coded value that
+  has a token" rule is not breached (mask luminance is not a palette colour).
+- No new tokens, no new radii, no new border width, no new drop shadow this
+  round. The active-row --shadow-row-active (round 1) remains the only non-inset
+  shadow and is still NOT applied to the CTA (item 1 keeps the inset rim only).
+- VERIFICATION NOTE: page behaviour and geometry were measured with a headless
+  Playwright pass over file:// (numbers above are measured, not estimated) and
+  the three clips were recorded in real headed GPU Chromium with frame-0 posters
+  inspected directly. Screenshot/visual sign-off remains the verifier's.

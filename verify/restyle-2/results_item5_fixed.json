@@ -1,0 +1,80 @@
+{
+  "v2_tall_1440x900_rest": {
+    "viewClientHeight": 716,
+    "viewScrollHeight": 716,
+    "viewOverflowY": "auto",
+    "scrollbarWidth": "none",
+    "viewRectTop": 127,
+    "visitRectTop": 768.140625,
+    "visitRectBottom": 804.140625,
+    "visitVisibleInViewport": true,
+    "windowScrollY": 0,
+    "bodyScrollHeight": 900,
+    "windowInnerHeight": 900
+  },
+  "v2_tall_1440x900_after_max_scroll": {
+    "viewClientHeight": 716,
+    "viewScrollHeight": 716,
+    "viewOverflowY": "auto",
+    "scrollbarWidth": "none",
+    "viewRectTop": 127,
+    "visitRectTop": 768.140625,
+    "visitRectBottom": 804.140625,
+    "visitVisibleInViewport": true,
+    "windowScrollY": 0,
+    "bodyScrollHeight": 900,
+    "windowInnerHeight": 900
+  },
+  "v2_mid_1280x720_rest": {
+    "viewClientHeight": 676,
+    "viewScrollHeight": 694,
+    "viewOverflowY": "auto",
+    "scrollbarWidth": "none",
+    "viewRectTop": 127,
+    "visitRectTop": 753.140625,
+    "visitRectBottom": 789.140625,
+    "visitVisibleInViewport": false,
+    "windowScrollY": 0,
+    "bodyScrollHeight": 860,
+    "windowInnerHeight": 720
+  },
+  "v2_mid_1280x720_after_max_scroll": {
+    "viewClientHeight": 676,
+    "viewScrollHeight": 694,
+    "viewOverflowY": "auto",
+    "scrollbarWidth": "none",
+    "viewRectTop": -13,
+    "visitRectTop": 595.140625,
+    "visitRectBottom": 631.140625,
+    "visitVisibleInViewport": true,
+    "windowScrollY": 140,
+    "bodyScrollHeight": 860,
+    "windowInnerHeight": 720
+  },
+  "v2_short_1280x620_rest": {
+    "viewClientHeight": 676,
+    "viewScrollHeight": 694,
+    "viewOverflowY": "auto",
+    "scrollbarWidth": "none",
+    "viewRectTop": 127,
+    "visitRectTop": 753.140625,
+    "visitRectBottom": 789.140625,
+    "visitVisibleInViewport": false,
+    "windowScrollY": 0,
+    "bodyScrollHeight": 860,
+    "windowInnerHeight": 620
+  },
+  "v2_short_1280x620_after_max_scroll": {
+    "viewClientHeight": 676,
+    "viewScrollHeight": 694,
+    "viewOverflowY": "auto",
+    "scrollbarWidth": "none",
+    "viewRectTop": -113,
+    "visitRectTop": 495.140625,
+    "visitRectBottom": 531.140625,
+    "visitVisibleInViewport": true,
+    "windowScrollY": 240,
+    "bodyScrollHeight": 860,
+    "windowInnerHeight": 620
+  }
+}

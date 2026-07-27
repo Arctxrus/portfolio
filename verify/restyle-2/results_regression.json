@@ -1,0 +1,71 @@
+{
+  "decode_early_snapshot": "F1AXO9 Y SKOCDQ5",
+  "decode_final_text": "Select a project",
+  "console_errors_on_load": [],
+  "fade_blocks_after_load": [
+    {
+      "cls": "name-block fade-block is-in",
+      "isIn": true,
+      "opacity": "1"
+    },
+    {
+      "cls": "positioning fade-block is-in",
+      "isIn": true,
+      "opacity": "1"
+    },
+    {
+      "cls": "index fade-block is-in",
+      "isIn": true,
+      "opacity": "1"
+    },
+    {
+      "cls": "how fade-block is-in",
+      "isIn": true,
+      "opacity": "1"
+    },
+    {
+      "cls": "proof fade-block is-in",
+      "isIn": true,
+      "opacity": "0.99349"
+    },
+    {
+      "cls": "footer fade-block is-in",
+      "isIn": true,
+      "opacity": "0.98345"
+    },
+    {
+      "cls": "panel fade-block is-in",
+      "isIn": true,
+      "opacity": "0.954382"
+    }
+  ],
+  "rest_row_name_color": {
+    "color": "rgb(142, 142, 150)"
+  },
+  "active_row_style": {
+    "bg": "rgb(255, 255, 255)",
+    "borderColor": "rgb(232, 232, 236)",
+    "boxShadow": "rgba(20, 20, 22, 0.06) 0px 1px 3px 0px",
+    "nameColor": "rgb(20, 20, 22)",
+    "height": 55
+  },
+  "row_grow_push": {
+    "before_height": 47,
+    "after_height": 55,
+    "delta": 8
+  },
+  "form_success_flow": {
+    "status_text": "Something broke. Email me directly at hello@placeholder.invalid.Try again",
+    "fetch_calls": 0
+  },
+  "aria_live_region": {
+    "ariaLive": "polite",
+    "role": "status",
+    "text": "Preview / Blackthorn & Co."
+  },
+  "reduced_motion_trail_dot_count": 0,
+  "reduced_motion_cta_mist_count": 0,
+  "reduced_motion_cta_bloom_count": 0,
+  "reduced_motion_cta_animation_name": "none",
+  "reduced_motion_panel_swap_transition_duration": "1e-05s"
+}

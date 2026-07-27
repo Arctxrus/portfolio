@@ -1,0 +1,108 @@
+{
+  "wheel_internal_before": 0,
+  "wheel_internal_after": 18,
+  "wheel_scroll_worked": true,
+  "tab_sequence": [
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "text": "02\n            Barker & Bloom\n          ",
+      "top": 320.1875,
+      "bottom": 367.1875,
+      "inViewport": true,
+      "scrollY": 0
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "text": "03\n            Until the Last Star\n     ",
+      "top": 373.1875,
+      "bottom": 420.1875,
+      "inViewport": true,
+      "scrollY": 0
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "text": "04\n            About\n            \n      ",
+      "top": 426.1875,
+      "bottom": 473.1875,
+      "inViewport": true,
+      "scrollY": 0
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "text": "05\n            Pricing\n            \n    ",
+      "top": 479.1875,
+      "bottom": 526.1875,
+      "inViewport": true,
+      "scrollY": 0
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta",
+      "text": "06\n            Get in touch\n            ",
+      "top": 532.1875,
+      "bottom": 578.1875,
+      "inViewport": true,
+      "scrollY": 0
+    },
+    {
+      "tag": "A",
+      "cls": "",
+      "text": "hello@placeholder.invalid",
+      "top": 666.875,
+      "bottom": 680.875,
+      "inViewport": true,
+      "scrollY": 140
+    },
+    {
+      "tag": "A",
+      "cls": "preview",
+      "text": "",
+      "top": 19,
+      "bottom": 447.390625,
+      "inViewport": true,
+      "scrollY": 140
+    },
+    {
+      "tag": "A",
+      "cls": "visit-pill",
+      "text": "Visit live site \u2197",
+      "top": 613.140625,
+      "bottom": 649.140625,
+      "inViewport": true,
+      "scrollY": 140
+    }
+  ],
+  "preview_box_early": {
+    "rect": {
+      "x": 649,
+      "y": 164.10079956054688,
+      "width": 522,
+      "height": 456.3906555175781,
+      "top": 164.10079956054688,
+      "right": 1171,
+      "bottom": 620.491455078125,
+      "left": 649
+    },
+    "videoReadyState": 1,
+    "videoPaused": true
+  },
+  "preview_box_late": {
+    "rect": {
+      "x": 649,
+      "y": 159,
+      "width": 522,
+      "height": 456.390625,
+      "top": 159,
+      "right": 1171,
+      "bottom": 615.390625,
+      "left": 649
+    },
+    "videoReadyState": 4,
+    "videoPaused": false,
+    "currentTime": 1.529628
+  }
+}
