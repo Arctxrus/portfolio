@@ -1,0 +1,103 @@
+{
+  "head": {
+    "lang": "en-GB",
+    "charset": "utf-8",
+    "viewport": "width=device-width, initial-scale=1",
+    "title": "Zayn \u00b7 Web design for local businesses",
+    "description": "I build fast, polished websites for local businesses. From \u00a3300.",
+    "ogType": "website",
+    "ogSiteName": "Zayn",
+    "ogUrl": "https://arctxrus.github.io/portfolio/",
+    "ogTitle": "Zayn \u00b7 Web design for local businesses",
+    "ogDescription": "I build fast, polished websites for local businesses. From \u00a3300.",
+    "ogImage": "https://arctxrus.github.io/portfolio/og-image.png?v=6",
+    "ogImageType": "image/png",
+    "ogImageWidth": "1200",
+    "ogImageHeight": "630",
+    "ogImageAlt": "Zayn. I build fast, polished websites for local businesses. From \u00a3300.",
+    "twitterCard": "summary_large_image",
+    "twitterTitle": "Zayn \u00b7 Web design for local businesses",
+    "twitterDescription": "I build fast, polished websites for local businesses. From \u00a3300.",
+    "twitterImage": "https://arctxrus.github.io/portfolio/og-image.png?v=6",
+    "twitterImageAlt": "Zayn. I build fast, polished websites for local businesses. From \u00a3300.",
+    "iconLinks": [
+      {
+        "rel": "icon",
+        "href": "favicon.svg?v=6",
+        "type": "image/svg+xml",
+        "sizes": null
+      },
+      {
+        "rel": "icon",
+        "href": "favicon-32.png?v=6",
+        "type": "image/png",
+        "sizes": "32x32"
+      },
+      {
+        "rel": "apple-touch-icon",
+        "href": "apple-touch-icon.png?v=6",
+        "type": null,
+        "sizes": null
+      }
+    ]
+  },
+  "panel_header_after_swap": null,
+  "console_errors_desktop": [],
+  "requested_urls_normal_load": [
+    "http://localhost:8791/index.html",
+    "http://localhost:8791/css/styles.css?v=6",
+    "http://localhost:8791/js/main.js?v=6",
+    "http://localhost:8791/fonts/archivo-latin-var.woff2?v=6",
+    "http://localhost:8791/fonts/martian-mono-latin-var.woff2?v=6",
+    "http://localhost:8791/media/blackthorn-preview.webm?v=6"
+  ],
+  "console_errors_mobile360": [],
+  "resource_timing": [
+    {
+      "name": "http://localhost:8791/css/styles.css?v=6",
+      "transferSize": 40274,
+      "initiatorType": "link"
+    },
+    {
+      "name": "http://localhost:8791/js/main.js?v=6",
+      "transferSize": 31967,
+      "initiatorType": "script"
+    },
+    {
+      "name": "http://localhost:8791/fonts/archivo-latin-var.woff2?v=6",
+      "transferSize": 35228,
+      "initiatorType": "css"
+    },
+    {
+      "name": "http://localhost:8791/fonts/martian-mono-latin-var.woff2?v=6",
+      "transferSize": 23856,
+      "initiatorType": "css"
+    }
+  ],
+  "nav_timing": {
+    "transferSize": 15121,
+    "name": "http://localhost:8791/index.html"
+  },
+  "all_responses": [
+    {
+      "url": "http://localhost:8791/index.html",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8791/css/styles.css?v=6",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8791/js/main.js?v=6",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8791/fonts/archivo-latin-var.woff2?v=6",
+      "status": 200
+    },
+    {
+      "url": "http://localhost:8791/fonts/martian-mono-latin-var.woff2?v=6",
+      "status": 200
+    }
+  ]
+}

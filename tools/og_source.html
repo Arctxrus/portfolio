@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<!-- ==========================================================================
+     Build-time source for og-image.png (CONCEPT.md section 9). Rendered at
+     exactly 1200x630 by tools/og_image.py with headless Chromium, using the
+     project's own self-hosted fonts and design tokens, then flattened to the
+     solid ground colour (no alpha). Not shipped to the page and not referenced
+     by index.html. UK English, no em dashes.
+     ========================================================================== -->
+<style>
+  @font-face {
+    font-family: 'Archivo';
+    font-style: normal;
+    font-weight: 400 600;
+    font-stretch: 100%;
+    src: url('../fonts/archivo-latin-var.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'Martian Mono';
+    font-style: normal;
+    font-weight: 300 500;
+    font-stretch: 100%;
+    src: url('../fonts/martian-mono-latin-var.woff2') format('woff2');
+  }
+
+  :root {
+    --ground:      #FAFAFA;
+    --ink:         #141416;
+    --ink-body:    #43434A;
+    --grey-label:  #8E8E96;
+    --accent:      #1A6FD4;
+    --dot-rest:    rgba(20,20,22,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body { width: 1200px; height: 630px; }
+
+  body {
+    position: relative;
+    background: var(--ground);
+    overflow: hidden;
+    font-family: 'Archivo', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+  }
+
+  /* One accent element: a restrained patch of the site's own dot grid.
+     Real dots (SVG pattern), not a gradient, at the site's --dot-rest alpha,
+     1.5px dots on 26px spacing. Kept to the right side so it reads as a
+     deliberate patch rather than a full-bleed fill. */
+  .dots {
+    position: absolute;
+    inset: 0 0 0 auto;
+    width: 520px;
+    height: 100%;
+    background-image: radial-gradient(var(--dot-rest) 0.75px, transparent 0.75px);
+    background-size: 26px 26px;
+    background-position: 0 0;
+  }
+
+  .content {
+    position: absolute;
+    left: 96px;
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 1000px;
+  }
+
+  .kicker {
+    font-family: 'Martian Mono', ui-monospace, monospace;
+    font-weight: 400;
+    font-size: 20px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--grey-label);
+    margin-bottom: 26px;
+  }
+
+  .name {
+    font-family: 'Archivo', system-ui, sans-serif;
+    font-weight: 600;
+    font-size: 156px;
+    letter-spacing: -0.015em;
+    line-height: 1;
+    color: var(--ink);
+  }
+
+  .positioning {
+    margin-top: 40px;
+    max-width: 720px;
+    font-family: 'Archivo', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 46px;
+    line-height: 1.42;
+    color: var(--ink-body);
+  }
+
+  .price {
+    font-family: 'Martian Mono', ui-monospace, monospace;
+    font-weight: 400;
+    font-size: 40px;
+    color: var(--accent);
+  }
+</style>
+</head>
+<body>
+  <div class="dots" aria-hidden="true"></div>
+  <div class="content">
+    <div class="kicker">Freelance / Web</div>
+    <div class="name">Zayn</div>
+    <p class="positioning">I build fast, polished websites for local businesses. From <span class="price">&pound;300</span>.</p>
+  </div>
+</body>
+</html>

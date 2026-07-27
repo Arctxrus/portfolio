@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="#141416">
+  <!-- Simple geometric "Z" mark, ink on transparent (CONCEPT.md section 9).
+       Two horizontal bars plus a diagonal parallelogram, drawn as flat shapes
+       so it stays crisp at 16px and scales cleanly. UK English, no em dashes. -->
+  <rect x="6.5" y="7" width="19" height="4.6"/>
+  <rect x="6.5" y="20.4" width="19" height="4.6"/>
+  <polygon points="20.9,7 25.5,7 11.1,25 6.5,25"/>
+</svg>

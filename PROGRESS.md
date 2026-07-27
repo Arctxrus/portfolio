@@ -21,7 +21,12 @@ House rules: UK English, no em dashes, instrument then fix, commit per stage.
 - [x] Stage 6 video capture: DONE. The three webm previews and poster jpgs are
       recorded, processed and integrated (see the Stage 6 log). Re-record on any
       demo push via tools/README.md; add "re-record clips" to the push checklist.
-- [ ] Stage 10 waits on the confirmed deployed URL.
+- [x] /favicon.ico 404 (flagged at stage 6): RESOLVED at stage 7. rel=icon
+      links are declared; a headed probe confirmed Chromium fetches favicon.svg
+      and no longer requests /favicon.ico. No favicon.ico added.
+- [ ] Stage 10 waits on the confirmed deployed URL. When the final URL is known,
+      update the CANONICAL SITE URL comment plus og:url, og:image and
+      twitter:image in index.html together (they carry the domain literally).
 
 ## DRAFT FOR APPROVAL (stage 3 copy)
 
@@ -716,6 +721,101 @@ cause introduced by round-1 fix 1. Fixed and re-verified across viewport heights
   integration/autoplay/no-shift/no-404 checks were all observed directly rather
   than only programmatically. Screenshot/visual sign-off is still the
   verifier's.
+
+### Stage 7 - Head, meta, Open Graph, favicon (section 9)
+- Status: VERIFIED PASS (verifier run 2026-07-27, 0 FAILs, screenshots and
+  results JSON in verify/stage-7/; first-load transfer ~146KB, favicon.ico
+  404 gone, og-image checked at 1200x630 under alpha-free PNG).
+  Stage 1 already set lang="en-GB",
+  charset, viewport, the title and the description; this stage added the share
+  card meta, the built og-image, and the favicon set, and bumped every cache
+  bust ?v=5 to ?v=6 (a push follows this stage).
+
+- Cache bust: all shipped refs are now ?v=6. index.html carries 13 (css link,
+  js script, six project media refs, plus the five new refs: og:image,
+  twitter:image, favicon.svg, favicon-32.png, apple-touch-icon.png);
+  css/styles.css carries 2 (the two @font-face src). No BOM, no mojibake, no em
+  dashes. sed did the bump; grep confirms zero ?v=5 remain in index.html,
+  css/styles.css or js/main.js.
+
+- Open Graph / Twitter (index.html head): og:type website, og:site_name,
+  og:url, og:title (mirrors <title>), og:description (mirrors the positioning
+  line), og:image + og:image:type/width/height (1200x630) /alt, and the Twitter
+  equivalents (twitter:card summary_large_image, title, description, image,
+  image:alt). Description and title copy are identical to the on-page strings.
+
+- og-image.png (repo root, 1200x630, RGB no alpha, 33 KB, target was under
+  100 KB): BUILT, not screenshotted from the site. Rendered by tools/og_image.py
+  from tools/og_source.html with headless Chromium at device_scale_factor 1
+  (exactly 1200x630), waiting on document.fonts.ready so the type is the site's
+  own self-hosted Archivo and Martian Mono, then flattened onto the ground
+  colour (#FAFAFA) with Pillow and saved as an optimised alpha-free PNG. Layout:
+  ground #FAFAFA, "Zayn" in Archivo 600 (tracking -0.015em), the positioning
+  line in Archivo 400 with "£300" in Martian Mono at accent #1A6FD4, and one
+  accent element: a restrained patch of the site's own dot grid (real hard-edged
+  dots, no gradient sheen, at the --dot-rest alpha, 1.5px on 26px spacing),
+  confined to the right so it reads as a patch, not a full-bleed fill. No
+  gradients, no shadows.
+
+- Favicon (CONCEPT section 9: simple "Z" mark, ink on transparent). favicon.svg
+  (repo root, 472 bytes) is hand-authored: a clean geometric Z drawn as two
+  horizontal bars plus a diagonal parallelogram, fill #141416 (--ink), tight
+  32x32 viewBox, transparent. PNG fallbacks rendered from that SVG by
+  tools/favicon_png.py (Chromium at 512px, downsampled LANCZOS): favicon-32.png
+  (32x32, ink on transparent, 640 bytes) and apple-touch-icon.png (180x180,
+  2.1 KB). Head links: rel=icon SVG first, rel=icon PNG 32x32 fallback,
+  apple-touch-icon, all ?v=6.
+
+- /favicon.ico resolved (the 404 flagged at stage 6): instrumented, not guessed.
+  A headed Chromium over a local http server (temporary probe, since removed)
+  recording every request showed the browser fetched favicon.svg?v=6 (200) and
+  did NOT request /favicon.ico. So the rel=icon links cover it and no
+  favicon.ico is needed; none was added. (Headless Chromium fetches no favicon
+  at all, having no tab UI, so the check had to be headed, matching the headed
+  run that first saw the stage-6 404.)
+
+- Performance: first-load transfer delta this stage = favicon.svg only, 472
+  bytes. The same headed probe confirmed the browser does NOT fetch og-image.png,
+  favicon-32.png or apple-touch-icon.png on a normal page load (og-image is a
+  crawler asset; the 32px PNG is a fallback only used when SVG icons are
+  unsupported; the touch icon is iOS add-to-home only), and there is no
+  accidental preload. Budget impact negligible.
+
+### Stage 7 deviations / judgement calls
+- Icon/OG asset location: favicon.svg, favicon-32.png, apple-touch-icon.png and
+  og-image.png are placed at the repo root. Section 2 fixes the shipped file
+  layout as index.html/css/js/media/fonts/references; favicons and the share
+  card are conventionally root-level (browsers probe /favicon.ico at root; iOS
+  probes /apple-touch-icon.png at root) and are individual files, not a new
+  top-level directory, so this stays within the "no new top-level structure"
+  rule. Flagged here for the record.
+- og:image / twitter:image use ABSOLUTE URLs (not a bare filename). Reason:
+  crawlers (Facebook, LinkedIn) resolve relative image URLs unreliably and
+  several require absolute. The trade-off is that the deployed domain now appears
+  literally in three tags (og:url, og:image, twitter:image); to honour the brief's
+  "single obvious place to change it", a labelled CANONICAL SITE URL comment sits
+  directly above those tags naming exactly which three to edit if a custom domain
+  arrives. og:url is https://arctxrus.github.io/portfolio/ per the brief.
+- apple-touch-icon.png is flattened onto the ground colour (#FAFAFA), not left
+  transparent, although the SVG mark itself is ink-on-transparent per section 9.
+  Reason: iOS composites a transparent touch icon onto black, which would flip
+  the mark to look inverted on a dark tile; the ground fill keeps it on-brand.
+  The browser tab favicon (SVG and the 32px PNG) stays transparent as specified.
+- The dot-grid patch on the og-image is produced with a radial-gradient dot
+  technique, but the colour stop is hard-edged (solid to transparent at the same
+  0.75px radius), so there is no visible gradient band: it renders as flat dots,
+  consistent with the "no gradients" instruction for the card. It is the site's
+  own dot token (--dot-rest), so it matches the live background.
+- og-image copy: CONCEPT section 9 and the brief both specify "Zayn plus the
+  positioning line". I also included the small "FREELANCE / WEB" kicker (Martian
+  Mono, grey) above the name. Reason: it faithfully reproduces the site's actual
+  name block (name + kicker sit together on the page) and strengthens the brand
+  read on the card; it is an addition, not a conflict, since neither spec forbids
+  it. Flagged so the orchestrator can veto it if a barer card is preferred.
+- Added three build-only files to the existing tools/ folder (og_image.py,
+  favicon_png.py, og_source.html). Like capture.py these ship nothing to the
+  page and are not referenced by index.html/css/js; raw render masters go to the
+  gitignored tools/_raw/. Consistent with the tools/ deviation logged at stage 6.
 
 ### Stage 2 deviations / judgement calls
 - Light-pass layer needs a background-size and there is no token for it; used a
