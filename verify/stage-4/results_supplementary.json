@@ -1,0 +1,26 @@
+{
+  "baseline_console": [],
+  "supplementary": {
+    "original_submit_label": "Send \u00b7 I typically reply same day",
+    "label_after_fail_restored": "Send \u00b7 I typically reply same day",
+    "disabled_after_fail_restored": false,
+    "active_before_tab": "form-status is-shown",
+    "active_after_one_tab": "A:",
+    "active_after_two_tabs": "BUTTON:form-retry",
+    "business_intact_after_retry": "Fox Salon",
+    "name_intact_after_retry": "Dana Fox",
+    "message_intact_after_retry": "Need a booking widget"
+  },
+  "focus_visible_ring": {
+    "focus1_tag": "A",
+    "focus1_style": {
+      "boxShadow": "rgb(26, 111, 212) 0px 0px 0px 1px inset",
+      "outline": "none"
+    },
+    "focus2_tag": "RETRY",
+    "focus2_style": {
+      "boxShadow": "rgb(26, 111, 212) 0px 0px 0px 1px inset",
+      "outline": "none"
+    }
+  }
+}

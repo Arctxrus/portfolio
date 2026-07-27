@@ -284,6 +284,87 @@ SITE_EMAIL; no console errors.
   keyboard focus, submit stub, 404 media as expected, no console errors).
   Visual/screenshot verification is left to the verifier subagent.
 
+### Stage 4 - Contact form wiring (Formspree, success/failure, honeypot)
+- Status: VERIFIED PASS (verifier run 2026-07-27, 0 FAILs, screenshots and
+  results JSON in verify/stage-4/). The earlier cut-off verifier run's
+  suspicion about the F2 focus ring was its own measurement error (read
+  before the 150ms transition settled); re-measured correct. All asset references bumped ?v=3 to
+  ?v=4 (css link, js script, two @font-face src, the six project media refs).
+  Files changed: index.html, css/styles.css, js/main.js, PROGRESS.md.
+
+- Formspree endpoint: a single constant `FORMSPREE_ENDPOINT` in js/main.js,
+  next to `SITE_EMAIL`, value `https://formspree.io/f/REPLACE_FORM_ID` (open
+  item, placeholder deliberately obvious). Single-edit choice: the form's
+  `action` is injected from this constant when the form view is rendered
+  (initPanel/renderView), NOT hardcoded in the HTML, so there is exactly one
+  place to change the endpoint. Caveat: the form lives in a `<template>`
+  cloned by JS on selection (stage-3 architecture), so the "plain HTML POST
+  when JS is unavailable" fallback is theoretical: with JS off the form is
+  never rendered at all. The action is still set correctly for robustness. A
+  truly no-JS form would need the markup lifted out of the template, which is
+  a stage-3 change and out of scope here. Flagged for the orchestrator.
+
+- Progressive enhancement (section 7): submit is intercepted (delegated on the
+  persistent `.panel-body`, so freshly cloned forms are always wired),
+  `preventDefault` so it never redirects to Formspree, then `fetch` POST with
+  `Accept: application/json` and a `FormData` body. On `response.ok` the
+  success state shows; on non-2xx or a rejected promise (network error) the
+  failure state shows. Verified all three by stubbing `window.fetch`.
+
+- Success / failure presentation: a `.form-status` element (role=status,
+  aria-live=polite, tabindex=-1) inside the card overlays the fields
+  (position:absolute, inset:0, opaque white). The interactive parts moved into
+  a `.form-fields` wrapper that carries the card's flex/gap/padding, so the
+  wrapper defines the card size and the overlay fills it without changing it:
+  measured card box is identical (440x359) in the form state and the success
+  state, so the panel never reflows (no layout jump). Success copy: "Sent. I
+  will reply the same working day." Failure copy: "Something broke. Email me
+  directly at <address>." with the address a mailto link built from
+  `SITE_EMAIL`. Both messages are Archivo 14px (matches the form inputs) in
+  --ink-body; the mailto is --accent. No error/red colour is used (there is no
+  token for one; tokens-everywhere kept).
+
+- Failure keeps the typed message: fields are NOT reset on failure (verified
+  message intact after both non-2xx and network error). Because the overlay
+  covers the fields, the failure state includes a quiet mono "Try again"
+  button (--accent text, not the CTA/submit treatment) that hides the overlay
+  and returns to the intact form (message still present, submit re-enabled,
+  focus to the first field) so the user can copy or resend. Success does reset
+  the fields (permitted) and is terminal (no dismiss).
+
+- Validation (section 7): `novalidate` removed from the form so native
+  `required` is the primary gate (browser bubble + the field focus ring, no
+  custom error UI). For non-empty-after-trim, the handler trims each field in
+  place and calls `checkValidity()` / `reportValidity()`, so a whitespace-only
+  entry is rejected through the same native mechanism. Verified: empty fields
+  are natively invalid (valueMissing) and never fetch; a whitespace-only
+  message trims to empty, is reported invalid, and never fetches.
+
+- In-flight guard: on send the submit button is disabled and its label swaps
+  to a static "Sending" (no looping spinner; only the CTA drift is
+  sanctioned). Re-entrant submits are ignored while disabled (verified: three
+  rapid submits = one fetch call). The label/enabled state is restored on
+  failure; on success the button stays covered by the terminal overlay.
+
+- Honeypot (`_gotcha`): checked first in the handler; if filled, the form is
+  reset and the success state is shown WITHOUT any fetch (verified: zero fetch
+  calls, success shown). The field stays off-screen, out of tab order and
+  aria-hidden from stage 3.
+
+- Aria / keyboard (section 7 item 5): the in-card role=status region carries
+  the outcome text and receives focus (tabindex -1) on success and failure, so
+  a keyboard user is not stranded; the covered `.form-fields` wrapper is set
+  `inert` while the overlay is shown (removed on "Try again"), so hidden
+  controls are unreachable by keyboard or AT.
+
+- Verification note: same backgrounded-pane limitation as stages 1 to 3;
+  behaviour was verified programmatically over a local http server by stubbing
+  `window.fetch` (and, for the whitespace case, `form.reportValidity` to avoid
+  the native bubble hanging the automation) in the pane console. All stubs
+  were console-only; no instrumentation was left in the source. Visual and
+  screenshot verification is left to the verifier subagent.
+- Open items unchanged: the Formspree form ID and the real email remain open.
+
 ### Stage 2 deviations / judgement calls
 - Light-pass layer needs a background-size and there is no token for it; used a
   literal 200% 200% with a comment (the three drift-layer sizes use the

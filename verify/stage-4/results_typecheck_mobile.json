@@ -1,0 +1,73 @@
+{
+  "type_checks": {
+    "formLabel": {
+      "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+      "fontSize": "10px",
+      "fontWeight": "400",
+      "letterSpacing": "normal",
+      "textTransform": "uppercase",
+      "color": "rgb(142, 142, 150)"
+    },
+    "fieldInput": {
+      "fontFamily": "Archivo, system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+      "fontSize": "14px",
+      "fontWeight": "400",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(20, 20, 22)"
+    },
+    "fieldTextarea": {
+      "fontFamily": "Archivo, system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+      "fontSize": "14px",
+      "fontWeight": "400",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(20, 20, 22)"
+    },
+    "submitBtn": {
+      "fontFamily": "Archivo, system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+      "fontSize": "14px",
+      "fontWeight": "600",
+      "letterSpacing": "normal",
+      "textTransform": "none",
+      "color": "rgb(255, 255, 255)"
+    },
+    "placeholderColorVar": "#9A9AA2"
+  },
+  "mobile_360": {
+    "card_box": {
+      "width": 440,
+      "left": 573,
+      "right": 1013
+    },
+    "hp_box": {
+      "left": -9425,
+      "top": 258.5
+    },
+    "viewport_width": 360
+  },
+  "mobile_390": {
+    "card_box": {
+      "width": 440,
+      "left": 573,
+      "right": 1013
+    },
+    "hp_box": {
+      "left": -9425,
+      "top": 302.5
+    },
+    "viewport_width": 390
+  },
+  "mobile_768": {
+    "card_box": {
+      "width": 440,
+      "left": 649,
+      "right": 1089
+    },
+    "hp_box": {
+      "left": -9349,
+      "top": 400.5
+    },
+    "viewport_width": 768
+  }
+}

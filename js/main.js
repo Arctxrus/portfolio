@@ -5,6 +5,8 @@
             row pointer trails, CTA hover mist and press bloom.
    Stage 3: panel controller (row/CTA to view swap, V5 animation, active-state
             sync, aria-live announcement, contact-form submit stub).
+   Stage 4: contact form wiring (Formspree fetch, success/failure states,
+            honeypot, native + trim validation, in-flight guard, aria).
    Vanilla JS only. UK English. No em dashes.
    ========================================================================== */
 
@@ -27,6 +29,16 @@ function prefersReducedMotion() {
    -------------------------------------------------------------------------- */
 
 const SITE_EMAIL = 'hello@placeholder.invalid';
+
+/* --------------------------------------------------------------------------
+   Formspree endpoint - defined exactly once. The contact form's action
+   attribute is set from this constant when the form view is rendered (see
+   initPanel/renderView), so there is a single place to edit the endpoint and
+   the plain POST target matches it. The real form ID is an open item
+   (see PROGRESS.md); the placeholder is deliberately obvious.
+   -------------------------------------------------------------------------- */
+
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/REPLACE_FORM_ID';
 
 /* --------------------------------------------------------------------------
    Footer wiring: build the email line and mailto from SITE_EMAIL, and stamp
@@ -357,6 +369,15 @@ function initPanel() {
       return;
     }
     panelBody.replaceChildren(tpl.content.cloneNode(true));
+
+    /* Inject the Formspree endpoint into the freshly cloned form (single
+       source of truth; also the plain POST target if fetch is unavailable). */
+    if (viewKey === 'form') {
+      const form = panelBody.querySelector('[data-contact-form]');
+      if (form) {
+        form.action = FORMSPREE_ENDPOINT;
+      }
+    }
   }
 
   function announce(text) {
@@ -416,13 +437,182 @@ function initPanel() {
       select(row);
     });
   });
+}
 
-  /* Stage 3 submit stub: prevent default so nothing navigates. The fetch
-     wiring, success/failure states and honeypot handling arrive at stage 4. */
+/* --------------------------------------------------------------------------
+   Contact form (CONCEPT.md section 7, 3.4 F1 to F6)
+
+   Progressive enhancement over the plain HTML POST form: intercept submit,
+   send via fetch with Accept: application/json, and show an inline success or
+   failure state inside the card (never a redirect to Formspree). The states
+   overlay the fields so the card keeps its dimensions.
+
+   - Honeypot (_gotcha): if filled, silently pretend success without sending.
+   - Validation: native `required` blocks empty fields (browser bubble + focus,
+     no custom error UI); a JS trim rejects whitespace-only via the same native
+     mechanism. No email field exists by design.
+   - In flight: the submit button is disabled (double-send guard) and its label
+     changes to a static "Sending"; restored on failure.
+   - Success clears the fields; failure leaves the typed message intact so it
+     can be copied. The failure message offers the visible email as a mailto
+     fallback and a quiet "Try again" that returns to the intact form.
+   - The outcome is announced via a role=status region inside the card, which
+     also takes focus (tabindex -1) so a keyboard user is not stranded.
+
+   The form is cloned fresh each time its view is shown, so state never leaks
+   between visits; the listeners are delegated on the persistent panel body.
+   -------------------------------------------------------------------------- */
+
+const FORM_SUCCESS_MSG = 'Sent. I will reply the same working day.';
+
+function restoreSubmit(submit) {
+  if (!submit) {
+    return;
+  }
+  submit.disabled = false;
+  if (submit.dataset.label) {
+    submit.textContent = submit.dataset.label;
+    delete submit.dataset.label;
+  }
+}
+
+/* Reveal the success or failure overlay, cover the fields from AT/keyboard,
+   and move focus to the message. */
+function showFormStatus(form, kind) {
+  const statusEl = form.querySelector('[data-form-status]');
+  const fields = form.querySelector('[data-form-fields]');
+  if (!statusEl) {
+    return;
+  }
+
+  statusEl.textContent = '';
+
+  const msg = document.createElement('p');
+  msg.className = 'form-status-msg';
+
+  if (kind === 'success') {
+    msg.textContent = FORM_SUCCESS_MSG;
+    statusEl.appendChild(msg);
+  } else {
+    /* "Something broke. Email me directly at <address>." (address = mailto). */
+    msg.append('Something broke. Email me directly at ');
+    const link = document.createElement('a');
+    link.href = 'mailto:' + SITE_EMAIL;
+    link.textContent = SITE_EMAIL;
+    msg.appendChild(link);
+    msg.append('.');
+    statusEl.appendChild(msg);
+
+    const retry = document.createElement('button');
+    retry.type = 'button';
+    retry.className = 'form-retry';
+    retry.setAttribute('data-form-retry', '');
+    retry.textContent = 'Try again';
+    statusEl.appendChild(retry);
+  }
+
+  /* Cover the fields so the covered controls are not reachable behind it. */
+  if (fields) {
+    fields.inert = true;
+  }
+  statusEl.classList.add('is-shown');
+  statusEl.focus();
+}
+
+/* Hide the overlay and return to the intact form (failure "Try again"). */
+function hideFormStatus(form) {
+  const statusEl = form.querySelector('[data-form-status]');
+  const fields = form.querySelector('[data-form-fields]');
+  if (statusEl) {
+    statusEl.classList.remove('is-shown');
+    statusEl.textContent = '';
+  }
+  if (fields) {
+    fields.inert = false;
+  }
+  const firstField = form.querySelector('.field');
+  if (firstField) {
+    firstField.focus();
+  }
+}
+
+function handleContactSubmit(form) {
+  const submit = form.querySelector('.submit');
+
+  /* Double-send guard: ignore re-entrant submits while a request is in flight. */
+  if (submit && submit.disabled) {
+    return;
+  }
+
+  /* Honeypot: a real user cannot reach this field. If it is filled, silently
+     pretend success without sending. */
+  const honeypot = form.querySelector('input[name="_gotcha"]');
+  if (honeypot && honeypot.value.trim() !== '') {
+    form.reset();
+    showFormStatus(form, 'success');
+    return;
+  }
+
+  /* Non-empty after trim: trim in place, then let the native mechanism report
+     any now-empty required field (browser bubble + focus ring, no custom UI). */
+  const fields = form.querySelectorAll('.field');
+  fields.forEach(function (field) {
+    field.value = field.value.trim();
+  });
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+
+  /* In flight: disable the submit and switch to a static "Sending" label. */
+  if (submit) {
+    submit.dataset.label = submit.textContent;
+    submit.textContent = 'Sending';
+    submit.disabled = true;
+  }
+
+  fetch(form.action, {
+    method: 'POST',
+    body: new FormData(form),
+    headers: { 'Accept': 'application/json' }
+  }).then(function (response) {
+    if (response.ok) {
+      form.reset();                       /* clearing on success is fine */
+      showFormStatus(form, 'success');
+    } else {
+      restoreSubmit(submit);              /* non-2xx: restore and show failure */
+      showFormStatus(form, 'fail');
+    }
+  }).catch(function () {
+    restoreSubmit(submit);                /* network error */
+    showFormStatus(form, 'fail');
+  });
+}
+
+function initContactForm() {
+  const panelBody = document.querySelector('.panel-body');
+  if (!panelBody) {
+    return;
+  }
+
+  /* Delegated on the persistent panel body so freshly cloned forms are wired. */
   panelBody.addEventListener('submit', function (event) {
     const form = event.target.closest('[data-contact-form]');
+    if (!form) {
+      return;
+    }
+    event.preventDefault();   /* never redirect to Formspree while JS is active */
+    handleContactSubmit(form);
+  });
+
+  panelBody.addEventListener('click', function (event) {
+    const retry = event.target.closest('[data-form-retry]');
+    if (!retry) {
+      return;
+    }
+    const form = retry.closest('[data-contact-form]');
     if (form) {
-      event.preventDefault();
+      hideFormStatus(form);
     }
   });
 }
@@ -603,6 +793,7 @@ function init() {
   initDecode();
   initFadeIn();
   initPanel();
+  initContactForm();
   initRowTrails();
   initCta();
 }

@@ -1,0 +1,205 @@
+{
+  "test1_success": {
+    "request_count": 1,
+    "requests": [
+      {
+        "method": "POST",
+        "url": "https://formspree.io/f/REPLACE_FORM_ID",
+        "headers": {
+          "accept": "application/json",
+          "content-type": "multipart/form-data; boundary=----WebKitFormBoundaryTQD0SM92AxbUYCl4",
+          "origin": "http://localhost:8099",
+          "referer": "http://localhost:8099/",
+          "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36",
+          "sec-ch-ua": "\"HeadlessChrome\";v=\"149\", \"Chromium\";v=\"149\", \"Not)A;Brand\";v=\"24\"",
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": "\"Windows\""
+        },
+        "postData": "------WebKitFormBoundaryTQD0SM92AxbUYCl4\r\nContent-Disposition: form-data; name=\"name\"\r\n\r\nAna Smith\r\n------WebKitFormBoundaryTQD0SM92AxbUYCl4\r\nContent-Disposition: form-data; name=\"business\"\r\n\r\nAna's Barbers\r\n------WebKitFormBoundaryTQD0SM92AxbUYCl4\r\nContent-Disposition: form-data; name=\"message\"\r\n\r\nNeed a one page site please\r\n------WebKitFormBoundaryTQD0SM92AxbUYCl4\r\nContent-Disposition: form-data; name=\"_gotcha\"\r\n\r\n\r\n------WebKitFormBoundaryTQD0SM92AxbUYCl4--\r\n"
+      }
+    ],
+    "nav_events_after_main_load": [
+      "http://localhost:8099/index.html"
+    ],
+    "status_text": "Sent. I will reply the same working day.",
+    "box_before": {
+      "x": 690,
+      "y": 145.5,
+      "width": 440,
+      "height": 359
+    },
+    "box_during": {
+      "x": 690,
+      "y": 145.5,
+      "width": 440,
+      "height": 359
+    },
+    "box_after": {
+      "x": 690,
+      "y": 145.5,
+      "width": 440,
+      "height": 359
+    },
+    "fields_after_success": [
+      "",
+      "",
+      ""
+    ]
+  },
+  "test2a_fail500": {
+    "request_count": 1,
+    "status_text": "Something broke. Email me directly at hello@placeholder.invalid.Try again",
+    "mailto_href": "mailto:hello@placeholder.invalid",
+    "submit_disabled_while_shown": false,
+    "name_intact_after_retry": "Ben Jones",
+    "msg_intact_after_retry": "Need a booking form",
+    "fields_inert_after_retry": false,
+    "submit_enabled_after_retry": true
+  },
+  "test2b_abort": {
+    "request_count": 1,
+    "status_text": "Something broke. Email me directly at hello@placeholder.invalid.Try again",
+    "mailto_href": "mailto:hello@placeholder.invalid",
+    "msg_intact_after_retry": "Need a landing page",
+    "name_intact_after_retry": "Cara Lee"
+  },
+  "test3_double_submit": {
+    "request_count": 1,
+    "label_in_flight": "Sending",
+    "disabled_in_flight": true,
+    "animations_count_in_flight": 0
+  },
+  "test4_honeypot": {
+    "request_count_on_trip": 0,
+    "status_text": "Sent. I will reply the same working day.",
+    "hp_info": {
+      "tabIndex": -1,
+      "inputDisplay": "inline-block",
+      "inputVisibility": "visible",
+      "wrapPosition": "absolute",
+      "wrapLeft": "-9999px",
+      "wrapWidth": "1px",
+      "wrapHeight": "1px",
+      "wrapOverflow": "hidden",
+      "rectLeft": -9308,
+      "rectTop": 178.5,
+      "ariaHiddenParent": "true"
+    },
+    "focus_sequence_after_name_field": [
+      "INPUT:business",
+      "TEXTAREA:message",
+      "BUTTON:submit",
+      "BODY:",
+      "BUTTON:row",
+      "BUTTON:row",
+      "BUTTON:row",
+      "BUTTON:row"
+    ],
+    "gotcha_in_focus_sequence": false
+  },
+  "test5_validation": {
+    "empty_submit_request_count": 0,
+    "active_element_on_empty": "name",
+    "empty_name_valueMissing": true,
+    "whitespace_submit_request_count": 0,
+    "name_value_after_trim_attempt": "",
+    "name_valueMissing_after_whitespace_trim": true
+  },
+  "test6_aria_focus": {
+    "status_role": "status",
+    "status_aria_live": "polite",
+    "fields_inert_before": false,
+    "fields_inert_during_success": true,
+    "active_in_status_success": true,
+    "status_text_success": "Sent. I will reply the same working day.",
+    "fields_inert_during_fail": true,
+    "active_in_status_fail": true,
+    "status_text_fail": "Something broke. Email me directly at hello@placeholder.invalid.Try again",
+    "fields_inert_after_retry": false,
+    "active_after_retry_is_field": true
+  },
+  "test7_endpoint": {
+    "occurrence_count": 8,
+    "occurrences_detail": [
+      {
+        "line": 8,
+        "text": "Stage 4: contact form wiring (Formspree fetch, success/failure states,",
+        "in_block_comment_flag": true
+      },
+      {
+        "line": 34,
+        "text": "Formspree endpoint - defined exactly once. The contact form's action",
+        "in_block_comment_flag": true
+      },
+      {
+        "line": 41,
+        "text": "const FORMSPREE_ENDPOINT = 'https://formspree.io/f/REPLACE_FORM_ID';",
+        "in_block_comment_flag": false
+      },
+      {
+        "line": 373,
+        "text": "/* Inject the Formspree endpoint into the freshly cloned form (single",
+        "in_block_comment_flag": false
+      },
+      {
+        "line": 378,
+        "text": "form.action = FORMSPREE_ENDPOINT;",
+        "in_block_comment_flag": false
+      },
+      {
+        "line": 447,
+        "text": "failure state inside the card (never a redirect to Formspree). The states",
+        "in_block_comment_flag": true
+      },
+      {
+        "line": 604,
+        "text": "event.preventDefault();   /* never redirect to Formspree while JS is active */",
+        "in_block_comment_flag": false
+      }
+    ],
+    "form_action_in_dom": "https://formspree.io/f/REPLACE_FORM_ID"
+  },
+  "test8_regression": {
+    "card_style": {
+      "width": "440px",
+      "background": "rgb(255, 255, 255)",
+      "borderRadius": "16px"
+    },
+    "card_box_centering": {
+      "left": 690,
+      "right": 150
+    },
+    "field_focus_style_waited_250ms": {
+      "borderColor": "rgb(26, 111, 212)",
+      "boxShadow": "rgb(26, 111, 212) 0px 0px 0px 1px inset",
+      "background": "rgb(255, 255, 255)",
+      "outline": "none",
+      "transitionDuration": "0.15s, 0.15s, 0.15s"
+    },
+    "submit_hover_bg": "rgb(0, 0, 0)",
+    "about_shown_after_swap": true,
+    "form_shown_after_swap_back": true,
+    "em_dash_html": false,
+    "em_dash_css": false,
+    "em_dash_js": false,
+    "em_dash_rendered_text": false,
+    "v_refs_found": [
+      "?v=4",
+      "?v=4",
+      "?v=4",
+      "?v=4",
+      "?v=4",
+      "?v=4",
+      "?v=4",
+      "?v=4"
+    ],
+    "v_stragglers": [],
+    "console_messages": [],
+    "page_errors": []
+  },
+  "test9_reduced_motion": {
+    "status_transition_duration": "1e-05s",
+    "field_transition_duration": "1e-05s",
+    "submit_transition_duration": "1e-05s"
+  }
+}

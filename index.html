@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Zayn · Web design for local businesses</title>
   <meta name="description" content="I build fast, polished websites for local businesses. From £300.">
-  <link rel="stylesheet" href="css/styles.css?v=3">
+  <link rel="stylesheet" href="css/styles.css?v=4">
 </head>
 <body>
 
@@ -156,9 +156,9 @@
     <div class="view view--project">
       <a class="preview" href="https://arctxrus.github.io/blackthorn-demo/" target="_blank" rel="noopener"
          aria-label="Open the Blackthorn and Co. live site in a new tab">
-        <video class="preview-video" poster="media/blackthorn-poster.jpg?v=3"
+        <video class="preview-video" poster="media/blackthorn-poster.jpg?v=4"
                autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-          <source src="media/blackthorn-preview.webm?v=3" type="video/webm">
+          <source src="media/blackthorn-preview.webm?v=4" type="video/webm">
         </video>
       </a>
       <h3 class="project-title">Blackthorn &amp; Co.</h3>
@@ -175,9 +175,9 @@
     <div class="view view--project">
       <a class="preview" href="https://arctxrus.github.io/barker-bloom-demo/" target="_blank" rel="noopener"
          aria-label="Open the Barker and Bloom live site in a new tab">
-        <video class="preview-video" poster="media/barker-bloom-poster.jpg?v=3"
+        <video class="preview-video" poster="media/barker-bloom-poster.jpg?v=4"
                autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-          <source src="media/barker-bloom-preview.webm?v=3" type="video/webm">
+          <source src="media/barker-bloom-preview.webm?v=4" type="video/webm">
         </video>
       </a>
       <h3 class="project-title">Barker &amp; Bloom</h3>
@@ -194,9 +194,9 @@
     <div class="view view--project">
       <a class="preview" href="https://arctxrus.github.io/cosmic-dawn/" target="_blank" rel="noopener"
          aria-label="Open the Until the Last Star live site in a new tab">
-        <video class="preview-video" poster="media/until-the-last-star-poster.jpg?v=3"
+        <video class="preview-video" poster="media/until-the-last-star-poster.jpg?v=4"
                autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-          <source src="media/until-the-last-star-preview.webm?v=3" type="video/webm">
+          <source src="media/until-the-last-star-preview.webm?v=4" type="video/webm">
         </video>
       </a>
       <h3 class="project-title">Until the Last Star</h3>
@@ -239,23 +239,32 @@
        in main.js prevents default so nothing navigates. -->
   <template id="view-form">
     <div class="view view--form">
-      <form class="contact-card" method="post" action="" novalidate data-contact-form>
-        <span class="form-label">Get in touch</span>
-        <div class="field-group">
-          <input class="field" type="text" name="name" placeholder="Name" autocomplete="name" required>
-          <input class="field" type="text" name="business" placeholder="Business" autocomplete="organization" required>
-          <textarea class="field field--area" name="message" rows="4" placeholder="What do you need built?" required></textarea>
+      <!-- Plain HTML POST form, enhanced by main.js (section 7). The action is
+           injected once from the FORMSPREE_ENDPOINT constant when this view is
+           rendered, so there is exactly one place to edit the endpoint. -->
+      <form class="contact-card" method="post" action="" data-contact-form>
+        <div class="form-fields" data-form-fields>
+          <span class="form-label">Get in touch</span>
+          <div class="field-group">
+            <input class="field" type="text" name="name" placeholder="Name" autocomplete="name" required>
+            <input class="field" type="text" name="business" placeholder="Business" autocomplete="organization" required>
+            <textarea class="field field--area" name="message" rows="4" placeholder="What do you need built?" required></textarea>
+          </div>
+          <div class="hp-field" aria-hidden="true">
+            <label>Leave this field empty
+              <input type="text" name="_gotcha" tabindex="-1" autocomplete="off">
+            </label>
+          </div>
+          <button class="submit" type="submit">Send · I typically reply same day</button>
         </div>
-        <div class="hp-field" aria-hidden="true">
-          <label>Leave this field empty
-            <input type="text" name="_gotcha" tabindex="-1" autocomplete="off">
-          </label>
-        </div>
-        <button class="submit" type="submit">Send · I typically reply same day</button>
+        <!-- Success / failure state. Overlays the fields so the card keeps its
+             dimensions (no layout jump). Populated and revealed by main.js;
+             role=status announces the outcome and takes focus (tabindex -1). -->
+        <div class="form-status" data-form-status role="status" aria-live="polite" tabindex="-1"></div>
       </form>
     </div>
   </template>
 
-  <script src="js/main.js?v=3"></script>
+  <script src="js/main.js?v=4"></script>
 </body>
 </html>

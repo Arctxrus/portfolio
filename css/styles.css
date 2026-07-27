@@ -6,7 +6,9 @@
             press bloom).
    Stage 3: panel views V2 project (placeholder video, title, sub, caption,
             visit pill), V3 About/Pricing, V4 contact form, V5 swap animation,
-            aria-live region. Vanilla CSS only. UK English. No em dashes.
+            aria-live region.
+   Stage 4: contact form states (success/failure overlay, in-flight submit).
+            Vanilla CSS only. UK English. No em dashes.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
@@ -31,7 +33,7 @@
   font-weight: 400 600;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/archivo-latin-var.woff2?v=3') format('woff2');
+  src: url('../fonts/archivo-latin-var.woff2?v=4') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -41,7 +43,7 @@
   font-weight: 300 500;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/martian-mono-latin-var.woff2?v=3') format('woff2');
+  src: url('../fonts/martian-mono-latin-var.woff2?v=4') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -952,17 +954,25 @@ a {
   justify-content: center;
 }
 
-/* White card, 16px radius, 440px wide, centred (CONCEPT 3.4 V4) */
+/* White card, 16px radius, 440px wide, centred (CONCEPT 3.4 V4).
+   position: relative anchors the success/failure overlay (see .form-status). */
 .contact-card {
+  position: relative;
   width: 440px;
   max-width: 100%;
+  background: var(--surface-white);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-surface);
+}
+
+/* The interactive part of the card. Holds the layout (flex column, gap,
+   padding) so its size defines the card; the status overlay fills that box
+   without changing it, so success/failure never move the panel (section 7). */
+.form-fields {
   display: flex;
   flex-direction: column;
   gap: var(--sp-16);
   padding: var(--sp-32);
-  background: var(--surface-white);
-  border: var(--border-width) solid var(--border);
-  border-radius: var(--radius-surface);
 }
 
 /* Type: Form label - Mono 10px / 400 / UPPER */
@@ -1049,6 +1059,87 @@ a {
 .submit:focus-visible {
   outline: none;
   box-shadow: var(--shadow-field-focus);
+}
+
+/* In flight: disabled to prevent double sends. Static label change to
+   "Sending" (no looping spinner; only the CTA drift is sanctioned). */
+.submit:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.submit:disabled:hover {
+  background: var(--submit-ink);   /* no hover shift while disabled */
+}
+
+/* ---- V4 form: success / failure state (section 7) --------------------- */
+
+/* Overlays the fields, filling the card so its dimensions stay fixed between
+   states (the panel never reflows). Hidden at rest; revealed by main.js. */
+.form-status {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-16);
+  padding: var(--sp-32);
+  text-align: center;
+  background: var(--surface-white);
+  border-radius: var(--radius-surface);
+}
+
+.form-status.is-shown {
+  display: flex;
+}
+
+/* Focused programmatically (tabindex -1) so a keyboard user is not stranded;
+   no ring needed on a non-interactive message container. */
+.form-status:focus {
+  outline: none;
+}
+
+/* Outcome message. Archivo 14px body, same size as the form inputs. */
+.form-status-msg {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--ink-body);
+  max-width: 34ch;
+}
+
+.form-status-msg a {
+  color: var(--accent);
+}
+
+.form-status-msg a:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-field-focus);
+  border-radius: var(--sp-2);
+}
+
+/* Quiet "try again" control on the failure overlay: a plain mono text button
+   (not the CTA or submit treatment), tokens throughout. Returns to the intact
+   form so the typed message can be copied or resent. */
+.form-retry {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: normal;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: none;
+  border: 0;
+  padding: var(--sp-4);
+}
+
+.form-retry:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-field-focus);
+  border-radius: var(--sp-2);
 }
 
 /* Visually hidden aria-live region for panel-change announcements. */
