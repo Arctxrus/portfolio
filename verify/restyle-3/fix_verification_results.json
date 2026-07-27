@@ -1,0 +1,127 @@
+{
+  "360x780": {
+    "panel_v1": 468,
+    "how_y_v1": 1065.1875,
+    "views": {
+      "01": {
+        "panel_height": 468,
+        "how_y": 1073.1875,
+        "blurb_display": "none"
+      },
+      "02": {
+        "panel_height": 468,
+        "how_y": 1073.1875,
+        "blurb_display": "none"
+      },
+      "03": {
+        "panel_height": 468,
+        "how_y": 1073.1875,
+        "blurb_display": "none"
+      },
+      "04": {
+        "panel_height": 468,
+        "how_y": 1073.1875,
+        "blurb_display": null
+      },
+      "05": {
+        "panel_height": 468,
+        "how_y": 1073.1875,
+        "blurb_display": null
+      },
+      "06 form": {
+        "panel_height": 468,
+        "how_y": 1073.1875
+      }
+    },
+    "console_errors": []
+  },
+  "390x844": {
+    "panel_v1": 506.390625,
+    "how_y_v1": 1103.578125,
+    "views": {
+      "01": {
+        "panel_height": 506.390625,
+        "how_y": 1111.578125,
+        "blurb_display": "none"
+      },
+      "02": {
+        "panel_height": 506.390625,
+        "how_y": 1111.578125,
+        "blurb_display": "none"
+      },
+      "03": {
+        "panel_height": 506.390625,
+        "how_y": 1111.578125,
+        "blurb_display": "none"
+      },
+      "04": {
+        "panel_height": 506.390625,
+        "how_y": 1111.578125,
+        "blurb_display": null
+      },
+      "05": {
+        "panel_height": 506.390625,
+        "how_y": 1111.578125,
+        "blurb_display": null
+      },
+      "06 form": {
+        "panel_height": 506.390625,
+        "how_y": 1111.578125
+      }
+    },
+    "console_errors": []
+  },
+  "768x1024": {
+    "panel_v1": 614.390625,
+    "how_y_v1": 1237.578125,
+    "views": {
+      "01": {
+        "panel_height": 614.390625,
+        "how_y": 1245.578125,
+        "blurb_display": "none"
+      },
+      "02": {
+        "panel_height": 614.390625,
+        "how_y": 1245.578125,
+        "blurb_display": "none"
+      },
+      "03": {
+        "panel_height": 614.390625,
+        "how_y": 1245.578125,
+        "blurb_display": "none"
+      },
+      "04": {
+        "panel_height": 614.390625,
+        "how_y": 1245.578125,
+        "blurb_display": null
+      },
+      "05": {
+        "panel_height": 614.390625,
+        "how_y": 1245.578125,
+        "blurb_display": null
+      },
+      "06 form": {
+        "panel_height": 614.390625,
+        "how_y": 1245.578125
+      }
+    },
+    "console_errors": []
+  },
+  "desktop_1440_blurb": {
+    "01": {
+      "exists": true,
+      "display": "block",
+      "text": "A single fast page for a Heywood barbers"
+    },
+    "02": {
+      "exists": true,
+      "display": "block",
+      "text": "One clear page for a dog grooming salon."
+    },
+    "03": {
+      "exists": true,
+      "display": "block",
+      "text": "A technical piece, not a client site. Th"
+    }
+  }
+}

@@ -33,7 +33,7 @@
   font-weight: 400 600;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/archivo-latin-var.woff2?v=10') format('woff2');
+  src: url('../fonts/archivo-latin-var.woff2?v=11') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -43,7 +43,7 @@
   font-weight: 300 500;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/martian-mono-latin-var.woff2?v=10') format('woff2');
+  src: url('../fonts/martian-mono-latin-var.woff2?v=11') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -535,9 +535,22 @@ a {
 .row--cta {
   position: relative;
   overflow: hidden;
-  border-bottom: 0;
+  /* Client feedback round 3 (item 4): the CTA inherited the base .row
+     `border: 1px solid transparent`. With the default border-box background
+     clip the pastel drift paints out to the border-box edge UNDER that
+     transparent border, while the white --cta-rim (an inset shadow) is drawn
+     inside the border, so the rim sat 1px in from the visible edge, leaving a
+     1px pastel band all round and a radius-mismatch crescent at each rounded
+     corner (confirmed at DPR4: outer row is pastel (205,221,242), the rim one
+     CSS px inside). The transparent border served no purpose here (the CTA
+     never gains a coloured border, unlike the index rows), so it is removed and
+     the rim now hugs the true 16px edge. The removed 1px is added back to the
+     padding via the --border-width token so the box geometry, and the item-1
+     grow delta, are byte-identical (border-box: outer size unchanged; content
+     inset unchanged). No hard-coded value, still one border width on the page. */
+  border: 0;
   border-radius: var(--radius-surface);
-  padding: var(--sp-14) var(--sp-18);
+  padding: calc(var(--sp-14) + var(--border-width)) calc(var(--sp-18) + var(--border-width));
   background-image: var(--cta-layer1), var(--cta-layer2), var(--cta-layer3);
   background-size: var(--cta-bg-size);
   background-repeat: no-repeat;
@@ -559,7 +572,10 @@ a {
    value), so only the vertical grow reads. Reduced motion: the global guard
    forces the padding transition instant, matching the index-row grow. */
 .row--cta.is-open {
-  padding: var(--sp-18) var(--sp-18);
+  /* Grow padding matches the rest state's --border-width compensation (item 4)
+     so the +4px vertical grow (item 1) is preserved exactly with the border
+     removed. */
+  padding: calc(var(--sp-18) + var(--border-width)) calc(var(--sp-18) + var(--border-width));
 }
 
 /* Light pass (--cta-lightpass), 2D reverse path, 30s rest, on its own layer.
@@ -1031,7 +1047,17 @@ a {
    no hard-coded colour: the mask uses opaque/transparent sentinels only). */
 .view--project .preview {
   flex: 0 0 auto;
-  height: 70%;
+  /* Client feedback round 3 (item 2): the desktop preview is now scroll-scrubbed
+     (js/main.js maps the view's scroll progress to video.currentTime). It fills
+     the visible panel (height 100% of the view content box) so at rest only the
+     preview shows and the copy below (title, sub, blurb, caption, visit) sits
+     under the fold. That copy is the scroll track: scrolling it reveals the copy
+     AND scrubs the video, giving a few hundred px of scrub range at every desktop
+     panel height (measured ~300 to 360px at 1440x900, 1280x720 and 1280x620).
+     Using 100% (not a fixed px) keeps the track present on tall desktops too,
+     where a fixed height would fit inside the panel and leave nothing to scroll.
+     The bottom fade stays as the "more below" cue. */
+  height: 100%;
   aspect-ratio: auto;
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 72px), transparent 100%);
   mask-image: linear-gradient(to bottom, #000 calc(100% - 72px), transparent 100%);
@@ -1068,6 +1094,20 @@ a {
   line-height: normal;
   text-transform: lowercase;
   color: var(--ink-mid);
+}
+
+/* Client feedback round 3 (item 3): a short factual paragraph per project,
+   between the preview fade and the caption/visit button. Plain body prose in
+   the site's Archivo 14px at --ink-body (matches the About prose), max ~50
+   words, capped for a readable measure. Sits in the scroll-revealed lower half
+   of the desktop project view (item 2) and in normal flow on mobile. */
+.project-blurb {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--ink-body);
+  max-width: 46ch;
 }
 
 /* Type: Caption bar - Mono 10.5px / 400 / 0.04em / UPPER, with a 1px top rule */
@@ -1535,6 +1575,17 @@ a {
     aspect-ratio: 2 / 1;
     -webkit-mask-image: none;
     mask-image: none;
+  }
+
+  /* Client feedback round 3 (item 3, verifier FAIL fix): the .project-blurb is
+     desktop scroll-track content. On mobile there is no internal scroll, so the
+     extra paragraph grew V2 past the 60vh budget and reflowed the page (360x780:
+     468 to ~594 to 616px). It is hidden here so mobile V2 matches V1/V3/V4
+     exactly again; mobile keeps the sub line, caption bar and visit button.
+     VETOABLE: the owner may instead let mobile V2 grow to show the copy on
+     phones (remove this rule); flagged in PROGRESS.md. */
+  .project-blurb {
+    display: none;
   }
   .form-fields {
     padding: var(--sp-22);

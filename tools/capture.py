@@ -71,6 +71,11 @@ POSTER_MAX_KB = 80
 # "as small as possible while crisp" direction (see PROGRESS.md round 2).
 DEFAULT_CRF = 34
 
+# Client feedback round 3 (item 2): dense keyframe interval so the scroll-scrubbed
+# desktop preview seeks smoothly in both directions. -g 12 at 30fps is a keyframe
+# every ~0.4s. See encode_webm_crf for the rationale.
+KEYFRAME_INTERVAL = 12
+
 # Scrollbar suppression (item 4). The owner dislikes the demo sites' scrollbar in
 # the captures. This CSS is injected into each page BEFORE the keeper so the
 # recorded frames carry no scrollbar. Note: hiding the scrollbar reclaims its
@@ -147,14 +152,28 @@ PROJECTS = [
         # unmistakably 3D, reactive moment (decision 5h), not a starfield fade.
         "start_t": 0.845,           # scroll position derived from the timeline t
         "settle_ms": 2000,          # let the spring settle at t and the lens warm
+        # Client feedback round 3 (item 1): the previous large vertical amplitude
+        # (amp_y 150) swung the lensed accretion disc's lower arc down into the
+        # bottom of the panel preview, where the bottom fade dissolved it into a
+        # stray glowing "curve" (confirmed on extracted frames). The orbit is now
+        # dominated by the horizontal sweep (which still shifts the lens and reads
+        # as 3D) with only a small vertical component, so the disc stays centred
+        # and the frame keeps clean dark space top and bottom throughout the clip.
         "parallax": {
-            "amp_x": 240, "amp_y": 150,   # px around the viewport centre: a subtle orbit
-            "period_s": 3.5,              # one camera orbit
+            "amp_x": 150, "amp_y": 44,    # px around the viewport centre: a gentle orbit
+            "period_s": 4.0,              # one camera orbit
             "keeper_s": 8.5,             # > clip_len_s; the last clip_len_s is trimmed out
             "step_ms": 20,               # ~50Hz pointer feed keeps the orbit from idling
         },
         "verify_nvidia": True,
         "clip_len_s": 7.0,
+        # Client feedback round 3 (item 1): a gentle bottom-anchored reframe crop
+        # on top of the reduced parallax. Drops the top 40px of dark sky and scales
+        # back to native, nudging the whole lensed disc up by ~40px so its bright
+        # lower arc stays clear of the panel preview's bottom fade across EVERY
+        # scrub frame (measured: fade-band luminance a steady ~120 vs ~137 uncropped
+        # and ~135 on the old clip). w,h,x,y for ffmpeg crop; scale restores 1280x720.
+        "crop": (1280, 680, 0, 40),
     },
 ]
 
@@ -371,26 +390,43 @@ def probe_duration(path):
     return float(out.stdout.strip())
 
 
-def vfilter():
+def vfilter(project=None):
     # Client feedback round 2 (item 3): the take is native 16:9 (1280x720) and
     # the output is native 1280x720 too (no downscale), so the clip stays crisp
     # at full panel size. A straight scale keeps the full frame including the top
     # nav pill; object-fit: cover in the panel handles the mobile 2/1 ratio.
+    # Client feedback round 3 (item 1): a project may carry a "crop" (w,h,x,y) to
+    # reframe before the scale (the star clip nudges the lensed disc up so the
+    # bottom stays clean); everything scales back to OUT_W x OUT_H afterwards.
+    crop = project.get("crop") if project else None
+    if crop:
+        w, h, x, y = crop
+        return f"crop={w}:{h}:{x}:{y},scale={OUT_W}:{OUT_H}"
     return f"scale={OUT_W}:{OUT_H}"
 
 
-def encode_webm_crf(raw, out, ss, dur, crf):
+def encode_webm_crf(raw, out, ss, dur, crf, project=None):
     """Single-pass VP9 constant-quality (CRF) encode. Client feedback round 2
     (item 3): quality mode, not a bitrate target, so the clip is as crisp as CRF
     dictates and as small as VP9 can make it at that quality. Audio stripped,
-    30fps, keyframed. -b:v 0 selects true constant-quality VP9."""
+    30fps, keyframed. -b:v 0 selects true constant-quality VP9.
+
+    Client feedback round 3 (item 2): the desktop preview is now scroll-scrubbed
+    (video.currentTime driven by scroll), which seeks all over the timeline,
+    including backwards. VP9 with sparse keyframes (-g 60, one every 2s) seeks
+    badly: a reverse seek must decode from the previous keyframe, so the frame
+    lags and stutters. The GOP is now DENSE (-g 12, a keyframe every ~0.4s at
+    30fps) so any seek lands within ~12 frames of a keyframe and scrubbing, in
+    either direction, resolves promptly. Sizes rise (accepted, quality wins);
+    alt-ref is kept for compression, the dense keyframes carry the seek quality.
+    KEYFRAME_INTERVAL is the single knob."""
     common = [
         "ffmpeg", "-y", "-ss", f"{ss:.3f}", "-t", f"{dur:.3f}", "-i", raw,
-        "-an", "-vf", vfilter(), "-r", "30",
+        "-an", "-vf", vfilter(project), "-r", "30",
         "-c:v", "libvpx-vp9", "-crf", str(crf), "-b:v", "0",
         "-deadline", "good", "-cpu-used", "1",
         "-auto-alt-ref", "1", "-lag-in-frames", "25",
-        "-g", "60", "-row-mt", "1",
+        "-g", str(KEYFRAME_INTERVAL), "-row-mt", "1",
     ]
     run(common + [out])
     size = kb(out)
@@ -432,7 +468,7 @@ def process_one(project):
 
     crf = project.get("crf", DEFAULT_CRF)
     log(f"[{project['name']}] encoding webm  (raw {raw_dur:.2f}s, ss={ss:.2f}s, len={dur:.1f}s, crf={crf})")
-    encode_webm_crf(raw, out, ss, dur, crf)
+    encode_webm_crf(raw, out, ss, dur, crf, project)
     size = kb(out)
     make_poster(out, poster)
     log(f"[{project['name']}] done: {os.path.basename(out)} {size:.0f}KB, "

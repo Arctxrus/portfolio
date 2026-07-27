@@ -1577,3 +1577,205 @@ CONCEPT / round-1 rows where they conflict; each supersession is called out.
   Playwright pass over file:// (numbers above are measured, not estimated) and
   the three clips were recorded in real headed GPU Chromium with frame-0 posters
   inspected directly. Screenshot/visual sign-off remains the verifier's.
+
+## Client feedback round 3 (owner-directed 2026-07-27)
+
+Four defect/feature items plus a cache-bust. Items 1 and 4 were reproduced
+visually FIRST (zoomed/measured before any change), then fixed, then re-checked.
+SUPERSESSION (recorded per the brief): on desktop the project preview no longer
+autoplays; it is SCROLL-SCRUBBED (scroll position drives video.currentTime).
+This supersedes CONCEPT section 5 "muted, looping webm (autoplay)" and round-2
+item 5's native-scroll-no-scrubbing wording FOR DESKTOP ONLY. Mobile keeps the
+muted autoplay loop.
+
+- Status: BUILT, awaiting verification. Files changed: index.html (3 project
+  blurbs + ?v bump), css/styles.css (CTA border fix, tall scroll-scrub preview,
+  .project-blurb, ?v bump), js/main.js (scroll-scrub video controller),
+  tools/capture.py (star parallax/crop, dense keyframes), media/*.webm (three
+  re-encoded), media/*.jpg (three posters re-exported), PROGRESS.md. All shipped
+  refs bumped ?v=10 to ?v=11 (a push follows): 13 in index.html, 2 in
+  css/styles.css, 0 in js/main.js. Encoding clean (Edit + sed only): no BOM, no
+  mojibake, no em dashes; 0 remaining ?v=10.
+
+### Item 1 - Star clip bottom curve (confirmed cause + fix)
+- CONFIRMED CAUSE (visual, not guessed): the owner's "bottom curve" is the
+  lensed accretion disc's bright LOWER ARC. On the old clip the large vertical
+  parallax (amp_y 150) swung the black hole low so that arc dipped into the
+  panel preview's bottom fade band and dissolved into grey, reading as a stray
+  curved edge. It was NOT a container edge or UI element. Confirmed by
+  simulating the exact desktop preview crop (object-fit cover + 72px bottom
+  fade) on extracted frames.
+  Before/after evidence: verify/round-3/star-desktop-preview-sim.png (old, arc
+  in the fade at the poster frame) and verify/round-3/star-before-after.png
+  (poster: BEFORE vs AFTER reduced-parallax vs AFTER+crop, stacked).
+- FIX (capture level, re-recorded on the same GPU/scrollbar-hidden setup):
+  1. tools/capture.py star parallax reduced to a gentle orbit dominated by the
+     horizontal sweep: amp_x 240 to 150, amp_y 150 to 44, period 3.5s to 4.0s.
+     The lens still shifts (reads as 3D) but the disc stays centred, so the
+     bright arc no longer reaches the fade at the poster/loop frame.
+  2. A gentle bottom-anchored reframe crop (crop=1280:680:0:40 then scale back
+     to 1280x720): drops the top 40px of dark sky, nudging the whole disc up so
+     the bottom stays clean dark space across EVERY scrub frame (the clip is now
+     scrubbed, so all frames are seen). Measured fade-band max luminance: a
+     steady ~120 across frames (uncropped ~137, old clip ~135), i.e. the lower
+     arc is reliably above the fade.
+  Renderer re-confirmed in-context (tier-2 lens real, not a fallback):
+  ANGLE (NVIDIA GeForce RTX 3060 Laptop GPU ... D3D11). New frames verified
+  clean top and bottom (verify/round-3/star-new-poster.jpg,
+  verify/round-3/v2-star-rest.png).
+
+### Item 2 - Scroll-driven playback on desktop (supersedes desktop autoplay)
+- BEHAVIOUR: desktop project views scrub the video from scroll. In
+  js/main.js configureProjectVideo(): progress = view.scrollTop /
+  (view.scrollHeight - view.clientHeight) maps to video.currentTime. Normal
+  motion eases currentTime toward the scroll target via a rAF lerp (SCRUB_LERP
+  0.18, i.e. ~18% of the gap per frame, inside the briefed 15 to 20%); reduced
+  motion snaps currentTime to the target with NO rAF (user-driven scrubbing is
+  allowed, but no autonomous smoothing runs, and the video never autoplays on
+  desktop). Verified over file:// (the only way to seek locally, see the
+  server note): scroll 1.0/0.75/0.5/0.25/0.0 -> currentTime
+  7.03/5.27/3.53/1.76/0.03s (forward AND reverse track precisely); lerp eased
+  5.85 -> 6.74 -> 6.98 -> 7.02 -> 7.03 after a jump to 100%; reduced-motion
+  scroll 0.8 snapped to 5.62s, video still paused.
+- SCROLL TRACK: .view--project .preview height 70% -> 100% (fills the visible
+  panel; the copy below is the scroll track). Adaptive (100%, not a fixed px,
+  so tall desktops still overflow and scrub). Measured scrub range and
+  visit-button-below-fold-at-rest at all three briefed viewports:
+    1440x900:  range 296 to 319px (star 319, blackthorn/barker 296), visit below fold
+    1280x720:  range 309 to 332px, visit below fold
+    1280x620:  range 309 to 332px, visit below fold
+  All "a few hundred px" and the visit button is hidden until scroll. The bottom
+  fade stays as the "more below" cue.
+- KEYFRAMES / RE-ENCODE (item 2 seeking smoothness): tools/capture.py -g 60 ->
+  -g 12 (KEYFRAME_INTERVAL const), a keyframe every ~0.4s at 30fps, so reverse
+  seeks resolve promptly (old star clip had 4 keyframes over 7s; scrubbing back
+  stuttered). Quality unchanged (1280x720, VP9 CRF 34). All three RE-ENCODED
+  from the raw takes (star from the new reduced-parallax take; blackthorn/barker
+  from the existing raws). New keyframe counts / sizes (sizes rose, accepted):
+    blackthorn-preview.webm   18 keyframes  1996KB (was ~1364KB, 4 kf)
+    barker-bloom-preview.webm 15 keyframes  1376KB (was ~482KB)
+    until-the-last-star-preview.webm 18 keyframes 1408KB (was ~1000KB)
+  Clips stay lazy-loaded, so the first-load budget is untouched.
+- PRELOAD: desktop sets video.preload='auto' when the project view opens (so the
+  frames are buffered for smooth seeking); nothing loads before selection (the
+  video only enters the DOM on selection, template-clone architecture). Poster
+  (frame 0) shows until the first scroll (currentTime is not touched until then).
+- ATTRIBUTE-MANAGEMENT APPROACH (reported): TWO CODE PATHS ON ONE ELEMENT.
+  configureProjectVideo(view) runs on each project-view render and derives the
+  video's mode from mobileLayoutQuery. Desktop: autoplay/loop attributes and
+  properties removed, muted, preload='auto', paused, scroll-scrub wired. Mobile:
+  autoplay/loop/muted restored and play() called (unchanged mobile behaviour).
+  A mobileLayoutQuery 'change' listener re-configures the currently-open project
+  view if the viewport crosses 900px mid-session (stopScrub() tears down the
+  scroll listener, rAF and loadedmetadata handler first, so nothing double-binds
+  or leaks). Verified: desktop video paused, no autoplay/loop attrs, preload
+  auto; mobile (390px) autoplay+loop true, playing.
+- KEYBOARD: the .view--project scroll container is native overflow scroll.
+  Focusing the preview anchor (a Tab stop inside it) and pressing PageDown/arrows
+  scrolls the container (verified: scrollTop 0 -> 18 at 1280), so keyboard users
+  scrub too. tabindex="-1" on the view is kept as the belt-and-braces focus
+  target; no extra Tab stop was added.
+- SERVER/SEEK NOTE (instrumented, not guessed): the local python http.server
+  returns 200 with NO Accept-Ranges, so Chromium marks progressive media
+  non-seekable (seekable [0,0]) even when fully buffered, and currentTime will
+  not move. Over file:// the same webm is seekable [0,duration] and scrubbing
+  works. GitHub Pages sends Accept-Ranges: bytes, so production seeks correctly.
+  All scrub verification above was therefore run over file://. THE VERIFIER MUST
+  serve with a Range-capable server (or use file://) or the scrub will look
+  dead through a plain python http.server. This is an environment artefact, not
+  a code bug.
+
+### Item 3 - Copy under the fade (DRAFT FOR APPROVAL, round 3 copy)
+- A short factual paragraph now sits in each project view between the preview
+  fade and the caption/visit button (.project-blurb, Archivo 14px, --ink-body,
+  line-height 1.6, max-width 46ch). Placed after the sub line, before the
+  caption bar. They SHIP NOW; the owner will veto or amend. Drafted from the live
+  sites (fetched 2026-07-27), UK English, no em dashes, each under ~50 words:
+
+  DRAFT FOR APPROVAL (round 3 copy):
+  - Blackthorn & Co. (46 words):
+    "A single fast page for a Heywood barbershop. The whole price list is on
+    view, from a £12 kids' cut to the £52 full works, next to a profile for each
+    barber and a booking form that captures the date, time and chair a client
+    wants."
+    (verified live: services £12 to £52, four named barbers, a booking form with
+    name/mobile/service/date/time/barber/chair-preference fields, Heywood.)
+  - Barker & Bloom (42 words):
+    "One clear page for a dog grooming salon. Prices are set out by dog size,
+    from an £18 puppy's first groom upwards, with add-ons like nail trims listed
+    plainly and a two-step form that requests a slot by size, day and time."
+    (verified live: Bath & Brush/Full Groom priced by size, £18 puppy groom,
+    add-ons incl. £8 nail trim, a two-step request form.)
+  - Until the Last Star (45 words):
+    "A technical piece, not a client site. The whole history of the universe runs
+    on one scroll, drawn live in the browser with WebGL. The finale bends
+    starlight around a black hole using real gravitational lensing, computed every
+    frame rather than faked with a picture."
+    (verified: Three.js WebGL scroll-driven timeline; the finale is a real
+    screen-space gravitational-lens pass on the RTX 3060, not a sprite fallback.)
+
+### Item 3 - verifier FAIL fix (mobile 60vh reflow)
+- Verifier round-3 FAIL: .project-blurb has no mobile accommodation, so V2 grew
+  past the 60vh budget and reflowed the page below 900px (360x780: 468 to
+  ~594/616px; 390 and 768 similar). Evidence: verify/restyle-3/.
+- Fix (orchestrator ruling): `.project-blurb { display: none }` added inside the
+  existing @media (max-width: 900px) block next to the V2 mobile overrides. The
+  blurb is desktop scroll-track content; mobile keeps the sub line, caption bar
+  and visit button. ?v=11 kept (no push happened for this fix).
+- RE-MEASURED panel height, all views, must equal V1/V3/V4 exactly: at 360 all
+  seven (V1, three V2 projects, About, Pricing, form) = 468.0; at 390 all =
+  506.4; at 768 all = 614.4. No V2 overrun, no reflow.
+- VETOABLE (flagged): the owner may instead let mobile V2 grow so the copy is
+  visible on phones. To do that, remove this one `.project-blurb { display:none }`
+  rule; mobile V2 then exceeds 60vh by the blurb's height and the page reflows on
+  swap. Recorded as the owner's choice.
+
+### Item 4 - CTA outline mismatch (confirmed cause + fix)
+- CONFIRMED CAUSE (pixel-level, DPR4 screenshot + scan, not guessed): .row--cta
+  inherited the base .row `border: 1px solid transparent`. With default
+  background-clip: border-box the pastel drift paints out to the border-box edge
+  UNDER that transparent border, while --cta-rim (an inset shadow) is drawn
+  inside the border, so the white rim sat 1px in from the visible edge. Edge scan
+  at the top (DPR4, 4px = 1 CSS px): CSS row 0 = pastel (205,221,242), CSS row 1
+  = the white rim (253,254,255). At the rounded corners the rim's radius (padding
+  box, 15px) was tighter than the outer 16px, showing a pale pastel crescent.
+  Before evidence: verify/round-3/cta-BEFORE-corners.png.
+- FIX: `.row--cta { border: 0 }` (the transparent border served no purpose here;
+  unlike index rows the CTA never gains a coloured border). The rim now hugs the
+  true 16px edge. Geometry preserved with tokens: the removed 1px is added back
+  to the padding via calc(... + var(--border-width)) on both the rest and the
+  is-open (grow) states, so no hard-coded value and still one border width on the
+  page. Precise measurement: true original CTA height 47.156px (it had a
+  pre-existing `border-bottom: 0`, so only 1px of vertical border), fixed 47.0px
+  = a 0.16px (sub-pixel) difference, and the item-1 grow delta is unchanged.
+- VERIFIED AFTER: edge scan CSS row 0 is now the white rim (253,254,255), no
+  pastel band; corners hug with no crescent. Evidence:
+  verify/round-3/cta-AFTER-corners.png, verify/round-3/cta-after.png.
+
+### Item 5 - Cache bust ?v=10 to ?v=11
+- Every shipped ?v=10 bumped to ?v=11 (a push follows): 13 in index.html, 2 in
+  css/styles.css, 0 in js/main.js. Media filenames carry no version, so the
+  re-recorded clips are picked up by the bumped refs. sed did the bump; grep
+  confirms 0 remaining ?v=10.
+
+### Client feedback round 3 - deviations / notes
+- SUPERSESSION: desktop autoplay replaced by scroll-scrub (see the header).
+  Mobile autoplay muted loop unchanged; the split is by the 900px breakpoint.
+- Reduced motion: desktop never autoplays; scrubbing is user-driven and snaps
+  (no rAF). The scroll listener IS bound under reduced motion (it is core,
+  user-driven functionality, per the brief), unlike the decorative trails/mist.
+  Mobile reduced-motion autoplay is UNCHANGED from prior stages (out of scope).
+- New raw star take overwrote tools/_raw/star-raw.webm; the old star webm,
+  poster and raw are backed up in verify/round-3/backup/ in case a revert is
+  wanted. blackthorn/barker raws were reused (not re-recorded), so only their
+  encode changed (dense keyframes).
+- No new tokens, no new radii, no new border width, no new drop shadow. The
+  preview height 100%, the 72px fade and the reframe crop pixels are raw layout
+  values with no token (consistent with the existing 440px card, 460px column,
+  72px fade, etc.).
+- VERIFICATION NOTE: same backgrounded-pane limitation for the built-in Browser
+  pane; all behaviour and geometry above were measured with headless Playwright
+  (numbers are measured, not estimated), the scrub over file:// (Range note
+  above), and the star clip recorded in real headed GPU Chromium. Screenshot/
+  visual sign-off remains the verifier's (serve with Range support for the
+  scrub).

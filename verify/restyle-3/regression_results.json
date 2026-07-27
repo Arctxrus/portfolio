@@ -1,0 +1,31 @@
+{
+  "first_load_video_requests": [],
+  "console_errors_on_load": [],
+  "first_load_total_bytes_excl_webm": 171428,
+  "first_load_sizes": {
+    "http://localhost:8321/index.html": 17372,
+    "http://localhost:8321/css/styles.css?v=11": 57059,
+    "http://localhost:8321/js/main.js?v=11": 38513,
+    "http://localhost:8321/fonts/archivo-latin-var.woff2?v=11": 34928,
+    "http://localhost:8321/fonts/martian-mono-latin-var.woff2?v=11": 23556
+  },
+  "aria_live_text_after_select": "Preview / Blackthorn & Co.",
+  "keyboard_tab_sequence": [
+    "<button type=\"button\" class=\"row\" data-view=\"blackthorn\" aria-pressed=\"false\">\n            <span class=\"row-index\">01</s",
+    "<button type=\"button\" class=\"row\" data-view=\"barker\" aria-pressed=\"false\">\n            <span class=\"row-index\">02</span>",
+    "<button type=\"button\" class=\"row\" data-view=\"star\" aria-pressed=\"false\">\n            <span class=\"row-index\">03</span>\n ",
+    "<button type=\"button\" class=\"row\" data-view=\"about\" aria-pressed=\"false\">\n            <span class=\"row-index\">04</span>\n",
+    "<button type=\"button\" class=\"row\" data-view=\"pricing\" aria-pressed=\"false\">\n            <span class=\"row-index\">05</span",
+    "<button type=\"button\" class=\"row row--cta\" data-view=\"form\" aria-pressed=\"false\">\n            <span class=\"row-index\">06",
+    "<a href=\"mailto:hello@placeholder.invalid\">hello@placeholder.invalid</a>",
+    "<body>\n\n  <!-- Decorative dot grid, behind everything -->\n  <canvas id=\"dot-grid\" class=\"dot-grid\" aria-hidden=\"true\" wi",
+    "<button type=\"button\" class=\"row\" data-view=\"blackthorn\" aria-pressed=\"false\">\n            <span class=\"row-index\">01</s",
+    "<button type=\"button\" class=\"row\" data-view=\"barker\" aria-pressed=\"false\">\n            <span class=\"row-index\">02</span>"
+  ],
+  "keyboard_enter_activation_header": "PREVIEW / NO SELECTION",
+  "focus_visible_style_on_active_row": {
+    "boxShadow": "none",
+    "outline": "rgb(20, 20, 22) none 3px"
+  },
+  "form_visible": true
+}

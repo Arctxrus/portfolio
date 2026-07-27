@@ -1,0 +1,35 @@
+{
+  "cta_rest_box": {
+    "x": 76,
+    "y": 524.1875,
+    "width": 460,
+    "height": 47
+  },
+  "cta_rest_screenshot": "cta-rest-corner-tl.png",
+  "cta_grown_box": {
+    "x": 76,
+    "y": 524.1875,
+    "width": 460,
+    "height": 55
+  },
+  "cta_height_rest": 47,
+  "cta_height_grown": 55,
+  "cta_text_y_rest": {
+    "x": 137,
+    "y": 539.1875,
+    "width": 266,
+    "height": 17
+  },
+  "cta_text_y_grown": {
+    "x": 137,
+    "y": 543.1875,
+    "width": 266,
+    "height": 17
+  },
+  "cta_box_for_scan": {
+    "x": 76,
+    "y": 524.1875,
+    "width": 460,
+    "height": 47
+  }
+}

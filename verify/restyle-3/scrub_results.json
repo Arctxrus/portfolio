@@ -1,0 +1,529 @@
+{
+  "1440x900": {
+    "Blackthorn": {
+      "rest": {
+        "paused": true,
+        "currentTime": 0,
+        "autoplay": false,
+        "loop": false,
+        "hasAutoplayAttr": false,
+        "hasLoopAttr": false,
+        "duration": 7.033,
+        "seekRange": [
+          0,
+          7.033
+        ],
+        "scrollHeight": 1012,
+        "clientHeight": 716,
+        "trackPx": 296
+      },
+      "forward_scrub": {
+        "0.0": 0.033,
+        "0.25": 1.75825,
+        "0.5": 3.5165,
+        "0.75": 5.27475,
+        "1.0": 7.033
+      },
+      "reverse_scrub": {
+        "1.0": {
+          "currentTime": 7.033,
+          "wallSec": 1.22
+        },
+        "0.75": {
+          "currentTime": 5.27475,
+          "wallSec": 1.22
+        },
+        "0.5": {
+          "currentTime": 3.5165,
+          "wallSec": 1.21
+        },
+        "0.25": {
+          "currentTime": 1.75825,
+          "wallSec": 1.22
+        },
+        "0.0": {
+          "currentTime": 0.033,
+          "wallSec": 1.22
+        }
+      },
+      "keyboard_pagedown": {
+        "scrollTop_before": 0,
+        "scrollTop_after": 296,
+        "currentTime_after": 6.667639
+      },
+      "visit_pill_at_full_scroll": {
+        "visible": true,
+        "box": {
+          "x": 649,
+          "y": 775.3125,
+          "width": 158.734375,
+          "height": 36
+        }
+      },
+      "blurb_text": "A single fast page for a Heywood barbershop. The whole price list is on view, from a \u00a312 kids' cut to the \u00a352 full works, next to a profile for each barber and a booking form that captures the date, time and chair a client wants."
+    },
+    "Barker": {
+      "rest": {
+        "paused": true,
+        "currentTime": 0.033,
+        "autoplay": false,
+        "loop": false,
+        "hasAutoplayAttr": false,
+        "hasLoopAttr": false,
+        "duration": 6.033,
+        "seekRange": [
+          0,
+          6.033
+        ],
+        "scrollHeight": 1012,
+        "clientHeight": 716,
+        "trackPx": 296
+      },
+      "forward_scrub": {
+        "0.0": 0.033,
+        "0.25": 1.50825,
+        "0.5": 3.0165,
+        "0.75": 4.52475,
+        "1.0": 6.033
+      },
+      "reverse_scrub": {
+        "1.0": {
+          "currentTime": 6.033,
+          "wallSec": 1.23
+        },
+        "0.75": {
+          "currentTime": 4.52475,
+          "wallSec": 1.21
+        },
+        "0.5": {
+          "currentTime": 3.0165,
+          "wallSec": 1.21
+        },
+        "0.25": {
+          "currentTime": 1.50825,
+          "wallSec": 1.21
+        },
+        "0.0": {
+          "currentTime": 0.033,
+          "wallSec": 1.21
+        }
+      },
+      "visit_pill_at_full_scroll": {
+        "visible": true,
+        "box": {
+          "x": 649,
+          "y": 775.3125,
+          "width": 158.734375,
+          "height": 36
+        }
+      },
+      "blurb_text": "One clear page for a dog grooming salon. Prices are set out by dog size, from an \u00a318 puppy's first groom upwards, with add-ons like nail trims listed plainly and a two-step form that requests a slot by size, day and time."
+    },
+    "Until": {
+      "rest": {
+        "paused": true,
+        "currentTime": 0,
+        "autoplay": false,
+        "loop": false,
+        "hasAutoplayAttr": false,
+        "hasLoopAttr": false,
+        "duration": 7.033,
+        "seekRange": [
+          0,
+          7.033
+        ],
+        "scrollHeight": 1035,
+        "clientHeight": 716,
+        "trackPx": 319
+      },
+      "forward_scrub": {
+        "0.0": 0.033,
+        "0.25": 1.763761,
+        "0.5": 3.527523,
+        "0.75": 5.269238,
+        "1.0": 7.033
+      },
+      "reverse_scrub": {
+        "1.0": {
+          "currentTime": 7.033,
+          "wallSec": 1.21
+        },
+        "0.75": {
+          "currentTime": 5.269238,
+          "wallSec": 1.22
+        },
+        "0.5": {
+          "currentTime": 3.527523,
+          "wallSec": 1.21
+        },
+        "0.25": {
+          "currentTime": 1.763761,
+          "wallSec": 1.22
+        },
+        "0.0": {
+          "currentTime": 0.033,
+          "wallSec": 1.21
+        }
+      },
+      "visit_pill_at_full_scroll": {
+        "visible": true,
+        "box": {
+          "x": 649,
+          "y": 774.703125,
+          "width": 158.734375,
+          "height": 36
+        }
+      },
+      "blurb_text": "A technical piece, not a client site. The whole history of the universe runs on one scroll, drawn live in the browser with WebGL. The finale bends starlight around a black hole using real gravitational lensing, computed every frame rather than faked with a picture."
+    },
+    "console_errors": []
+  },
+  "1280x720": {
+    "Blackthorn": {
+      "rest": {
+        "paused": true,
+        "currentTime": 0.033,
+        "autoplay": false,
+        "loop": false,
+        "hasAutoplayAttr": false,
+        "hasLoopAttr": false,
+        "duration": 7.033,
+        "seekRange": [
+          0,
+          7.033
+        ],
+        "scrollHeight": 985,
+        "clientHeight": 676,
+        "trackPx": 309
+      },
+      "forward_scrub": {
+        "0.0": 0.033,
+        "0.25": 1.752559,
+        "0.5": 3.52788,
+        "0.75": 5.28044,
+        "1.0": 7.033
+      },
+      "reverse_scrub": {
+        "1.0": {
+          "currentTime": 7.033,
+          "wallSec": 1.21
+        },
+        "0.75": {
+          "currentTime": 5.28044,
+          "wallSec": 1.21
+        },
+        "0.5": {
+          "currentTime": 3.52788,
+          "wallSec": 1.22
+        },
+        "0.25": {
+          "currentTime": 1.752559,
+          "wallSec": 1.22
+        },
+        "0.0": {
+          "currentTime": 0.033,
+          "wallSec": 1.22
+        }
+      },
+      "visit_pill_at_full_scroll": {
+        "visible": true,
+        "box": {
+          "x": 649,
+          "y": 735.3125,
+          "width": 158.734375,
+          "height": 36
+        }
+      },
+      "blurb_text": "A single fast page for a Heywood barbershop. The whole price list is on view, from a \u00a312 kids' cut to the \u00a352 full works, next to a profile for each barber and a booking form that captures the date, time and chair a client wants."
+    },
+    "Barker": {
+      "rest": {
+        "paused": true,
+        "currentTime": 0,
+        "autoplay": false,
+        "loop": false,
+        "hasAutoplayAttr": false,
+        "hasLoopAttr": false,
+        "duration": 6.033,
+        "seekRange": [
+          0,
+          6.033
+        ],
+        "scrollHeight": 985,
+        "clientHeight": 676,
+        "trackPx": 309
+      },
+      "forward_scrub": {
+        "0.0": 0.033,
+        "0.25": 1.503368,
+        "0.5": 3.026262,
+        "0.75": 4.529631,
+        "1.0": 6.033
+      },
+      "reverse_scrub": {
+        "1.0": {
+          "currentTime": 6.033,
+          "wallSec": 1.22
+        },
+        "0.75": {
+          "currentTime": 4.529631,
+          "wallSec": 1.22
+        },
+        "0.5": {
+          "currentTime": 3.026262,
+          "wallSec": 1.21
+        },
+        "0.25": {
+          "currentTime": 1.503368,
+          "wallSec": 1.22
+        },
+        "0.0": {
+          "currentTime": 0.033,
+          "wallSec": 1.22
+        }
+      },
+      "visit_pill_at_full_scroll": {
+        "visible": true,
+        "box": {
+          "x": 649,
+          "y": 735.3125,
+          "width": 158.734375,
+          "height": 36
+        }
+      },
+      "blurb_text": "One clear page for a dog grooming salon. Prices are set out by dog size, from an \u00a318 puppy's first groom upwards, with add-ons like nail trims listed plainly and a two-step form that requests a slot by size, day and time."
+    },
+    "Until": {
+      "rest": {
+        "paused": true,
+        "currentTime": 0.033,
+        "autoplay": false,
+        "loop": false,
+        "hasAutoplayAttr": false,
+        "hasLoopAttr": false,
+        "duration": 7.033,
+        "seekRange": [
+          0,
+          7.033
+        ],
+        "scrollHeight": 1008,
+        "clientHeight": 676,
+        "trackPx": 332
+      },
+      "forward_scrub": {
+        "0.0": 0.033,
+        "0.25": 1.75825,
+        "0.5": 3.5165,
+        "0.75": 5.27475,
+        "1.0": 7.033
+      },
+      "reverse_scrub": {
+        "1.0": {
+          "currentTime": 7.033,
+          "wallSec": 1.22
+        },
+        "0.75": {
+          "currentTime": 5.27475,
+          "wallSec": 1.22
+        },
+        "0.5": {
+          "currentTime": 3.5165,
+          "wallSec": 1.21
+        },
+        "0.25": {
+          "currentTime": 1.75825,
+          "wallSec": 1.22
+        },
+        "0.0": {
+          "currentTime": 0.033,
+          "wallSec": 1.21
+        }
+      },
+      "visit_pill_at_full_scroll": {
+        "visible": true,
+        "box": {
+          "x": 649,
+          "y": 734.703125,
+          "width": 158.734375,
+          "height": 36
+        }
+      },
+      "blurb_text": "A technical piece, not a client site. The whole history of the universe runs on one scroll, drawn live in the browser with WebGL. The finale bends starlight around a black hole using real gravitational lensing, computed every frame rather than faked with a picture."
+    },
+    "console_errors": []
+  },
+  "1280x620": {
+    "Blackthorn": {
+      "rest": {
+        "paused": true,
+        "currentTime": 0.033,
+        "autoplay": false,
+        "loop": false,
+        "hasAutoplayAttr": false,
+        "hasLoopAttr": false,
+        "duration": 7.033,
+        "seekRange": [
+          0,
+          7.033
+        ],
+        "scrollHeight": 985,
+        "clientHeight": 676,
+        "trackPx": 309
+      },
+      "forward_scrub": {
+        "0.0": 0.033,
+        "0.25": 1.752559,
+        "0.5": 3.52788,
+        "0.75": 5.28044,
+        "1.0": 7.033
+      },
+      "reverse_scrub": {
+        "1.0": {
+          "currentTime": 7.033,
+          "wallSec": 1.22
+        },
+        "0.75": {
+          "currentTime": 5.28044,
+          "wallSec": 1.22
+        },
+        "0.5": {
+          "currentTime": 3.52788,
+          "wallSec": 1.21
+        },
+        "0.25": {
+          "currentTime": 1.752559,
+          "wallSec": 1.21
+        },
+        "0.0": {
+          "currentTime": 0.033,
+          "wallSec": 1.22
+        }
+      },
+      "visit_pill_at_full_scroll": {
+        "visible": true,
+        "box": {
+          "x": 649,
+          "y": 735.3125,
+          "width": 158.734375,
+          "height": 36
+        }
+      },
+      "blurb_text": "A single fast page for a Heywood barbershop. The whole price list is on view, from a \u00a312 kids' cut to the \u00a352 full works, next to a profile for each barber and a booking form that captures the date, time and chair a client wants."
+    },
+    "Barker": {
+      "rest": {
+        "paused": true,
+        "currentTime": 0,
+        "autoplay": false,
+        "loop": false,
+        "hasAutoplayAttr": false,
+        "hasLoopAttr": false,
+        "duration": 6.033,
+        "seekRange": [
+          0,
+          6.033
+        ],
+        "scrollHeight": 985,
+        "clientHeight": 676,
+        "trackPx": 309
+      },
+      "forward_scrub": {
+        "0.0": 0.033,
+        "0.25": 1.503368,
+        "0.5": 3.026262,
+        "0.75": 4.529631,
+        "1.0": 6.033
+      },
+      "reverse_scrub": {
+        "1.0": {
+          "currentTime": 6.033,
+          "wallSec": 1.22
+        },
+        "0.75": {
+          "currentTime": 4.529631,
+          "wallSec": 1.22
+        },
+        "0.5": {
+          "currentTime": 3.026262,
+          "wallSec": 1.22
+        },
+        "0.25": {
+          "currentTime": 1.503368,
+          "wallSec": 1.21
+        },
+        "0.0": {
+          "currentTime": 0.033,
+          "wallSec": 1.22
+        }
+      },
+      "visit_pill_at_full_scroll": {
+        "visible": true,
+        "box": {
+          "x": 649,
+          "y": 735.3125,
+          "width": 158.734375,
+          "height": 36
+        }
+      },
+      "blurb_text": "One clear page for a dog grooming salon. Prices are set out by dog size, from an \u00a318 puppy's first groom upwards, with add-ons like nail trims listed plainly and a two-step form that requests a slot by size, day and time."
+    },
+    "Until": {
+      "rest": {
+        "paused": true,
+        "currentTime": 0.033,
+        "autoplay": false,
+        "loop": false,
+        "hasAutoplayAttr": false,
+        "hasLoopAttr": false,
+        "duration": 7.033,
+        "seekRange": [
+          0,
+          7.033
+        ],
+        "scrollHeight": 1008,
+        "clientHeight": 676,
+        "trackPx": 332
+      },
+      "forward_scrub": {
+        "0.0": 0.033,
+        "0.25": 1.75825,
+        "0.5": 3.5165,
+        "0.75": 5.27475,
+        "1.0": 7.033
+      },
+      "reverse_scrub": {
+        "1.0": {
+          "currentTime": 7.033,
+          "wallSec": 1.21
+        },
+        "0.75": {
+          "currentTime": 5.27475,
+          "wallSec": 1.22
+        },
+        "0.5": {
+          "currentTime": 3.5165,
+          "wallSec": 1.22
+        },
+        "0.25": {
+          "currentTime": 1.75825,
+          "wallSec": 1.22
+        },
+        "0.0": {
+          "currentTime": 0.033,
+          "wallSec": 1.22
+        }
+      },
+      "visit_pill_at_full_scroll": {
+        "visible": true,
+        "box": {
+          "x": 649,
+          "y": 734.703125,
+          "width": 158.734375,
+          "height": 36
+        }
+      },
+      "blurb_text": "A technical piece, not a client site. The whole history of the universe runs on one scroll, drawn live in the browser with WebGL. The finale bends starlight around a black hole using real gravitational lensing, computed every frame rather than faked with a picture."
+    },
+    "console_errors": []
+  }
+}

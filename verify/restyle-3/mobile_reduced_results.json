@@ -1,0 +1,51 @@
+{
+  "mobile-360": {
+    "paused": false,
+    "autoplay": true,
+    "loop": true,
+    "hasAutoplayAttr": true,
+    "hasLoopAttr": true,
+    "currentTime": 0.594938,
+    "viewScrollable": 0,
+    "panelHeight": 593.84375,
+    "viewOverflowY": "visible"
+  },
+  "mobile-390": {
+    "paused": false,
+    "autoplay": true,
+    "loop": true,
+    "hasAutoplayAttr": true,
+    "hasLoopAttr": true,
+    "currentTime": 0.586704,
+    "viewScrollable": 0,
+    "panelHeight": 573.453125,
+    "viewOverflowY": "visible"
+  },
+  "mobile-768": {
+    "paused": false,
+    "autoplay": true,
+    "loop": true,
+    "hasAutoplayAttr": true,
+    "hasLoopAttr": true,
+    "currentTime": 0.589323,
+    "viewScrollable": 0,
+    "panelHeight": 695.3125,
+    "viewOverflowY": "visible"
+  },
+  "reduced_motion_welcome_text_immediate": "SELECT A PROJECT",
+  "reduced_motion_cta_drift": {
+    "animationName": "none",
+    "animationDuration": "0s"
+  },
+  "reduced_motion_trail_dot_count_after_hover": 0,
+  "reduced_motion_cta_bloom_count_on_press": 0,
+  "reduced_motion_cta_hover_mist": {
+    "exists": false
+  },
+  "reduced_motion_scrub_snap": {
+    "paused_before": true,
+    "currentTime_immediate": 5.631152,
+    "currentTime_after_50ms": 5.631152,
+    "paused_after": true
+  }
+}
