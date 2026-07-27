@@ -33,7 +33,7 @@
   font-weight: 400 600;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/archivo-latin-var.woff2?v=7') format('woff2');
+  src: url('../fonts/archivo-latin-var.woff2?v=8') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -43,7 +43,7 @@
   font-weight: 300 500;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/martian-mono-latin-var.woff2?v=7') format('woff2');
+  src: url('../fonts/martian-mono-latin-var.woff2?v=8') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -580,6 +580,17 @@ a {
   color: var(--cta-index);
 }
 
+/* Contrast (CONCEPT.md section 10, same remediation pattern approved for the
+   grey tags): --cta-index (rgba(20,20,22,0.5)) on the pastel fill measures
+   ~3.31:1, below AA. Desktop rest keeps --cta-index per the 3.1 token and the
+   3.4 C1 state (documented desktop-rest exception, as with the grey-soft one);
+   under :focus-visible the CTA index darkens to --ink-mid. Specificity 0,3,0
+   plus later source order both beat .row--cta .row-index (0,2,0). The mobile
+   at-rest remediation lives in the max-width:900px block below. */
+.row--cta:focus-visible .row-index {
+  color: var(--ink-mid);
+}
+
 .row--cta .row-tag {
   color: var(--ink-mid);
 }
@@ -696,7 +707,6 @@ a {
 .footer-email a:focus-visible {
   outline: none;
   box-shadow: var(--shadow-field-focus);
-  border-radius: var(--sp-2);
 }
 
 .footer-copy {
@@ -1056,8 +1066,13 @@ a {
   transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
 }
 
+/* Contrast (CONCEPT.md section 10 AA mandate): the placeholder is the field's
+   only visible label, and --grey-placeholder (#9A9AA2) on --surface-field
+   measures ~2.68:1, below AA. Darkened to --ink-mid (#54545C, ~7.2:1). The
+   --grey-placeholder token is left in the 3.1 block verbatim but is now unused.
+   Fields also carry aria-label so AT users do not depend on placeholder text. */
 .field::placeholder {
-  color: var(--grey-placeholder);
+  color: var(--ink-mid);
 }
 
 /* F2 focus: accent border, white background, inset accent ring, no outer halo. */
@@ -1166,7 +1181,6 @@ a {
 .form-status-msg a:focus-visible {
   outline: none;
   box-shadow: var(--shadow-field-focus);
-  border-radius: var(--sp-2);
 }
 
 /* Quiet "try again" control on the failure overlay: a plain mono text button
@@ -1188,7 +1202,6 @@ a {
 .form-retry:focus-visible {
   outline: none;
   box-shadow: var(--shadow-field-focus);
-  border-radius: var(--sp-2);
 }
 
 /* Visually hidden aria-live region for panel-change announcements. */
@@ -1217,7 +1230,7 @@ a {
   left: 0;
   width: 12px;
   height: 12px;
-  border-radius: 50%;
+  border-radius: var(--radius-pill);
   filter: blur(12px);
   opacity: 0;
   z-index: 2;
@@ -1336,6 +1349,15 @@ a {
      4.5:1. Desktop rest colours are untouched (this is inside the breakpoint). */
   .row-index,
   .row-tag {
+    color: var(--ink-mid);
+  }
+
+  /* CTA row index (section 10, FLAG 5): --cta-index (~3.31:1 on the pastel
+     fill) fails AA. On mobile at rest darken it to --ink-mid. The plain
+     .row-index rule above is 0,1,0 and loses to .row--cta .row-index (0,2,0),
+     so this equal-specificity (0,2,0) rule, later in source, is required to
+     win. */
+  .row--cta .row-index {
     color: var(--ink-mid);
   }
 

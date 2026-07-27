@@ -1,0 +1,57 @@
+{
+  "real_tab_row1_focus": {
+    "cls": "row",
+    "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px inset"
+  },
+  "real_tab_cta_focus": {
+    "cls": "row row--cta",
+    "boxShadow": "rgb(26, 111, 212) 0px 0px 0px 1px inset",
+    "text": "06\n            Get i"
+  },
+  "aria_live_after_cta_enter": "Preview / Get in touch",
+  "tab_walk_after_cta": [
+    {
+      "tag": "A",
+      "name": null,
+      "cls": "",
+      "type": null
+    },
+    {
+      "tag": "INPUT",
+      "name": "name",
+      "cls": "field",
+      "type": "text"
+    },
+    {
+      "tag": "INPUT",
+      "name": "business",
+      "cls": "field",
+      "type": "text"
+    },
+    {
+      "tag": "TEXTAREA",
+      "name": "message",
+      "cls": "field field--area",
+      "type": "textarea"
+    },
+    {
+      "tag": "BUTTON",
+      "name": null,
+      "cls": "submit",
+      "type": "submit"
+    }
+  ],
+  "reached_submit": true,
+  "submit_focused_after_message_tab": "submit",
+  "submit_focus_ring": "rgb(26, 111, 212) 0px 0px 0px 1px inset",
+  "form_status_text_after_enter_submit": "Something broke. Email me directly at hello@placeholder.invalid.\n\nTRY AGAIN",
+  "status_focused_after_submit": "form-status is-shown",
+  "retry_button_present": true,
+  "retry_focus_ring": "rgb(26, 111, 212) 0px 0px 0px 1px inset",
+  "form_after_retry": false,
+  "focus_after_retry": "name",
+  "visit_pill_focus_ring": "rgb(26, 111, 212) 0px 0px 0px 1px inset",
+  "visit_pill_href": "https://arctxrus.github.io/blackthorn-demo/",
+  "visit_pill_target": "_blank",
+  "visit_pill_rel": "noopener"
+}

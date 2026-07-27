@@ -1,3 +1,6 @@
 # Build-only capture artefacts (raw Playwright recordings and ffmpeg logs).
 # Nothing here ships to the page; the processed clips live in media/.
 tools/_raw/
+tools/__pycache__/
+__pycache__/
+*.pyc

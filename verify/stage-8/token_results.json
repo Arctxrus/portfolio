@@ -1,0 +1,111 @@
+{
+  "trail_dot": {
+    "borderRadius": "50%",
+    "width": "12px",
+    "height": "12px"
+  },
+  "cta_mist": {
+    "borderRadius": "999px",
+    "backgroundImage": "radial-gradient(circle, rgba(233, 246, 253, 0.55) 0%, rgba(233, 246, 253, 0.26) "
+  },
+  "cta_bloom": {
+    "borderRadius": "999px",
+    "backgroundImage": "radial-gradient(circle, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.4) 4"
+  },
+  "radius_report": {
+    ".row": {
+      "borderRadius": "0px",
+      "borderWidth": "0px/0px/1px/0px",
+      "borderColor": "rgb(20, 20, 22)",
+      "boxShadow": "none",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "backgroundImage": "none",
+      "color": "rgb(20, 20, 22)",
+      "backdropFilter": "none"
+    },
+    ".row--cta": {
+      "borderRadius": "999px",
+      "borderWidth": "0px/0px/0px/0px",
+      "borderColor": "rgb(20, 20, 22)",
+      "boxShadow": "rgba(255, 255, 255, 0.62) 0px 0px 0px 1px inset, rgba(255, 255, 255, 0.85) 0px 1px 0px 0px inset",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "backgroundImage": "radial-gradient(70% 180% at 20% 15%, rgb(220, 238, 249) 0%, rgba(220, 238, 249, ",
+      "color": "rgb(20, 20, 22)",
+      "backdropFilter": "none"
+    },
+    ".index-list": {
+      "borderRadius": "0px",
+      "borderWidth": "1px/0px/0px/0px",
+      "borderColor": "rgb(232, 232, 236)",
+      "boxShadow": "none",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "backgroundImage": "none",
+      "color": "rgb(20, 20, 22)",
+      "backdropFilter": "none"
+    },
+    ".panel": {
+      "borderRadius": "16px",
+      "borderWidth": "1px/1px/1px/1px",
+      "borderColor": "rgb(232, 232, 236)",
+      "boxShadow": "none",
+      "backgroundColor": "rgb(244, 244, 247)",
+      "backgroundImage": "none",
+      "color": "rgb(20, 20, 22)",
+      "backdropFilter": "none"
+    },
+    ".footer-email a": {
+      "borderRadius": "0px",
+      "borderWidth": "0px/0px/0px/0px",
+      "borderColor": "rgb(26, 111, 212)",
+      "boxShadow": "none",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "backgroundImage": "none",
+      "color": "rgb(26, 111, 212)",
+      "backdropFilter": "none"
+    },
+    ".name-block": {
+      "borderRadius": "0px",
+      "borderWidth": "0px/0px/0px/0px",
+      "borderColor": "rgb(20, 20, 22)",
+      "boxShadow": "none",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "backgroundImage": "none",
+      "color": "rgb(20, 20, 22)",
+      "backdropFilter": "none"
+    },
+    ".testimonials": {
+      "borderRadius": "0px",
+      "borderWidth": "0px/0px/0px/0px",
+      "borderColor": "rgb(20, 20, 22)",
+      "boxShadow": "none",
+      "backgroundColor": "rgba(0, 0, 0, 0)",
+      "backgroundImage": "none",
+      "color": "rgb(20, 20, 22)",
+      "backdropFilter": "none"
+    }
+  },
+  "footer_link_focus": {
+    "boxShadow": "rgb(26, 111, 212) 0px 0px 0px 1px inset",
+    "borderRadius": "2px"
+  },
+  "fixed_sticky_elements": [
+    {
+      "tag": "CANVAS",
+      "id": "dot-grid",
+      "cls": "dot-grid",
+      "position": "fixed"
+    },
+    {
+      "tag": "DIV",
+      "id": "",
+      "cls": "trail-dot",
+      "position": "fixed"
+    }
+  ],
+  "dialogs": {
+    "dialogEls": 0,
+    "roleDialog": 0
+  },
+  "full_text_p2": "Zayn\nFREELANCE / WEB\n\nI build fast, polished websites for local businesses. From \u00a3300.\n\nINDEX\n01\nBlackthorn & Co.\nBARBERSHOP\n\u2197\n02\nBarker & Bloom\nDOG GROOMING\n\u2197\n03\nUntil the Last Star\nWEBGL\n\u2197\n04\nAbout\n\u2197\n05\nPricing\n\u2197\n06\nGet in touch\nSAME DAY REPLY\n\u2197\nHOW IT WORKS\n01\nYou reply to my email\n02\nI build you a free homepage mockup\n03\nLive in about two weeks\n\nSHIPPED A GAME WITH 3,000,000+ PLAYERS \u00b7 BSC ASTROPHYSICS \u00b7 3 LIVE BUILDS\n\nhello@placeholder.invalid \u00b7 typically reply same day\n\n\u00a9 2026 ZAYN\n\nPREVIEW / NO SELECTION\n\u2197\nSELECT A PROJECT",
+  "exclamation_count": 0
+}

@@ -979,3 +979,131 @@ cause introduced by round-1 fix 1. Fixed and re-verified across viewport heights
   from 6.0s to 7.0s (still in range) to give the orbit room. Circular orbit chosen
   over a figure-8 because a circle is periodic in position AND velocity, so the
   seam is smoother under recording-timeline drift.
+
+### Stage 8 - De-vibe audit gate (section 11)
+- Status: AUDIT CLEAN (re-verified 2026-07-27 with real keyboard-driven
+  Playwright: all five flag fixes confirmed, radius sweep returns exactly
+  999px and 16px, placeholder 7.19:1, CTA index passes at mobile rest and
+  focus with the desktop-rest exception documented; evidence in
+  verify/stage-8/). The House Tier audit (the canonical
+  14-item list is still an OPEN BLOCKER, see Open items) was run against the built
+  site and returned 5 flags; the orchestrator ruled on each and the coder applied
+  the rulings. All shipped asset refs bumped ?v=7 to ?v=8 (the deploy push follows
+  stage 9): 13 in index.html, 2 in css/styles.css, 0 in js/main.js. Files changed:
+  index.html, css/styles.css, PROGRESS.md. Encoding clean (valid UTF-8, no BOM, no
+  mojibake, no em dashes; £300 x7, ↗ x10, middle dot x8 intact).
+
+House Tier audit results (docs/de-vibe-audit.md items 1 to 7):
+
+| # | Item | Result |
+|---|------|--------|
+| 1 | No em dashes anywhere | PASS |
+| 2 | No fake content / claims all true | PASS |
+| 3 | No AI-slop tells (no emoji, filler, purple gradients, glassmorphism, drop shadows) | PASS |
+| 4 | Token discipline: two radii, one border width, inset shadows only | PASS after fixes (FLAG 1, FLAG 2); FLAG 3 accepted exception noted |
+| 5 | Type discipline: only Archivo + Martian Mono + system glyph | PASS |
+| 6 | Honest conversion path: no urgency, no fake scarcity, no sticky CTA bars, no popups | PASS |
+| 7 | Accessibility floor: keyboard, aria-live, reduced motion, section-10 contrast | PASS after fixes (FLAG 4, FLAG 5); documented desktop-rest exceptions listed |
+
+Flag rulings applied:
+
+- FLAG 1 (FIXED, item 4). `.trail-dot` used `border-radius: 50%`, a third radius
+  value beyond the two tokens. Changed to `var(--radius-pill)` in css/styles.css.
+  A circle at 12x12 is visually identical under a 999px pill radius, so no visual
+  change. All eleven `border-radius` declarations in styles.css now resolve to one
+  of exactly two tokens (--radius-pill, --radius-surface); the two-radii rule holds.
+
+- FLAG 2 (FIXED, item 4). Three inline-text focus rings
+  (`.footer-email a:focus-visible`, `.form-status-msg a:focus-visible`,
+  `.form-retry:focus-visible`) carried `border-radius: var(--sp-2)`, a third corner
+  radius. The `border-radius` property was removed from all three; the inset accent
+  ring (--shadow-field-focus) now renders square-cornered on inline text, which is
+  fine and keeps the two-radii rule. SIDE EFFECT (noted): --sp-2 was the only use
+  of that spacing token, so --sp-2 is now defined but unused. The 3.1 token block
+  is left verbatim per house rules (tokens not deleted); flag that CONCEPT 3.1's
+  "all values in use" annotation no longer holds for --sp-2.
+
+- FLAG 3 (ACCEPTED EXCEPTION, no code change; item 4 / item 6 intent). The audit's
+  fixed/sticky-element scan flagged the `position: fixed` `.trail-dot` nodes (and
+  the `#dot-grid` canvas). Ruling: the audit item's intent is banning sticky CTA
+  chrome (persistent bars/popups that pressure conversion), not ephemeral
+  decorative nodes. The trail dots are transient pointer-trail glints spawned on
+  pointermove and removed at 2200ms (WAAPI lifetime, section 3.3), never bound on
+  touch or under reduced motion, and carry no CTA/navigation. The dot-grid canvas
+  is a decorative aria-hidden background. Neither is sticky chrome. Recorded as a
+  narrowly scoped, accepted exception: `position: fixed` is permitted ONLY for
+  these two ephemeral/decorative nodes and must not be used for any persistent bar,
+  banner, CTA or popup.
+
+- FLAG 4 (FIXED, item 7, contrast). `--grey-placeholder` (#9A9AA2) on the field
+  background (--surface-field #FAFAFA) measured 2.68:1 and the placeholder is each
+  field's only visible label. `.field::placeholder` changed to `var(--ink-mid)`
+  (#54545C), measured 7.19:1, clears AA. The `--grey-placeholder` token is left in
+  the 3.1 block verbatim and is now UNUSED (noted). Additionally, aria-label
+  attributes were added to the three fields ("Name", "Business", "What do you need
+  built?") in index.html so screen-reader users do not depend on placeholder
+  semantics; invisible, no visual/design change.
+  DEVIATION from 3.1 token usage, reason CONCEPT section 10 AA mandate: the spec
+  token for the placeholder colour (--grey-placeholder) fails AA as the sole label,
+  so it is replaced by --ink-mid (an existing 3.1 token that passes). Contrast
+  computed with the WCAG formula: old 2.68:1, new 7.19:1.
+
+- FLAG 5 (FIXED, item 7, contrast). `.row--cta .row-index` at `--cta-index`
+  (rgba(20,20,22,0.5)) measured ~3.19 to 3.44:1 across the pastel fill pixels
+  (~3.31:1 typical), below AA, and its 0,2,0 specificity was also defeating the
+  section-10 mobile and focus remediation. Applied the SAME remediation pattern
+  approved for the grey tags (CONCEPT section 10):
+  - Desktop rest keeps `--cta-index` per the 3.1 token and the 3.4 C1 state
+    (documented desktop-rest exception, the same class of exception already logged
+    at stage 5 for grey-soft on --ground at desktop rest).
+  - Under `:focus-visible`, `.row--cta:focus-visible .row-index` darkens the index
+    to `var(--ink-mid)`. Specificity 0,3,0 strictly exceeds the base 0,2,0 rule and
+    the 0,2,0 mobile rule, so it wins whenever focus-visible matches.
+  - On mobile at rest (@media max-width:900px), `.row--cta .row-index` darkens to
+    `var(--ink-mid)`; equal 0,2,0 specificity to the base rule but later in source,
+    so it wins inside the breakpoint.
+  New index colour --ink-mid measures 5.21 to 7.19:1 across every pastel pixel, all
+  clearing AA. DEVIATION note: --cta-index is retained for desktop rest only (spec
+  C1 state), darkened elsewhere for the AA mandate.
+  CASCADE VERIFICATION (per the brief's "test computed styles, do not assume"):
+  - Reliable initial computed read over a local http server: with the pane at its
+    forced 0-width viewport the (max-width:900px) query matches, and the CTA
+    `.row-index` resolves to rgb(84, 84, 92) = --ink-mid, confirming the mobile
+    rule both applies and beats the base --cta-index rule and the plain 0,1,0
+    mobile `.row-index,.row-tag` rule.
+  - CSSOM enumeration confirmed the authored rules: `.row--cta .row-index` =
+    var(--cta-index); `.row--cta:focus-visible .row-index` = var(--ink-mid);
+    mobile `.row--cta .row-index` = var(--ink-mid).
+  - The focus-visible path and any post-mutation computed read could NOT be
+    exercised in the pane: keyboard Tab does not land focus in the backgrounded
+    pane, and getComputedStyle does not re-resolve after DOM changes there (proven:
+    an inline `color` override, which always wins the cascade, was not reflected by
+    getComputedStyle). This is the same backgrounded-pane limitation logged at every
+    prior stage. The focus-visible winner therefore rests on specificity (0,3,0 >
+    0,2,0, no !important), which is dispositive per the cascade spec, plus the CSSOM
+    confirmation that the rule is authored correctly. Real keyboard-focus screenshot
+    verification is left to the verifier subagent.
+
+### Stage 8 - Final check (section 11): three distinctive, deliberate design choices
+
+(1) The decode/scramble load-in: data-scramble labels resolving left to right over 650ms, once, never replayed. It sets the site's tone in its first second, a small system-booting gesture that reads as engineered rather than decorative, ties naturally to the monospace label type so character widths never shift, and then gets out of the way permanently.
+(2) The CTA water-drift pill: three layered pastel gradients drifting on independent paths, a cursor-lagging hover mist, a one-shot press bloom clipped to the pill, all built from tokens with inset-only rims. It makes the single conversion action feel considered without shouting, matching the brief's confirm-and-remove-friction mandate.
+(3) The inset-only shadow language: every shadow on the page (row hover, field focus, the CTA rim) is inset; there is not a single drop shadow anywhere. One consistent material logic, light pressed into surfaces at the edges, instead of the floating-card look of template output.
+
+### Stage 8 - AMBIGUOUS note (tab order on selection)
+- On selecting a row, keyboard focus does NOT jump to the panel; it stays on the
+  activated row. This is a DOM-order artefact (the panel markup is a later grid
+  sibling of the index). CONCEPT section 10 only requires that panel changes are
+  announced via aria-live polite, which fires correctly. Accepted as-is: no spec
+  requirement is unmet, and moving focus to a non-interactive panel on every
+  selection could be more disruptive than helpful for keyboard users.
+
+### Stage 8 deviations / judgement calls
+- --sp-2 (FLAG 2) and --grey-placeholder (FLAG 4) are now defined-but-unused
+  tokens. The 3.1 block is kept verbatim per house rules; flagged so the
+  orchestrator records that CONCEPT 3.1's "all values in use" (spacing) and the
+  placeholder token no longer have a live consumer.
+- FLAG 3 position:fixed accepted exception is scoped narrowly to the trail dots and
+  the dot-grid canvas only (see the FLAG 3 ruling above).
+- CANONICAL 14-ITEM AUDIT still OPEN: only the House Tier was run this stage. The
+  full canonical audit must run once the list is pasted, before outreach.

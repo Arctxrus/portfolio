@@ -1,0 +1,73 @@
+{
+  "tab_sequence": [
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "text": "01\n            Blackthorn & Co"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "text": "02\n            Barker & Bloom\n"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "text": "03\n            Until the Last "
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "text": "04\n            About\n         "
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "text": "05\n            Pricing\n       "
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta",
+      "text": "06\n            Get in touch\n  "
+    },
+    {
+      "tag": "A",
+      "cls": "",
+      "text": "hello@placeholder.invalid"
+    },
+    {
+      "tag": "BODY",
+      "cls": "",
+      "text": "Zayn\n        Freelance / Web\n "
+    }
+  ],
+  "row_focus_ring": "rgba(0, 0, 0, 0) 0px 0px 0px 0px inset",
+  "aria_live_after_enter": "Preview / Blackthorn & Co.",
+  "header_after_enter": "PREVIEW / BLACKTHORN & CO.",
+  "aria_live_after_space": "Preview / Barker & Bloom",
+  "cta_focus_ring": "rgb(26, 111, 212) 0px 0px 0px 1px inset",
+  "aria_live_after_cta": "Preview / Get in touch",
+  "keyboard_field_order": [
+    "",
+    "name",
+    "business"
+  ],
+  "submit_reachable_by_tab": "field field--area",
+  "status_focus_after_submit": "field field--area",
+  "status_text_after_submit": "",
+  "reduced_motion_kicker_immediate": "FREELANCE / WEB",
+  "reduced_motion_fade_block": {
+    "opacity": "1",
+    "transform": "none"
+  },
+  "reduced_motion_cta_anim": {
+    "animationName": "none",
+    "animationDuration": "0s",
+    "bgPos": "0% 0%, 0% 0%, 0% 0%"
+  },
+  "reduced_motion_trail_dot_count": 0,
+  "reduced_motion_cta_mist_count": 0,
+  "reduced_motion_cta_bloom_count": 0,
+  "reduced_motion_swap_class_present_after_20ms": 0,
+  "reduced_motion_panel_switched_immediately": true
+}

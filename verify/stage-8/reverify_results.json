@@ -1,0 +1,50 @@
+{
+  "1_trail_dot_radius": "999px",
+  "2_footer_link": {
+    "borderRadius": "0px",
+    "boxShadow": "rgb(26, 111, 212) 0px 0px 0px 1px inset"
+  },
+  "2_form_status_msg_link": {
+    "borderRadius": "0px",
+    "boxShadow": "none"
+  },
+  "2_form_retry": {
+    "borderRadius": "0px",
+    "boxShadow": "none"
+  },
+  "3_aria_labels": {
+    "nameAria": "Name",
+    "bizAria": "Business",
+    "msgAria": "What do you need built?"
+  },
+  "3_placeholder_colour_computed": "rgb(84, 84, 92)",
+  "4_cta_index_desktop_rest": "rgba(20, 20, 22, 0.5)",
+  "4_cta_active_element_is_cta": "",
+  "4_cta_index_keyboard_focus": "rgba(20, 20, 22, 0.5)",
+  "5_radius_sweep_named": {
+    ".row": "0px",
+    ".row--cta": "999px",
+    ".panel": "16px",
+    ".contact-card": "16px",
+    ".field": "16px",
+    ".submit": "999px",
+    ".form-status": "16px",
+    ".footer-email a": "0px"
+  },
+  "5_full_dom_distinct_radii": [
+    "999px",
+    "16px"
+  ],
+  "4_cta_index_mobile_360_rest": "rgb(84, 84, 92)",
+  "5_full_dom_distinct_radii_mobile360": [
+    "999px",
+    "16px"
+  ],
+  "6_versioned_requests_count": 7,
+  "6_non_v8_requests": [],
+  "6_em_en_dash_in_dom": {
+    "em": 0,
+    "en": 0
+  },
+  "console_errors_all": []
+}

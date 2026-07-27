@@ -1,0 +1,94 @@
+{
+  "dash_report": [
+    {
+      "label": "P2-settled-html",
+      "em": 0,
+      "en": 0
+    },
+    {
+      "label": "panel-blackthorn-text",
+      "em": 0,
+      "en": 0
+    },
+    {
+      "label": "panel-blackthorn-html",
+      "em": 0,
+      "en": 0
+    },
+    {
+      "label": "panel-barker-text",
+      "em": 0,
+      "en": 0
+    },
+    {
+      "label": "panel-barker-html",
+      "em": 0,
+      "en": 0
+    },
+    {
+      "label": "panel-star-text",
+      "em": 0,
+      "en": 0
+    },
+    {
+      "label": "panel-star-html",
+      "em": 0,
+      "en": 0
+    },
+    {
+      "label": "panel-about-text",
+      "em": 0,
+      "en": 0
+    },
+    {
+      "label": "panel-about-html",
+      "em": 0,
+      "en": 0
+    },
+    {
+      "label": "panel-pricing-text",
+      "em": 0,
+      "en": 0
+    },
+    {
+      "label": "panel-pricing-html",
+      "em": 0,
+      "en": 0
+    },
+    {
+      "label": "panel-form-text",
+      "em": 0,
+      "en": 0
+    },
+    {
+      "label": "panel-form-html",
+      "em": 0,
+      "en": 0
+    },
+    {
+      "label": "form-fail-text",
+      "em": 0,
+      "en": 0
+    },
+    {
+      "label": "form-fail-html",
+      "em": 0,
+      "en": 0
+    }
+  ],
+  "console_errors": [],
+  "f2_style": {
+    "borderColor": "rgb(26, 111, 212)",
+    "background": "rgb(255, 255, 255)",
+    "boxShadow": "rgb(26, 111, 212) 0px 0px 0px 1px inset"
+  },
+  "submit_style_rest": {
+    "bg": "rgb(20, 20, 22)",
+    "color": "rgb(255, 255, 255)",
+    "border": "0px none rgb(255, 255, 255)",
+    "boxShadow": "none"
+  },
+  "submit_style_hover": {
+    "bg": "rgb(0, 0, 0)"
+  }
+}
