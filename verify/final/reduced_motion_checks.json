@@ -1,0 +1,16 @@
+{
+  "immediate_text_on_load": "Freelance / Web",
+  "immediate_positioning_opacity": "1",
+  "settled_text": "Freelance / Web",
+  "trail_dot_count_after_hover_moves": 0,
+  "reduced_motion_matches": true,
+  "cta_mist_exists_reduced": false,
+  "cta_bloom_exists_reduced": false,
+  "panel_opacity_20ms_after_click": "1",
+  "panel_header_after_instant_swap": "Preview / Pricing",
+  "cta_animation_durations": {
+    "animationDuration": "0s",
+    "transitionDuration": "1e-05s"
+  },
+  "console_errors": []
+}

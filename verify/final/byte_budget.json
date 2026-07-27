@@ -1,0 +1,37 @@
+{
+  "entries": [
+    {
+      "url": "http://localhost:8000/",
+      "status": 200,
+      "size": 16491,
+      "content_type": "text/html"
+    },
+    {
+      "url": "http://localhost:8000/css/styles.css?v=8",
+      "status": 200,
+      "size": 42022,
+      "content_type": "text/css"
+    },
+    {
+      "url": "http://localhost:8000/js/main.js?v=8",
+      "status": 200,
+      "size": 32263,
+      "content_type": "text/javascript"
+    },
+    {
+      "url": "http://localhost:8000/fonts/archivo-latin-var.woff2?v=8",
+      "status": 200,
+      "size": 34928,
+      "content_type": "application/octet-stream"
+    },
+    {
+      "url": "http://localhost:8000/fonts/martian-mono-latin-var.woff2?v=8",
+      "status": 200,
+      "size": 23556,
+      "content_type": "application/octet-stream"
+    }
+  ],
+  "total_bytes": 149260,
+  "video_bytes": 0,
+  "non_video_total_bytes": 149260
+}

@@ -700,8 +700,15 @@ a {
   color: var(--ink-body);
 }
 
+/* The mailto sits inside the footer sentence, so colour alone does not
+   distinguish it (stage 9 final-verify FAIL 2, link-in-text-block). Add a quiet
+   underline at rest, keeping the accent colour. text-underline-offset is set from
+   the spacing scale (--sp-2, 2px) so the underline clears the descenders in the
+   address (the "p" in the placeholder) rather than cutting through them. */
 .footer-email a {
   color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: var(--sp-2);
 }
 
 .footer-email a:focus-visible {
@@ -820,8 +827,12 @@ a {
   padding: var(--sp-32);
 }
 
+/* Same link-in-text-block fix as the footer mailto (stage 9 FAIL 2): this
+   mailto sits inside the no-JS sentence, so it is underlined at rest too. */
 .noscript-contact a {
   color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: var(--sp-2);
 }
 
 /* --------------------------------------------------------------------------
@@ -1174,8 +1185,13 @@ a {
   max-width: 34ch;
 }
 
+/* Same link-in-text-block fix as the footer mailto (stage 9 FAIL 2): the failure
+   mailto sits inside the sentence "Something broke. Email me directly at ...", so
+   it is underlined at rest too. */
 .form-status-msg a {
   color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: var(--sp-2);
 }
 
 .form-status-msg a:focus-visible {
@@ -1358,6 +1374,21 @@ a {
      so this equal-specificity (0,2,0) rule, later in source, is required to
      win. */
   .row--cta .row-index {
+    color: var(--ink-mid);
+  }
+
+  /* Contrast (section 10, stage 9 final-verify FAIL 1): the five 10 to 10.5px
+     mono labels sit at --grey-label or --grey-soft on --ground, all below AA
+     (measured 2.31 to 3.11:1). Darken them to --ink-mid (7.19:1) on mobile at
+     rest, the same remediation pattern as the row tags and the CTA index above.
+     Desktop rest keeps the prototype --grey-label / --grey-soft (a documented
+     desktop-rest exception, same accepted class as the row tags and CTA index).
+     These are non-interactive labels, so there is no focus state to darken. */
+  .section-label,
+  .how-index,
+  .proof,
+  .footer-copy,
+  .panel-head-label {
     color: var(--ink-mid);
   }
 

@@ -1,0 +1,54 @@
+{
+  "section_order": [
+    {
+      "sel": ".name-block",
+      "top": 22
+    },
+    {
+      "sel": ".positioning",
+      "top": 78
+    },
+    {
+      "sel": ".index",
+      "top": 177.1875
+    },
+    {
+      "sel": ".panel",
+      "top": 497.1875
+    },
+    {
+      "sel": ".how",
+      "top": 989.1875
+    },
+    {
+      "sel": ".proof",
+      "top": 1134.1875
+    },
+    {
+      "sel": ".footer",
+      "top": 1217.875
+    }
+  ],
+  "touch_rest_visibility": {
+    "tag": {
+      "opacity": "1",
+      "display": "block",
+      "visibility": "visible"
+    },
+    "glyph": {
+      "opacity": "1",
+      "display": "block",
+      "visibility": "visible"
+    }
+  },
+  "panel_top_after_tap": 0.1875,
+  "form_fits": {
+    "form": {
+      "width": 270,
+      "right": 315
+    },
+    "viewport_width": 360
+  },
+  "trail_dots_on_touch": 0,
+  "console_errors": []
+}

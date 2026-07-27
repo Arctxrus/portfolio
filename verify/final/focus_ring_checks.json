@@ -1,0 +1,17 @@
+{
+  "row1_while_active_and_focused": {
+    "boxShadow": "rgb(26, 111, 212) 0px 0px 0px 1px inset",
+    "outline": "rgb(20, 20, 22) none 3px",
+    "isFocused": true
+  },
+  "row1_active_but_focus_moved_away": {
+    "boxShadow": "rgba(26, 111, 212, 0.047) 0px 0px 0px 0.0482522px inset",
+    "outline": "rgb(20, 20, 22) none 3px",
+    "isFocused": false
+  },
+  "row2_now_focused_not_active": {
+    "boxShadow": "rgba(26, 111, 212, 0.973) 0px 0px 0px 0.972802px inset",
+    "outline": "rgb(20, 20, 22) none 3px",
+    "isFocused": true
+  }
+}

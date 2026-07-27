@@ -1,0 +1,30 @@
+{
+  "colors_360": {
+    "indexLabel": "rgb(84, 84, 92)",
+    "howLabel": "rgb(84, 84, 92)",
+    "howIndex": "rgb(84, 84, 92)",
+    "proof": "rgb(84, 84, 92)",
+    "footerCopy": "rgb(84, 84, 92)",
+    "panelHeadLabel": "rgb(84, 84, 92)"
+  },
+  "colors_1440": {
+    "indexLabel": "rgb(142, 142, 150)",
+    "howLabel": "rgb(142, 142, 150)",
+    "howIndex": "rgb(166, 166, 174)",
+    "proof": "rgb(142, 142, 150)",
+    "footerCopy": "rgb(166, 166, 174)",
+    "panelHeadLabel": "rgb(142, 142, 150)"
+  },
+  "footer_link_style_desktop": {
+    "textDecorationLine": "underline",
+    "color": "rgb(26, 111, 212)",
+    "underlineOffset": "2px"
+  },
+  "form_link_style_desktop": {
+    "textDecorationLine": "underline",
+    "color": "rgb(26, 111, 212)"
+  },
+  "console_errors_360": [],
+  "console_errors_1440": [],
+  "v8_count_in_dom_html": 13
+}

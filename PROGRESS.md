@@ -1107,3 +1107,72 @@ Flag rulings applied:
   the dot-grid canvas only (see the FLAG 3 ruling above).
 - CANONICAL 14-ITEM AUDIT still OPEN: only the House Tier was run this stage. The
   full canonical audit must run once the list is pasted, before outreach.
+
+### Stage 9 - Final verify FAIL fixes (contrast)
+- Status: VERIFIED PASS (re-verify 2026-07-27, 0 FAILs). Final Lighthouse
+  mobile: Performance 98, Accessibility 100, Best Practices 96, SEO 100
+  (verify/final/lighthouse-mobile-fixed.report.json). Stage 9 complete;
+  deploying to GitHub Pages. The stage 9 final verify (verify/final/)
+  returned 2 contrast FAILs; the orchestrator ruled Reading A on both (consistent
+  with the CONCEPT section 10 remediation pattern and the stage 8 precedent) and
+  the coder applied them exactly. Files changed: css/styles.css, PROGRESS.md.
+  ?v=8 kept (no push has happened since the stage 8 bump). Encoding clean (Edit
+  tool only, no BOM, no mojibake, no em dashes).
+
+- FAIL 1 (five mono labels below AA on --ground). Lighthouse color-contrast
+  (verify/final/lighthouse-mobile-report.report.json) flagged five label
+  selectors: .section-label (3.11:1), .how-index (2.31:1), .proof (3.11:1),
+  .footer-copy (2.31:1), .panel-head-label (3.06:1). Root token colours:
+  .section-label / .proof / .panel-head-label = --grey-label (#8E8E96);
+  .how-index / .footer-copy = --grey-soft (#A6A6AE). Fix (Reading A): inside the
+  existing @media (max-width: 900px) block, a single grouped rule darkens all
+  five to var(--ink-mid) (#54545C), the established passing token measured at
+  7.19:1 on --ground. Non-interactive labels, so there is no focus state to
+  darken (section 10 prescribes darkening "on mobile-at-rest and for focus"; only
+  the mobile-at-rest half applies here). Desktop rest keeps --grey-label /
+  --grey-soft per the prototype design.
+  - EXCEPTION-CLASS UPDATE (recorded as required): the accepted desktop-rest
+    contrast exception (first logged at stage 5 for grey-soft row index/tags on
+    --ground, extended at stage 8 to the CTA index) now ALSO covers, at desktop
+    rest only: the section labels, the how-it-works index, the proof strip, the
+    footer copy and the panel head label. All darken to --ink-mid on mobile at
+    rest; all retain the prototype greys at desktop rest.
+  - COMPUTED-STYLE EVIDENCE (headless Chromium over a local http server, since
+    the Browser pane stays backgrounded; scratchpad script, not shipped):
+    - 360px (mobile): all five resolve to rgb(84,84,92) = --ink-mid, contrast
+      7.19:1 on ground. PASS.
+    - 1440px (desktop): .section-label / .proof / .panel-head-label =
+      rgb(142,142,150) = --grey-label (3.11:1); .how-index / .footer-copy =
+      rgb(166,166,174) = --grey-soft (2.32:1). Unchanged from the prototype,
+      confirming the fix is scoped to the breakpoint only.
+  - LIGHTHOUSE NOTE: Lighthouse's mobile emulation runs at 412px CSS width, which
+    is below the 900px breakpoint, so all five labels resolve to --ink-mid under
+    the audit and color-contrast now passes.
+
+- FAIL 2 (footer mailto colour-only distinguished, link-in-text-block). The
+  footer mailto was distinguished from surrounding body text by colour alone
+  (accent vs --ink-body, 1.99:1 link-vs-text), which Lighthouse flags. Fix
+  (Reading A): add text-decoration: underline to .footer-email a at rest, keeping
+  the accent colour. text-underline-offset set to var(--sp-2) (2px, from the
+  spacing scale) so the thin default underline clears the descenders in the
+  address (the "p" in the placeholder / any real address) rather than cutting
+  through them; a quiet, single-pixel-weight underline. This also gives the
+  previously defined-but-unused --sp-2 token a live consumer again (it had gone
+  unused after the stage 8 FLAG 2 fix).
+  - SAME FIX APPLIED TO THE OTHER TWO IN-SENTENCE MAILTOS (instrumented, then
+    decided, per the ruling): both are colour-only accent links sitting inside a
+    body-text sentence, the same pattern, so both were underlined identically
+    (text-decoration: underline, offset var(--sp-2)):
+    - .noscript-contact a: the no-JS fallback sentence in the panel. Confirmed
+      colour-only inside prose. Verified rendered (JS disabled context):
+      decoration=underline, offset=2px, colour rgb(26,111,212).
+    - .form-status-msg a: the failure-state mailto inside "Something broke. Email
+      me directly at <address>." Confirmed same pattern. Verified by surfacing the
+      failure state (valid submit short-circuits to failure on the placeholder
+      endpoint): decoration=underline, offset=2px, colour rgb(26,111,212), text
+      "Something broke. Email me directly at hello@placeholder.invalid."
+  - The .form-retry control and the three :focus-visible rules on these links were
+    left untouched: .form-retry is a standalone mono button (not a link in a text
+    block), and the focus rings are a separate concern (the stage 8 FLAG 2 fix).
+  - Underlines apply at ALL widths (the rules sit outside the media query),
+    because link-in-text distinguishability (WCAG 1.4.1) is not viewport-scoped.

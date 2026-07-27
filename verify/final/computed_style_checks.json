@@ -1,0 +1,58 @@
+{
+  "tokens": {
+    "ground": "#FAFAFA",
+    "ink": "#141416",
+    "accent": "#1A6FD4",
+    "borderWidth": "1px",
+    "radiusPill": "999px",
+    "radiusSurface": "16px",
+    "dotSize": "1.5px",
+    "dotSpacing": "26px"
+  },
+  "name": {
+    "font-family": "Archivo, system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+    "font-size": "31px",
+    "font-weight": "600",
+    "letter-spacing": "-0.465px",
+    "color": "rgb(20, 20, 22)"
+  },
+  "kicker": {
+    "font-family": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+    "font-size": "10px",
+    "font-weight": "400",
+    "letter-spacing": "normal",
+    "text-transform": "uppercase"
+  },
+  "positioning": {
+    "font-family": "Archivo, system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+    "font-size": "16px",
+    "font-weight": "400",
+    "line-height": "25.6px"
+  },
+  "price": {
+    "font-family": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+    "font-size": "14px",
+    "color": "rgb(26, 111, 212)"
+  },
+  "rowIndex": {
+    "font-family": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+    "font-size": "11px",
+    "color": "rgb(166, 166, 174)"
+  },
+  "rowName": {
+    "font-family": "Archivo, system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+    "font-size": "15.5px",
+    "font-weight": "500"
+  },
+  "ctaRowName": {
+    "font-family": "Archivo, system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+    "font-size": "15.5px",
+    "font-weight": "600"
+  },
+  "rowTag": {
+    "font-family": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+    "font-size": "10px",
+    "text-transform": "uppercase"
+  },
+  "submit_placeholder": null
+}

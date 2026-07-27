@@ -1,0 +1,14 @@
+{
+  "console_errors": [],
+  "failed_requests": [],
+  "status_text_after_submit": "Something broke. Email me directly at hello@placeholder.invalid.Try again",
+  "kbd_row_info": {
+    "cls": "row",
+    "tag": "BUTTON",
+    "dataView": "blackthorn"
+  },
+  "live_region_after_enter": "Preview / Blackthorn & Co.",
+  "found_row_via_tab": true,
+  "found_cta_via_tab": true,
+  "tab_count_to_first_row": 0
+}

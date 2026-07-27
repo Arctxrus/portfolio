@@ -1,0 +1,28 @@
+{
+  "rest_filter": "none",
+  "hover_filter": "saturate(1.25) brightness(1.03)",
+  "mist_info_on_enter": {
+    "exists": true,
+    "opacity": "0.47612",
+    "background": "radial-gradient(circle, rgba(233, 246, 253, 0.55) 0%, rgba(2",
+    "transform": "matrix(1, 0, 0, 1, 38, -77.5)"
+  },
+  "mist_info_after_move": {
+    "exists": true,
+    "opacity": "0.5",
+    "transform": "matrix(1, 0, 0, 1, 140.197, -77.5)"
+  },
+  "bloom_info_during_press": {
+    "exists": true,
+    "opacity": "0.2021",
+    "transform": "matrix(0.401575, 0, 0, 0.401575, 208, -107.5)",
+    "count": 1
+  },
+  "pill_transform_during_press": "none",
+  "bloom_count_after_700ms": 0,
+  "panel_header_after_release": "Preview / Get in touch",
+  "mist_after_leave": {
+    "exists": true,
+    "opacity": "0.0649211"
+  }
+}
