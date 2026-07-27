@@ -1,0 +1,155 @@
+{
+  "fresh_load_webm_requests": [],
+  "fresh_load_poster_requests": [],
+  "perf_fresh_load": {
+    "nav": {
+      "transferSize": 12735,
+      "encodedBodySize": 12435
+    },
+    "items": [
+      {
+        "name": "http://localhost:8971/css/styles.css?v=5",
+        "transferSize": 40274,
+        "encodedBodySize": 39974,
+        "initiatorType": "link"
+      },
+      {
+        "name": "http://localhost:8971/js/main.js?v=5",
+        "transferSize": 31967,
+        "encodedBodySize": 31667,
+        "initiatorType": "script"
+      },
+      {
+        "name": "http://localhost:8971/fonts/archivo-latin-var.woff2?v=5",
+        "transferSize": 35228,
+        "encodedBodySize": 34928,
+        "initiatorType": "css"
+      },
+      {
+        "name": "http://localhost:8971/fonts/martian-mono-latin-var.woff2?v=5",
+        "transferSize": 23856,
+        "encodedBodySize": 23556,
+        "initiatorType": "css"
+      }
+    ]
+  },
+  "console_fresh_load": [],
+  "404s_fresh_load": [],
+  "v1_panel_body_box_desktop": {
+    "w": 746,
+    "h": 716,
+    "top": 127,
+    "left": 617
+  },
+  "row_found_blackthorn": true,
+  "video_info_blackthorn": {
+    "exists": true,
+    "src": "media/blackthorn-preview.webm?v=5",
+    "loop": true,
+    "muted": true,
+    "playsInline": true,
+    "preloadAttr": "none",
+    "paused": false,
+    "currentTime_t1": 1.736445,
+    "currentTime_t2": 2.466181,
+    "advancing": true,
+    "autoplayAttr": true,
+    "videoWidth": 800,
+    "videoHeight": 450
+  },
+  "box_after_select_blackthorn": {
+    "w": 496,
+    "h": 279,
+    "top": 244.625,
+    "left": 742
+  },
+  "box_playing_blackthorn": {
+    "w": 496,
+    "h": 279,
+    "top": 244.625,
+    "left": 742
+  },
+  "box_identical_blackthorn": true,
+  "webm_request_url_blackthorn": "http://localhost:8971/media/blackthorn-preview.webm?v=5",
+  "webm_request_status_blackthorn": 200,
+  "404s_blackthorn": [],
+  "console_blackthorn": [],
+  "row_found_barker": true,
+  "video_info_barker": {
+    "exists": true,
+    "src": "media/barker-bloom-preview.webm?v=5",
+    "loop": true,
+    "muted": true,
+    "playsInline": true,
+    "preloadAttr": "none",
+    "paused": false,
+    "currentTime_t1": 1.887445,
+    "currentTime_t2": 2.630731,
+    "advancing": true,
+    "autoplayAttr": true,
+    "videoWidth": 800,
+    "videoHeight": 450
+  },
+  "box_after_select_barker": {
+    "w": 496,
+    "h": 279,
+    "top": 244.625,
+    "left": 742
+  },
+  "box_playing_barker": {
+    "w": 496,
+    "h": 279,
+    "top": 244.625,
+    "left": 742
+  },
+  "box_identical_barker": true,
+  "webm_request_url_barker": "http://localhost:8971/media/barker-bloom-preview.webm?v=5",
+  "webm_request_status_barker": 200,
+  "404s_barker": [],
+  "console_barker": [],
+  "row_found_star": true,
+  "video_info_star": {
+    "exists": true,
+    "src": "media/until-the-last-star-preview.webm?v=5",
+    "loop": true,
+    "muted": true,
+    "playsInline": true,
+    "preloadAttr": "none",
+    "paused": false,
+    "currentTime_t1": 1.811081,
+    "currentTime_t2": 2.54755,
+    "advancing": true,
+    "autoplayAttr": true,
+    "videoWidth": 800,
+    "videoHeight": 450
+  },
+  "box_after_select_star": {
+    "w": 496,
+    "h": 279,
+    "top": 244.625,
+    "left": 742
+  },
+  "box_playing_star": {
+    "w": 496,
+    "h": 279,
+    "top": 244.625,
+    "left": 742
+  },
+  "box_identical_star": true,
+  "webm_request_url_star": "http://localhost:8971/media/until-the-last-star-preview.webm?v=5",
+  "webm_request_status_star": 200,
+  "404s_star": [],
+  "console_star": [],
+  "mobile_box_after_select": {
+    "w": 300,
+    "h": 150
+  },
+  "mobile_box_playing": {
+    "w": 300,
+    "h": 150
+  },
+  "mobile_box_identical": true,
+  "full_clickthrough_404s": [],
+  "full_clickthrough_console": [],
+  "reduced_motion_video_paused": false
+}

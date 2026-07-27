@@ -18,8 +18,9 @@ House rules: UK English, no em dashes, instrument then fix, commit per stage.
       approval before the audit runs.
 - [ ] Formspree endpoint ID: form is wired with a placeholder endpoint constant;
       real ID needed before deploy.
-- [ ] Stage 6 video capture depends on the live demo sites and headed Chromium
-      with GPU; may be marked blocked with exact local commands.
+- [x] Stage 6 video capture: DONE. The three webm previews and poster jpgs are
+      recorded, processed and integrated (see the Stage 6 log). Re-record on any
+      demo push via tools/README.md; add "re-record clips" to the push checklist.
 - [ ] Stage 10 waits on the confirmed deployed URL.
 
 ## DRAFT FOR APPROVAL (stage 3 copy)
@@ -614,6 +615,107 @@ cause introduced by round-1 fix 1. Fixed and re-verified across viewport heights
   - No console errors. Encoding clean throughout (Edit tool only): 0 mojibake, 0
     em dashes, no BOM; ?v=5 unchanged (8 in index.html, 2 in styles.css).
   Pixel screenshots still time out in the pane; that trail is the verifier's.
+
+### Stage 6 - Capture pipeline (record, process, integrate the three previews)
+- Status: VERIFIED PASS (verifier run 2026-07-27, 0 FAILs, screenshots,
+  extracted frames and results JSON in verify/stage-6/). First-load transfer
+  measured at ~141KB, well inside the 300KB budget. One AMBIGUOUS note: the
+  Star clip shows the First Light to The Web epoch transition with clear WebGL
+  structure, but a visually distinct lensing warp moment is hard to confirm
+  from stills; if a stronger lensing shot is wanted, re-record per
+  tools/README.md with a different scroll window. No page code changed: index.html,
+  css/styles.css and js/main.js are untouched. The media/ filenames already
+  referenced by the V2 views were produced exactly, so no reference or ?v=
+  edits were needed (names match; ?v=5 stays, no push happened this stage).
+  New/changed files: tools/capture.py, tools/README.md (new), .gitignore (new),
+  media/*.webm and media/*.jpg (six new), PROGRESS.md.
+
+- NEW BUILD-ONLY FOLDER (deviation, flagged for the orchestrator): tools/ was
+  added for the capture script. It is a build-time tool only and ships nothing
+  to the page (not referenced by index.html/css/js). The raw Playwright takes
+  and ffmpeg pass logs live in tools/_raw/, which the new root .gitignore
+  excludes. CONCEPT section 2 fixes the shipped file layout; tools/ sits
+  outside that as pipeline tooling, consistent with "scripted, not manual"
+  capture in section 5. Recorded here as required since it is a new top-level
+  folder.
+
+- Capture (tools/capture.py, Playwright + headed Chromium with GPU args
+  --use-angle=d3d11 etc.): viewport recorded at 1280x800, scripted eased
+  scrollTo (easeInOutQuad via rAF in-page, no manual driving, no mouse). Per
+  project, per section 5:
+  - Blackthorn: cover -> price menu (services) -> rotating reviews pull-quote.
+  - Barker & Bloom: hero -> paw-trail thread drawing on scroll -> pricing bento.
+  - Until the Last Star: First Light -> The Web epoch transition, the cosmic
+    web of galaxies lensed along dark-matter filaments, recorded HEADED on the
+    GPU. Renderer verified inside the recording context via
+    WEBGL_debug_renderer_info before accepting the take (refuses a software
+    fallback). Observed renderer string:
+    `ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Laptop GPU (0x00002520) Direct3D11 vs_5_0 ps_5_0, D3D11)`
+  Site inspection first (per the brief): none of the three demo sites has a
+  first-run overlay blocking the take (probed: no viewport-covering high
+  z-index element on any), so the script's Escape + dismiss-selector pass is
+  belt and braces only. Before each take: goto wait_until networkidle, wait for
+  document.fonts loaded, a second networkidle, then a settle at the start scroll
+  (the WebGL scene needs ~1.8s to catch a jumped scroll on star).
+
+- Post-process (ffmpeg): centre-crop the 1280x800 take to 16:9 (drop 40px top
+  and bottom), scale to 800x450, strip audio (-an, confirmed no audio stream in
+  any output), 30fps, VP9 two-pass to a target bitrate, then export the first
+  frame of the processed clip as the poster jpg (poster is exactly frame 0 of
+  the loop). Poster quality auto-tuned (mjpeg -q:v stepped up until under 40KB).
+
+- Final files (all in budget: 6 to 8s, 300 to 500KB webm, poster under ~40KB):
+  - blackthorn-preview.webm  7.03s  395KB (VP9 430k)   blackthorn-poster.jpg  39KB (q6)
+  - barker-bloom-preview.webm 6.03s 343KB (VP9 470k)   barker-bloom-poster.jpg 39KB (q6)
+  - until-the-last-star-preview.webm 6.03s 323KB (VP9 520k)  until-the-last-star-poster.jpg 29KB (q3)
+  All 800x450, VP9, video-only. (star compresses under its 520k target because
+  two-pass VP9 with alt-ref frames undershoots on the busy starfield; still
+  comfortably in range, so left as is.)
+
+- Integration check (Playwright headed over a local http server, at desktop
+  1280x800 and mobile 390x800): each V2 video autoplays (paused=false,
+  currentTime advancing) with autoplay+muted+loop+playsinline+preload="none"
+  and its poster attribute set (?v=5). No media 404s (the only 404 is the
+  browser's default /favicon.ico request, a stage-7 concern, not a page asset
+  reference). No layout shift: the .preview box measured identical before and
+  after the video loads at both ratios (desktop 496x279 = 16/9; mobile
+  285x142.5 = 2/1), because the box aspect-ratio reserves the height
+  independent of the media. object-fit: cover means the 800x450 (16/9) clip
+  fills the desktop 16/9 box with no crop and the mobile 2/1 box by trimming a
+  little top and bottom: intentional and confirmed to look right at both.
+  Poster note: with preload="none" + successful muted autoplay on a fast local
+  server, Chromium goes straight to the video frame and the poster jpg is often
+  not fetched at all; it is the fallback shown before the first frame and where
+  autoplay is unavailable (per section 5), and the attribute/file are correct.
+
+### Stage 6 deviations / judgement calls
+- Trim points: the clip is anchored to the END of each raw take (its scripted
+  closing hold), taking the last clip_len seconds less a 0.10s tail margin,
+  rather than an absolute front offset. Reason (instrumented, not guessed): the
+  barker raw take recorded a 9.16s timeline for ~10.1s of wall-clock activity,
+  so a front-offset trim overran and clamped to a 5.37s clip (under the 6s
+  floor). End-anchoring is robust to that drift because any frames after the
+  closing hold are static at the same scroll position. Result: 7.03 / 6.03 /
+  6.03s, all in the 6 to 8s window.
+- Loop-friendliness: these are one-way scroll tours (cover -> pull-quote, hero
+  -> bento, First Light -> The Web), so a seamless first==last frame is not
+  achievable without a crossfade. Both ends of every clip sit on a static hold,
+  so the muted loop cut lands between two calm frames (minimal visible jump)
+  rather than mid-motion. Judged acceptable for a small, muted micro-preview
+  and preferred over distorting the narrative to force a return to the start.
+- Aspect ratio: recorded 16:10 (1280x800 per the brief) but cropped to a native
+  16:9 800x450 output so the clip matches the desktop preview box exactly (no
+  cover-crop there). The mobile 2/1 box then cover-crops the small extra height,
+  which is the intended reserved-box behaviour noted at stage 5.
+- Bitrates chosen per clip (blackthorn 430k / barker 470k / star 520k) to land
+  in 300 to 500KB at each duration; capture.py also auto-retunes once if a clip
+  falls outside the budget. All three hit the range on the first pass.
+- Verification note: unlike stages 1 to 5, this stage's checks ran in a real
+  headed Chromium (the orchestrator confirmed the GPU launches here), so the
+  capture, the renderer confirmation, the frame-content spot checks and the
+  integration/autoplay/no-shift/no-404 checks were all observed directly rather
+  than only programmatically. Screenshot/visual sign-off is still the
+  verifier's.
 
 ### Stage 2 deviations / judgement calls
 - Light-pass layer needs a background-size and there is no token for it; used a
