@@ -5,19 +5,27 @@ House rules: UK English, no em dashes, instrument then fix, commit per stage.
 
 ## Open items
 
-- [ ] Replace placeholder email. `hello@placeholder.invalid` is used everywhere the
-      spec says REPLACE email. It lives in a single constant (`SITE_EMAIL` in
-      js/main.js, mirrored once in index.html for the no-JS footer text). Swap
-      before deploy.
-- [ ] Panel sub lines for the three projects: drafted at stage 3, in the page,
-      need approval (see DRAFT FOR APPROVAL below).
-- [ ] About and Pricing prose: drafted at stage 3, in the page, need approval
-      (see DRAFT FOR APPROVAL below).
-- [ ] docs/de-vibe-audit.md: the agreed checklist was not supplied in this
-      workspace. A draft checklist will be written at stage 8 and submitted for
-      approval before the audit runs.
-- [ ] Formspree endpoint ID: form is wired with a placeholder endpoint constant;
-      real ID needed before deploy.
+- [ ] OPEN BLOCKER (gates outreach, not deploy, per Zayn 2026-07-27):
+      replace placeholder email. `hello@placeholder.invalid` is the single
+      constant `SITE_EMAIL` in js/main.js, which populates every on-page use.
+      SECOND LITERAL OCCURRENCE (added in the approval round, deviation 5c): the
+      no-JS `<noscript>` fallback in index.html hard-codes the same address
+      (mailto link + visible text), because with JS off it cannot read the
+      constant. When the real address lands, edit BOTH: `SITE_EMAIL` in
+      js/main.js AND the literal in the index.html `<noscript>` (a comment there
+      points back to SITE_EMAIL).
+- [ ] OPEN BLOCKER (gates outreach, not deploy, per Zayn 2026-07-27):
+      Formspree endpoint ID. Until it exists the submit path short-circuits to
+      the graceful failure state pointing at the email line.
+- [ ] OPEN BLOCKER (gates outreach): the canonical 14-item de-vibe audit list
+      arrived as an unfilled paste placeholder in the approval message; the
+      House Tier was approved and run instead. Paste the canonical list into
+      docs/de-vibe-audit.md and run the full audit before outreach.
+- [x] Panel sub lines: APPROVED 2026-07-27 as drafted.
+- [x] About and Pricing prose: APPROVED 2026-07-27, one amendment applied
+      ("physics graduate" to "astrophysics graduate").
+- [x] De-vibe checklist structure: House Tier approved 2026-07-27; canonical
+      14-item list still awaited (see OPEN BLOCKER above).
 - [x] Stage 6 video capture: DONE. The three webm previews and poster jpgs are
       recorded, processed and integrated (see the Stage 6 log). Re-record on any
       demo push via tools/README.md; add "re-record clips" to the push checklist.
@@ -28,11 +36,12 @@ House rules: UK English, no em dashes, instrument then fix, commit per stage.
       update the CANONICAL SITE URL comment plus og:url, og:image and
       twitter:image in index.html together (they carry the domain literally).
 
-## DRAFT FOR APPROVAL (stage 3 copy)
+## APPROVED COPY (was DRAFT FOR APPROVAL)
 
-All drafted at stage 3 and implemented in the page. Nothing invented: the three
-sub lines were written after fetching each live homepage and checking the actual
-content (booking forms, price sections, tech). Awaiting Zayn's sign-off.
+Approved by Zayn 2026-07-27 with one amendment: in the About prose,
+"physics graduate" becomes "astrophysics graduate". Everything else as
+drafted. Sub lines, Pricing lines and the honest-floors note approved
+verbatim.
 
 Panel sub lines (mono, lower case, middle dot separators):
 - Blackthorn & Co.: `single page · price menu · booking form · arctxrus.github.io/blackthorn-demo`
@@ -46,8 +55,8 @@ Panel sub lines (mono, lower case, middle dot separators):
   instant to the death of the last star.)
 
 About (V3, ~51 words):
-> I'm Zayn, a physics graduate who shipped a game played by more than three
-> million people. These days I build fast, polished websites for local
+> I'm Zayn, an astrophysics graduate who shipped a game played by more than
+> three million people. These days I build fast, polished websites for local
 > businesses, the kind of shop or salon that deserves better than the usual
 > off-the-peg site. I work quickly and directly: no agencies, no templates,
 > no jargon.
@@ -834,3 +843,139 @@ cause introduced by round-1 fix 1. Fixed and re-verified across viewport heights
   tab stays document.hidden; javascript_tool timed out, same limitation logged
   at stage 1). JS was syntax-checked with `node --check` (pass). Full
   behavioural verification is left to the verifier subagent.
+
+### Approval round fixes (pre stage 8)
+- Status: BUILT, awaiting verification. Zayn's post-review decisions applied as a
+  single fix round before the stage 8 de-vibe audit. Files changed: index.html,
+  css/styles.css, js/main.js, tools/capture.py, media/until-the-last-star-
+  preview.webm, media/until-the-last-star-poster.jpg, PROGRESS.md. All shipped
+  asset refs bumped ?v=6 to ?v=7 (a push follows): 13 in index.html, 2 in
+  css/styles.css, 0 in js/main.js. Encoding clean (UTF-8, no BOM, no mojibake,
+  no em dashes); special chars (u+2197, u+00A3, middle dot) intact.
+
+- ITEM 1 - About prose (APPROVED amendment). index.html V3 About: "a physics
+  graduate" to "an astrophysics graduate" (also fixed the article a -> an). The
+  APPROVED COPY quote block above updated to match. Nothing else changed.
+
+- ITEM 2 - Expand glyph revert (deviation 5a NOT approved, now CLOSED). The "+"
+  glyph reverted to the arrow treatment "↗" (U+2197) everywhere the expand glyph
+  appears: index rows 01 to 06 (six .row-glyph spans), the CTA row 06 glyph, and
+  the giant welcome ghost glyph. One consistent treatment per CONCEPT 3.2: single
+  character in the system font stack (var(--font-system)), weight 400, at 14px on
+  rows/CTA and 340px on the welcome. No CSS change was needed (the glyph was
+  already system-font/weight-400; only the character changed), so the page is now
+  fully consistent with the "Visit live site ↗" pills.
+  Pre-revert check (instrument, per brief): the stage-1 log records "+" as a
+  STYLISTIC choice, not a fix for a rendering problem. Verified ↗ renders
+  acceptably before swapping, over a local http server in Chromium:
+  - Not tofu: canvas measureText at 340px gives width 249.0 for ↗ vs 219.5 for a
+    private-use (guaranteed-absent) codepoint and 219.3 for the .notdef box, so
+    Segoe UI (the resolved system font on Windows) has a real U+2197 glyph.
+  - Sensible metrics: at 340px / line-height 0.8 a DOM probe renders w 249 / h 272
+    (272 = 340 * 0.8); at 14px / line-height 1 it renders w 10.27 / h 14. Both
+    non-zero and correctly proportioned. Codepoint confirmed U+2197.
+  No real rendering problem, so the revert proceeded. Deviation 5a is closed.
+
+- ITEM 3 - No-JS contact path (deviation 5c, approved with condition). Added a
+  <noscript> inside .panel-body (the panel region, per brief) with one sentence
+  plus the contact email as a plain mailto link, styled in the site's prose type
+  (.noscript-contact: Archivo 14px, --ink-body, accent link) with existing tokens
+  only. Verified with JS ON the <noscript> renders nothing (0x0 box, contents are
+  raw text, childElementCount 0), so it never shows to a normal visitor; with JS
+  OFF the browser parses the <p> as real DOM and renders it. Because .panel-body
+  is a centring grid also holding the decorative welcome, the noscript grid item
+  is aligned to the bottom of the cell (.panel-body > noscript { align-self: end })
+  so the fallback line sits clear of the centred welcome rather than overlapping.
+  SECOND LITERAL EMAIL OCCURRENCE: the noscript hard-codes hello@placeholder.invalid
+  (it cannot read the SITE_EMAIL constant with JS off); a comment there references
+  SITE_EMAIL and the email OPEN BLOCKER above now names both edit sites.
+  VERIFIER FIX (approval-round round 1): the first no-JS pass showed a blank page
+  on a normal-motion preference. Root cause: every load-in block is .fade-block
+  (opacity 0, translateY 6px), cleared only by JS adding .is-in or by the
+  reduced-motion CSS override, so with JS off and normal motion nothing but the
+  noscript line was ever revealed. Fix (verifier's suggestion): a
+  <noscript><style> block in the index.html <head> forcing
+  .fade-block { opacity: 1 !important; transform: none !important;
+  transition: none !important; }. It applies only when scripting is off and has
+  zero effect when JS runs. Confirmed with JS disabled + normal motion (headed
+  Chromium, java_script_enabled false, reduced_motion no-preference): the name
+  block, positioning, INDEX (all six rows incl. the CTA pill), panel with the
+  ghost glyph, panel noscript contact line, HOW IT WORKS, proof strip and footer
+  are all visible (screenshot in the scratchpad; verify/ trail is the verifier's).
+  ?v=7 kept (no push since the bump).
+
+- ITEM 4 - Formspree graceful short-circuit (decision 6). In handleContactSubmit
+  (js/main.js), after honeypot + validation and before the fetch/in-flight block,
+  a guard: if FORMSPREE_ENDPOINT contains "REPLACE_FORM_ID", show the existing
+  inline failure state and return WITHOUT any network call. Validation, honeypot
+  and the double-submit guard all still run. When a real form ID replaces the
+  placeholder the constant no longer matches and the normal fetch path resumes
+  automatically, no further edit. Failure copy unchanged. Verified over http: a
+  valid submit fires 0 fetch calls and shows "Something broke. Email me directly
+  at hello@placeholder.invalid." with the mailto link and the Try again control.
+
+- ITEM 5 - Star clip re-record (decision 5h). Re-recorded until-the-last-star to
+  a moment that is unmistakably 3D and reactive, replacing the starfield-fade
+  read. Same pipeline (tools/capture.py, extended), same output filenames.
+  - Exploration (headed GPU, screenshots): cosmic-dawn's timeline t is 0..1 over
+    the scroll (scrollY = t * (scrollHeight - innerHeight)). The black hole with
+    the lensed accretion disc and photon ring is THE LONG NIGHT epoch (Gargantua,
+    t 0.79..0.90; content.js). The real screen-space gravitational-lens pass is
+    tier-2 only and is the first thing the FPS governor drops, so the take forces
+    ?tier=2. Renderer confirmed in-context: ANGLE (NVIDIA GeForce RTX 3060 Laptop
+    GPU ... D3D11); debug overlay read TIER T2+L (lens active) at 131 to 144 FPS
+    across the epoch, well above the 55 FPS drop threshold. Peak-lens framing
+    chosen at t 0.845 (full face-on disc, complete photon ring, both caption lines
+    visible).
+  - PARALLAX FEASIBILITY FINDING (brief asked to verify then say so): the site
+    DOES respond to pointer. scene.js binds pointermove (mouse-type only) into a
+    spring-smoothed CAMERA parallax orbit (px = pointer.x * 2.5, py = pointer.y *
+    1.6, decaying to rest after 2500ms of pointer idle); lensing.js/08-longnight.js
+    note the pointer never moves the hole, but the camera orbit makes the lensed
+    arcs and photon ring shift with the viewpoint. Confirmed empirically: a probe
+    saw Playwright mouse.move arrive as pointerType "mouse", isTrusted true, and
+    left-vs-right screenshots at the same t showed the whole hole+ring assembly and
+    the background starfield shift position (a viewpoint orbit, not just disc
+    rotation). So the FIRST LIGHT fallback in the brief was NOT needed.
+  - Capture: hold at t 0.845, then a slow eased CIRCULAR mouse orbit (amp 240x150
+    px around viewport centre, one orbit per 3.5s, ~50Hz pointer feed so the orbit
+    never idles) driven for 8.5s; the last 7.0s are end-anchored out. The orbit is
+    periodic in position and velocity, so the trimmed window has calm, near-looping
+    ends (the disc's own animation does not loop, same "calm frames" bar as stage
+    6). No scripted scroll during the keeper.
+  - Output: until-the-last-star-preview.webm 7.03s, 402KB, 800x450, VP9, no audio
+    (in the 6 to 8s / 300 to 500KB budget; first pass 532KB at 650k auto-retuned to
+    488k -> 402KB). Poster until-the-last-star-poster.jpg = frame 0 (the black
+    hole), 34KB (under the ~40KB budget). Frames inspected: lensed black hole with
+    photon ring throughout, composition visibly orbiting.
+  - Integration (local http, ?v=7): the star V2 video resolves currentSrc to the
+    new webm, readyState 4 (fully loaded), no media error, no 404, no console
+    errors, and the panel box is identical before/after (no layout shift). The old
+    clip was backed up to the scratchpad before overwrite.
+
+- ITEM 6 - Cache bust ?v=6 to ?v=7 (a push follows). sed bump; grep confirms 0
+  remaining ?v=6 and 13 (index.html) + 2 (styles.css) ?v=7; media filenames carry
+  no version, so the re-recorded clip is picked up by the bumped refs.
+
+- Verification note: same backgrounded-pane limitation as earlier stages (pixel
+  screenshots via the pane time out); all page-behaviour checks above ran
+  programmatically over a local http server via the pane console, and the star
+  capture/exploration ran in real headed GPU Chromium (screenshots and frame
+  inspection observed directly). Screenshot/visual sign-off is the verifier's.
+
+### Approval round deviations / judgement calls
+- ITEM 2 glyph: kept the expand glyph in the system font stack per CONCEPT 3.2
+  (not the mono stack used inside the "Visit live site ↗" pill label). 3.2
+  assigns the expand glyph to "system"; the pill arrow is part of a mono text run.
+  Both are the same character (↗), which is the brief's consistency goal.
+- ITEM 3 noscript placement: put inside .panel-body (a listed option). It is
+  removed from the DOM once JS swaps a view (panelBody.replaceChildren), but that
+  only happens when JS runs, when the noscript is irrelevant anyway; with JS off
+  no selection can occur so it persists and shows. align-self:end added to avoid
+  overlap with the centred welcome.
+- ITEM 5 star framing: chose t 0.845 (peak lens) held static with camera-orbit
+  parallax over any scroll transition, because the lensed orbit is the strongest
+  3D/reactive moment and a static scroll keeps clean loop ends. clip_len raised
+  from 6.0s to 7.0s (still in range) to give the orbit room. Circular orbit chosen
+  over a figure-8 because a circle is periodic in position AND velocity, so the
+  seam is smoother under recording-timeline drift.

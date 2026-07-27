@@ -1,0 +1,117 @@
+{
+  "welcome_glyph_style": {
+    "text": "\u2197",
+    "fontSize": "340px",
+    "lineHeight": "272px",
+    "color": "rgba(26, 111, 212, 0.07)",
+    "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif"
+  },
+  "row_glyph_styles": [
+    {
+      "text": "\u2197",
+      "fontSize": "14px",
+      "lineHeight": "14px",
+      "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif"
+    },
+    {
+      "text": "\u2197",
+      "fontSize": "14px",
+      "lineHeight": "14px",
+      "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif"
+    },
+    {
+      "text": "\u2197",
+      "fontSize": "14px",
+      "lineHeight": "14px",
+      "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif"
+    },
+    {
+      "text": "\u2197",
+      "fontSize": "14px",
+      "lineHeight": "14px",
+      "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif"
+    },
+    {
+      "text": "\u2197",
+      "fontSize": "14px",
+      "lineHeight": "14px",
+      "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif"
+    },
+    {
+      "text": "\u2197",
+      "fontSize": "14px",
+      "lineHeight": "14px",
+      "fontFamily": "system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif"
+    }
+  ],
+  "plus_glyph_count": 0,
+  "about_prose_text": "I'm Zayn, an astrophysics graduate who shipped a game played by more than three million people. These days I build fast, polished websites for local businesses, the kind of shop or salon that deserves better than the usual off-the-peg site. I work quickly and directly: no agencies, no templates, no jargon.",
+  "row_data_views": [
+    "blackthorn",
+    "barker",
+    "star",
+    "about",
+    "pricing",
+    "form"
+  ],
+  "console_errors_after_clickthrough": [],
+  "hover_glyph_style": {
+    "opacity": "1",
+    "transform": "matrix(1, 0, 0, 1, 0, 0)",
+    "text": "\u2197"
+  },
+  "mobile_glyph_visibility": [
+    {
+      "opacity": "1",
+      "display": "block"
+    },
+    {
+      "opacity": "1",
+      "display": "block"
+    },
+    {
+      "opacity": "1",
+      "display": "block"
+    },
+    {
+      "opacity": "1",
+      "display": "block"
+    },
+    {
+      "opacity": "1",
+      "display": "block"
+    },
+    {
+      "opacity": "1",
+      "display": "block"
+    }
+  ],
+  "mobile_tag_visibility": [
+    {
+      "opacity": "1"
+    },
+    {
+      "opacity": "1"
+    },
+    {
+      "opacity": "1"
+    },
+    {
+      "opacity": "1"
+    }
+  ],
+  "nojs_has_noscript_text": true,
+  "nojs_noscript_contact_box": {
+    "w": 272.734375,
+    "h": 153.5625,
+    "display": "block",
+    "color": "rgb(67, 67, 74)",
+    "fontSize": "14px"
+  },
+  "nojs_mailto_href": "mailto:hello@placeholder.invalid",
+  "nojs_positioning_text": "I build fast, polished websites for local businesses. From \u00a3300.",
+  "js_on_noscript_box": {
+    "w": 0,
+    "h": 0
+  }
+}

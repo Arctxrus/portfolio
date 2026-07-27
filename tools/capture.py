@@ -21,6 +21,7 @@ House rules: UK English, no em dashes. Vanilla toolchain, no runtime deps.
 """
 
 import argparse
+import math
 import os
 import subprocess
 import time
@@ -105,21 +106,30 @@ PROJECTS = [
     },
     {
         "name": "star",
-        "url": "https://arctxrus.github.io/cosmic-dawn/",
+        # ?tier=2 forces the T2 quality tier, so the real screen-space
+        # gravitational-lens pass (js/lensing.js) draws the black hole rather
+        # than the flat sprite fallback. The scene sustains ~140fps on the RTX
+        # 3060, well above the 55fps governor that would otherwise drop the lens.
+        "url": "https://arctxrus.github.io/cosmic-dawn/?tier=2",
         "out": "until-the-last-star-preview",
         "poster_out": "until-the-last-star-poster",
-        # One epoch transition with lensing visible: First Light into The Web,
-        # the cosmic web of galaxies lensed along dark-matter filaments.
-        "start_y": 9600,
-        "settle_ms": 1800,          # WebGL needs time to catch the jumped scroll
-        "segments": [
-            {"hold_ms": 800},          # First Light settled
-            {"to": 12600, "dur_ms": 3600},  # transition into The Web (lensing)
-            {"hold_ms": 1800},         # cosmic web held
-        ],
+        # THE LONG NIGHT (timeline t 0.79..0.90): the Gargantua black hole with
+        # the lensed accretion disc and photon ring. Hold at peak lens (t 0.845)
+        # and run a slow eased mouse-parallax orbit: cosmic-dawn's scene.js reads
+        # the pointer into a spring-smoothed camera parallax orbit, and the
+        # lensing answers the viewpoint, so the lensed arcs and ring shift. An
+        # unmistakably 3D, reactive moment (decision 5h), not a starfield fade.
+        "start_t": 0.845,           # scroll position derived from the timeline t
+        "settle_ms": 2000,          # let the spring settle at t and the lens warm
+        "parallax": {
+            "amp_x": 240, "amp_y": 150,   # px around the viewport centre: a subtle orbit
+            "period_s": 3.5,              # one camera orbit
+            "keeper_s": 8.5,             # > clip_len_s; the last clip_len_s is trimmed out
+            "step_ms": 20,               # ~50Hz pointer feed keeps the orbit from idling
+        },
         "verify_nvidia": True,
-        "clip_len_s": 6.0,
-        "bitrate": "520k",
+        "clip_len_s": 7.0,
+        "bitrate": "650k",
     },
 ]
 
@@ -174,6 +184,32 @@ def log(msg):
     print(msg, flush=True)
 
 
+def run_parallax(page, cfg):
+    """Drive a slow eased circular mouse orbit around the viewport centre for
+    keeper_s seconds (decision 5h). cosmic-dawn's scene.js reads pointermove
+    (mouse only) into a spring-smoothed camera parallax orbit, so the lensed arcs
+    and photon ring shift with the viewpoint. Continuous ~50Hz moves keep the
+    orbit alive (it decays to rest after 2.5s of pointer idle). The orbit is
+    periodic in position and velocity, so the end-anchored trim (last clip_len_s)
+    lands on a smooth, near-looping window with calm ends."""
+    cx, cy = REC_W / 2.0, REC_H / 2.0
+    ax, ay = cfg["amp_x"], cfg["amp_y"]
+    period = cfg["period_s"]
+    total = cfg["keeper_s"]
+    step_ms = cfg.get("step_ms", 20)
+    # settle the pointer onto the orbit start (phase 0: top of the ellipse)
+    page.mouse.move(cx, cy - ay)
+    page.wait_for_timeout(200)
+    t0 = time.monotonic()
+    while True:
+        elapsed = time.monotonic() - t0
+        if elapsed >= total:
+            break
+        phase = 2.0 * math.pi * elapsed / period
+        page.mouse.move(cx + ax * math.sin(phase), cy - ay * math.cos(phase))
+        page.wait_for_timeout(step_ms)
+
+
 def dismiss_overlays(page):
     try:
         page.keyboard.press("Escape")
@@ -215,6 +251,13 @@ def capture_one(project):
             pass
         page.wait_for_load_state("networkidle", timeout=30000)
 
+        # Cosmic-dawn shows a preloader that must clear before the scene renders.
+        # For a site with no preloader, a detached-state wait resolves at once.
+        try:
+            page.wait_for_selector("#preloader", state="detached", timeout=20000)
+        except Exception:
+            pass
+
         dismiss_overlays(page)
 
         if project["verify_nvidia"]:
@@ -228,8 +271,17 @@ def capture_one(project):
                     f"({renderer!r}); refusing the take (software fallback)."
                 )
 
-        # Move to the start scroll position and let a scroll-driven scene catch up.
-        page.evaluate("y => window.scrollTo(0, y)", project["start_y"])
+        # Move to the start scroll position and let a scroll-driven scene catch
+        # up. Start can be given as an absolute pixel offset (start_y) or as a
+        # timeline position (start_t, 0..1), resolved here to the scroll pixel.
+        if "start_t" in project:
+            start_y = page.evaluate(
+                "t => t * (document.documentElement.scrollHeight - window.innerHeight)",
+                project["start_t"],
+            )
+        else:
+            start_y = project["start_y"]
+        page.evaluate("y => window.scrollTo(0, y)", start_y)
         page.wait_for_timeout(project["settle_ms"])
 
         # Keeper begins now. Record the offset into the video so ffmpeg can trim
@@ -237,11 +289,16 @@ def capture_one(project):
         keeper_offset_s = time.monotonic() - t_ctx
         log(f"[{project['name']}] keeper starts at ~{keeper_offset_s:.2f}s into the take")
 
-        for seg in project["segments"]:
-            if "hold_ms" in seg:
-                page.wait_for_timeout(seg["hold_ms"])
-            else:
-                page.evaluate(EASE_SCROLL_JS, {"toY": seg["to"], "duration": seg["dur_ms"]})
+        if "parallax" in project:
+            # No scripted scroll: hold at the peak-lens position and orbit the
+            # camera via the pointer (decision 5h).
+            run_parallax(page, project["parallax"])
+        else:
+            for seg in project["segments"]:
+                if "hold_ms" in seg:
+                    page.wait_for_timeout(seg["hold_ms"])
+                else:
+                    page.evaluate(EASE_SCROLL_JS, {"toY": seg["to"], "duration": seg["dur_ms"]})
 
         page.wait_for_timeout(150)  # let the final frames flush
         video = page.video

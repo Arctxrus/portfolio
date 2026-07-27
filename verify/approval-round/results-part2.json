@@ -1,0 +1,13 @@
+{
+  "mobile_welcome_glyph_fontsize": "160px",
+  "formspree_hits": [],
+  "failure_status_text": "Something broke. Email me directly at hello@placeholder.invalid.Try again",
+  "focus_on_status_region": true,
+  "active_element": "DIV.form-status is-shown",
+  "failure_mailto": "mailto:hello@placeholder.invalid",
+  "empty_submit_status_text": "",
+  "empty_submit_name_valueMissing": true,
+  "empty_submit_fetch_calls": [],
+  "honeypot_status_text": "Sent. I will reply the same working day.",
+  "honeypot_fetch_calls": []
+}

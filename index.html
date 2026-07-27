@@ -21,7 +21,7 @@
   <meta property="og:url" content="https://arctxrus.github.io/portfolio/">
   <meta property="og:title" content="Zayn · Web design for local businesses">
   <meta property="og:description" content="I build fast, polished websites for local businesses. From £300.">
-  <meta property="og:image" content="https://arctxrus.github.io/portfolio/og-image.png?v=6">
+  <meta property="og:image" content="https://arctxrus.github.io/portfolio/og-image.png?v=7">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -31,17 +31,28 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Zayn · Web design for local businesses">
   <meta name="twitter:description" content="I build fast, polished websites for local businesses. From £300.">
-  <meta name="twitter:image" content="https://arctxrus.github.io/portfolio/og-image.png?v=6">
+  <meta name="twitter:image" content="https://arctxrus.github.io/portfolio/og-image.png?v=7">
   <meta name="twitter:image:alt" content="Zayn. I build fast, polished websites for local businesses. From £300.">
 
   <!-- Favicon: hand-authored "Z" mark, ink on transparent. SVG first, PNG
        fallback for browsers without SVG icon support, apple-touch-icon for iOS.
        These rel=icon links stop Chromium requesting a default /favicon.ico. -->
-  <link rel="icon" href="favicon.svg?v=6" type="image/svg+xml">
-  <link rel="icon" href="favicon-32.png?v=6" sizes="32x32" type="image/png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=6">
+  <link rel="icon" href="favicon.svg?v=7" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png?v=7" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=7">
 
-  <link rel="stylesheet" href="css/styles.css?v=6">
+  <link rel="stylesheet" href="css/styles.css?v=7">
+
+  <!-- No-JS reveal (approval round). The load-in blocks start at opacity 0 and
+       are only shown by JS adding .is-in (or by the reduced-motion override). So
+       without JS, on a normal-motion preference, the whole page would stay blank.
+       This <noscript> style applies only when scripting is off and forces the
+       static page fully visible; it has zero effect when JS runs. -->
+  <noscript>
+    <style>
+      .fade-block { opacity: 1 !important; transform: none !important; transition: none !important; }
+    </style>
+  </noscript>
 </head>
 <body>
 
@@ -72,7 +83,7 @@
             <span class="row-name">Blackthorn &amp; Co.</span>
             <span class="row-end">
               <span class="row-tag">Barbershop</span>
-              <span class="row-glyph" aria-hidden="true">+</span>
+              <span class="row-glyph" aria-hidden="true">↗</span>
             </span>
           </button>
 
@@ -81,7 +92,7 @@
             <span class="row-name">Barker &amp; Bloom</span>
             <span class="row-end">
               <span class="row-tag">Dog Grooming</span>
-              <span class="row-glyph" aria-hidden="true">+</span>
+              <span class="row-glyph" aria-hidden="true">↗</span>
             </span>
           </button>
 
@@ -90,7 +101,7 @@
             <span class="row-name">Until the Last Star</span>
             <span class="row-end">
               <span class="row-tag">WebGL</span>
-              <span class="row-glyph" aria-hidden="true">+</span>
+              <span class="row-glyph" aria-hidden="true">↗</span>
             </span>
           </button>
 
@@ -98,7 +109,7 @@
             <span class="row-index">04</span>
             <span class="row-name">About</span>
             <span class="row-end">
-              <span class="row-glyph" aria-hidden="true">+</span>
+              <span class="row-glyph" aria-hidden="true">↗</span>
             </span>
           </button>
 
@@ -106,7 +117,7 @@
             <span class="row-index">05</span>
             <span class="row-name">Pricing</span>
             <span class="row-end">
-              <span class="row-glyph" aria-hidden="true">+</span>
+              <span class="row-glyph" aria-hidden="true">↗</span>
             </span>
           </button>
 
@@ -115,7 +126,7 @@
             <span class="row-name">Get in touch</span>
             <span class="row-end">
               <span class="row-tag">Same Day Reply</span>
-              <span class="row-glyph" aria-hidden="true">+</span>
+              <span class="row-glyph" aria-hidden="true">↗</span>
             </span>
           </button>
 
@@ -170,9 +181,22 @@
         <div class="panel-body">
           <!-- V1 welcome, no selection. Replaced on first selection by main.js. -->
           <div class="welcome">
-            <span class="welcome-glyph" aria-hidden="true">+</span>
+            <span class="welcome-glyph" aria-hidden="true">↗</span>
             <span class="welcome-line" data-scramble>Select a project</span>
           </div>
+          <!-- No-JS contact path (deviation 5c). The panel body and the contact
+               form both depend on JS state (the form lives in a <template> that
+               is never rendered without JS, and the V1 welcome is decorative), so
+               a no-JS visitor would otherwise get no way to make contact. The
+               <noscript> is display:none whenever JS runs, so it never shows to a
+               normal visitor. The address below MUST be the literal email: with
+               JS off it cannot be populated from the SITE_EMAIL constant in
+               js/main.js. This is the second literal occurrence of the address;
+               keep it in sync with SITE_EMAIL when the real one lands (see the
+               PROGRESS.md open blocker). -->
+          <noscript>
+            <p class="noscript-contact">JavaScript is off, so the previews and contact form are unavailable. Email me directly at <a href="mailto:hello@placeholder.invalid">hello@placeholder.invalid</a>.</p>
+          </noscript>
         </div>
         <!-- Panel changes announced here (concise, the panel header text). -->
         <div class="sr-only" role="status" aria-live="polite" data-panel-live></div>
@@ -192,9 +216,9 @@
     <div class="view view--project">
       <a class="preview" href="https://arctxrus.github.io/blackthorn-demo/" target="_blank" rel="noopener"
          aria-label="Open the Blackthorn and Co. live site in a new tab">
-        <video class="preview-video" poster="media/blackthorn-poster.jpg?v=6"
+        <video class="preview-video" poster="media/blackthorn-poster.jpg?v=7"
                autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-          <source src="media/blackthorn-preview.webm?v=6" type="video/webm">
+          <source src="media/blackthorn-preview.webm?v=7" type="video/webm">
         </video>
       </a>
       <h3 class="project-title">Blackthorn &amp; Co.</h3>
@@ -211,9 +235,9 @@
     <div class="view view--project">
       <a class="preview" href="https://arctxrus.github.io/barker-bloom-demo/" target="_blank" rel="noopener"
          aria-label="Open the Barker and Bloom live site in a new tab">
-        <video class="preview-video" poster="media/barker-bloom-poster.jpg?v=6"
+        <video class="preview-video" poster="media/barker-bloom-poster.jpg?v=7"
                autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-          <source src="media/barker-bloom-preview.webm?v=6" type="video/webm">
+          <source src="media/barker-bloom-preview.webm?v=7" type="video/webm">
         </video>
       </a>
       <h3 class="project-title">Barker &amp; Bloom</h3>
@@ -230,9 +254,9 @@
     <div class="view view--project">
       <a class="preview" href="https://arctxrus.github.io/cosmic-dawn/" target="_blank" rel="noopener"
          aria-label="Open the Until the Last Star live site in a new tab">
-        <video class="preview-video" poster="media/until-the-last-star-poster.jpg?v=6"
+        <video class="preview-video" poster="media/until-the-last-star-poster.jpg?v=7"
                autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-          <source src="media/until-the-last-star-preview.webm?v=6" type="video/webm">
+          <source src="media/until-the-last-star-preview.webm?v=7" type="video/webm">
         </video>
       </a>
       <h3 class="project-title">Until the Last Star</h3>
@@ -247,7 +271,7 @@
   <!-- V3 - 04 About -->
   <template id="view-about">
     <div class="view view--text">
-      <p class="about-prose">I'm Zayn, a physics graduate who shipped a game played by more than three million people. These days I build fast, polished websites for local businesses, the kind of shop or salon that deserves better than the usual off-the-peg site. I work quickly and directly: no agencies, no templates, no jargon.</p>
+      <p class="about-prose">I'm Zayn, an astrophysics graduate who shipped a game played by more than three million people. These days I build fast, polished websites for local businesses, the kind of shop or salon that deserves better than the usual off-the-peg site. I work quickly and directly: no agencies, no templates, no jargon.</p>
     </div>
   </template>
 
@@ -301,6 +325,6 @@
     </div>
   </template>
 
-  <script src="js/main.js?v=6"></script>
+  <script src="js/main.js?v=7"></script>
 </body>
 </html>

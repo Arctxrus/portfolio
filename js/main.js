@@ -621,6 +621,17 @@ function handleContactSubmit(form) {
     return;
   }
 
+  /* Formspree short-circuit (decision 6). While the endpoint is still the
+     placeholder there is no real inbox, so do NOT hit the network: go straight
+     to the existing inline failure state, which points the visitor at the email.
+     When a real form ID replaces REPLACE_FORM_ID the constant no longer matches
+     and this block is skipped, so the normal fetch path resumes with no further
+     edit. Validation, honeypot and the double-submit guard above all still run. */
+  if (FORMSPREE_ENDPOINT.indexOf('REPLACE_FORM_ID') !== -1) {
+    showFormStatus(form, 'fail');
+    return;
+  }
+
   /* In flight: disable the submit and switch to a static "Sending" label. */
   if (submit) {
     submit.dataset.label = submit.textContent;

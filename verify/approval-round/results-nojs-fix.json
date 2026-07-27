@@ -1,0 +1,132 @@
+{
+  "nojs_fixed_name_block": {
+    "opacity": "1",
+    "transform": "none",
+    "w": 460,
+    "h": 34
+  },
+  "nojs_fixed_positioning": {
+    "opacity": "1",
+    "transform": "none",
+    "w": 311.703125,
+    "h": 51.1875
+  },
+  "nojs_fixed_index_section": {
+    "opacity": "1",
+    "transform": "none",
+    "w": 460,
+    "h": 288
+  },
+  "nojs_fixed_how_section": {
+    "opacity": "1",
+    "transform": "none",
+    "w": 460,
+    "h": 97
+  },
+  "nojs_fixed_proof_strip": {
+    "opacity": "1",
+    "transform": "none",
+    "w": 460,
+    "h": 67.6875
+  },
+  "nojs_fixed_footer": {
+    "opacity": "1",
+    "transform": "none",
+    "w": 460,
+    "h": 18
+  },
+  "nojs_fixed_panel": {
+    "opacity": "1",
+    "transform": "none",
+    "w": 588,
+    "h": 768
+  },
+  "nojs_fixed_welcome_glyph": {
+    "opacity": "1",
+    "transform": "matrix(1, 0, 0, 1, -124.516, -136)",
+    "w": 249.03125,
+    "h": 272
+  },
+  "nojs_fixed_noscript_contact": {
+    "opacity": "1",
+    "transform": "none",
+    "w": 272.734375,
+    "h": 153.5625
+  },
+  "nojs_fixed_row_count": 6,
+  "js_on_initial_fadeblock_state": [
+    {
+      "cls": "name-block fade-block is-in",
+      "opacity": "0.0190044",
+      "hasIsIn": true
+    },
+    {
+      "cls": "positioning fade-block is-in",
+      "opacity": "0",
+      "hasIsIn": true
+    },
+    {
+      "cls": "index fade-block is-in",
+      "opacity": "0",
+      "hasIsIn": true
+    },
+    {
+      "cls": "how fade-block is-in",
+      "opacity": "0",
+      "hasIsIn": true
+    },
+    {
+      "cls": "proof fade-block is-in",
+      "opacity": "0",
+      "hasIsIn": true
+    },
+    {
+      "cls": "footer fade-block is-in",
+      "opacity": "0",
+      "hasIsIn": true
+    },
+    {
+      "cls": "panel fade-block is-in",
+      "opacity": "0",
+      "hasIsIn": true
+    }
+  ],
+  "js_on_final_fadeblock_state": [
+    {
+      "opacity": "1",
+      "hasIsIn": true
+    },
+    {
+      "opacity": "1",
+      "hasIsIn": true
+    },
+    {
+      "opacity": "1",
+      "hasIsIn": true
+    },
+    {
+      "opacity": "1",
+      "hasIsIn": true
+    },
+    {
+      "opacity": "1",
+      "hasIsIn": true
+    },
+    {
+      "opacity": "1",
+      "hasIsIn": true
+    },
+    {
+      "opacity": "1",
+      "hasIsIn": true
+    }
+  ],
+  "js_on_headnoscript_box": {
+    "w": 0,
+    "h": 0
+  },
+  "js_on_panel_noscript_box": {
+    "w": 0,
+    "h": 0
+  }
+}
