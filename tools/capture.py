@@ -32,11 +32,13 @@ REPO_ROOT = os.path.dirname(TOOLS_DIR)
 MEDIA_DIR = os.path.join(REPO_ROOT, "media")
 RAW_DIR = os.path.join(TOOLS_DIR, "_raw")
 
-# Recorded viewport (CONCEPT: about 1280x800). Output is cropped to 16:9 and
-# scaled to 800px wide, matching the panel preview box aspect ratio so the
-# clip fills the desktop 16/9 frame with no crop (object-fit: cover then only
-# trims the small extra height at the mobile 2/1 ratio).
-REC_W, REC_H = 1280, 800
+# Recorded viewport. Client feedback round 1 (change 7, 2026-07-27): record at a
+# NATIVE 16:9 viewport (1280x720) so there is no vertical crop. The previous
+# 1280x800 take was centre-cropped to 16:9, which dropped 40px off the top and
+# chopped the Blackthorn nav pill. At 1280x720 the top of each page is captured
+# in full and the output only needs a straight scale to 800x450 (the panel
+# preview box ratio). object-fit: cover then trims a little at the mobile 2/1.
+REC_W, REC_H = 1280, 720
 
 # ANGLE D3D11 on the discrete GPU, so the WebGL demo records its real visuals
 # rather than a software fallback. Confirmed renderer: ANGLE NVIDIA RTX 3060.
@@ -333,9 +335,11 @@ def probe_duration(path):
 
 
 def vfilter():
-    # Centre crop the 1280x800 take to 16:9 (drop 40px top and bottom), then
-    # scale to 800x450. object-fit: cover in the panel handles the mobile 2/1.
-    return f"crop={REC_W}:{int(REC_W * 9 / 16)}:0:{(REC_H - int(REC_W * 9 / 16)) // 2},scale=800:450"
+    # Client feedback round 1 (change 7): the take is already native 16:9
+    # (1280x720), so no crop. A straight scale to 800x450 keeps the full frame,
+    # including the top nav pill. object-fit: cover in the panel handles the
+    # mobile 2/1 ratio.
+    return "scale=800:450"
 
 
 def encode_webm(raw, out, ss, dur, bitrate):

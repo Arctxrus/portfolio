@@ -33,7 +33,7 @@
   font-weight: 400 600;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/archivo-latin-var.woff2?v=8') format('woff2');
+  src: url('../fonts/archivo-latin-var.woff2?v=9') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -43,7 +43,7 @@
   font-weight: 300 500;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/martian-mono-latin-var.woff2?v=8') format('woff2');
+  src: url('../fonts/martian-mono-latin-var.woff2?v=9') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -128,6 +128,20 @@
   --font-sans: 'Archivo', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'Martian Mono', ui-monospace, 'SFMono-Regular', 'Cascadia Mono', Menlo, Consolas, monospace;
   --font-system: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Owner-directed amendment (Client feedback round 1, 2026-07-27). The index
+   restyle moves to the Moritz Petersen reference: quiet grey rows at rest, the
+   selected row a raised white rounded-rectangle card. House shadow language is
+   inset-only (CONCEPT 3.1), but the raised-card look needs real elevation and
+   the owner's direction wins. This one restrained drop shadow is scoped to the
+   active row card ONLY and is used nowhere else on the page. Tuned by eye.
+   Recorded in PROGRESS.md as a supersession of the "no drop shadows" rule.
+   -------------------------------------------------------------------------- */
+
+:root {
+  --shadow-row-active: 0 1px 3px rgba(20, 20, 22, 0.06);
 }
 
 /* --------------------------------------------------------------------------
@@ -299,12 +313,24 @@ a {
   margin-top: var(--sp-48);
 }
 
+/* Client feedback round 1 (2026-07-27): the hairline separators are retired in
+   favour of clear space between rows (change 4). The list is a flex column with
+   a gap from the spacing scale. */
 .index-list {
   margin-top: var(--sp-16);
-  border-top: var(--border-width) solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
 }
 
-/* A single index row (R1 rest state) */
+/* A single index row (R1 rest state).
+   Client feedback round 1 (change 1): rows are rounded-rectangle cards at
+   --radius-surface (16px), no longer full-bleed hairline-separated rows. At
+   rest the card is transparent with a transparent border, so activating a row
+   (which sets the border colour and a raised-card shadow) causes no 1px content
+   shift. Vertical padding is --sp-14 (change 4, "a touch more"), grown to
+   --sp-18 on the active row (change 5). The transition covers padding so the
+   grow/shrink pushes neighbours smoothly, plus background, border and shadow. */
 .row {
   position: relative;
   display: grid;
@@ -312,11 +338,13 @@ a {
   align-items: center;
   column-gap: var(--sp-16);
   width: 100%;
-  padding: 11px var(--sp-4);
+  padding: var(--sp-14) var(--sp-16);
   text-align: left;
-  border-bottom: var(--border-width) solid var(--border);
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-surface);
   background: transparent;
-  transition: background 160ms ease, box-shadow 220ms ease;
+  transition: background 160ms ease, border-color 160ms ease,
+              box-shadow 200ms ease, padding 200ms ease;
 }
 
 /* Type: Row index 01 to 06 - Mono 11px / 400 / normal / normal / zero padded */
@@ -329,13 +357,19 @@ a {
   transition: color 160ms ease;
 }
 
-/* Type: Row name - Archivo 15.5px / 500 / normal / normal / as typed */
+/* Type: Row name - Archivo 15.5px / 500 / normal / normal / as typed.
+   Client feedback round 1 (change 3): rest name colour moves from --ink-mid to
+   --grey-label so unselected rows read as quiet grey (the reference look). This
+   is below WCAG AA on --ground at desktop rest; the established remediation
+   pattern darkens it to --ink-mid at the mobile breakpoint and under
+   :focus-visible (see those rules), and hover/active darken it further to --ink.
+   Recorded in PROGRESS.md as an extension of the accepted desktop-rest exception. */
 .row-name {
   font-family: var(--font-sans);
   font-size: 15.5px;
   font-weight: 500;
   line-height: normal;
-  color: var(--ink-mid);
+  color: var(--grey-label);
   transition: color 160ms ease;
 }
 
@@ -381,17 +415,27 @@ a {
 
 /* Contrast (CONCEPT.md section 10): on focus-visible the 10px mono tags and the
    row indices are darkened from --grey-soft (#A6A6AE, 3.1:1, fails AA) to
-   --ink-mid (#54545C, passes 4.5:1 on --ground). Declared before the hover and
-   active colour rules below so an active or hovered row still wins (accent or
-   faded tag), and this only bites the keyboard-focused-at-rest state. */
+   --ink-mid (#54545C, passes 4.5:1 on --ground). Client feedback round 1
+   (change 3) extends the same guard to the row name, which now rests at
+   --grey-label (also sub-AA on --ground): a keyboard-focused-at-rest row shows
+   its name at --ink-mid. Declared before the hover and active colour rules below
+   so an active or hovered row still wins (name to --ink), and this only bites
+   the keyboard-focused-at-rest state. */
 .row:focus-visible .row-index,
-.row:focus-visible .row-tag {
+.row:focus-visible .row-tag,
+.row:focus-visible .row-name {
   color: var(--ink-mid);
 }
 
-/* R2 hover (index rows 01 to 05). Motion: 160ms ease, shadow 220ms.
-   Fill --accent-fill-hover, inset hairline and shade via --shadow-row-hover,
-   index to accent, name to ink, tag fades out, glyph fades in (x -4px to 0).
+/* R2 hover (index rows 01 to 05). Motion: 160ms ease.
+   Client feedback round 1 (change 2): the accent hover treatment is retired.
+   The fill --accent-fill-hover and the accent inset shadow --shadow-row-hover
+   are both dropped in favour of a neutral, calm hover: a soft light-grey wash
+   from --surface-preview (an existing surface token), clearly distinct from the
+   raised white active card. Index still goes to accent and the name to --ink,
+   the tag fades out and the glyph fades in (indices/tags "unchanged", change 3).
+   Recorded in PROGRESS.md as a supersession of the 3.3 "Row hover" fill and
+   inset-shadow and the 3.4 R2 --accent-fill-hover.
 
    The whole hover reveal/hide block is gated behind (hover: hover) and
    (pointer: fine) so it never applies on touch. Without this, a tap leaves a
@@ -401,8 +445,7 @@ a {
    mirrors the JS isTouchDevice guard. */
 @media (hover: hover) and (pointer: fine) {
   .row:not(.row--cta):hover {
-    background: var(--accent-fill-hover);
-    box-shadow: var(--shadow-row-hover);
+    background: var(--surface-preview);
   }
 
   .row:not(.row--cta):hover .row-index {
@@ -428,12 +471,34 @@ a {
 }
 
 /* R3 active, and R4 active plus hover.
-   Fill --accent-fill-active, index accent, name ink, tag hidden, glyph shown.
-   Listed after :hover so the active fill wins when a row is both active and
-   hovered (R4); the hover shadow from :hover still applies. */
+   Client feedback round 1 (change 2, reference look): the selected row is a
+   raised white card, not the accent fill. Background --surface-white, a 1px
+   --border rim (via border-color, the transparent rest border keeps geometry
+   stable), and one restrained drop shadow --shadow-row-active (owner-directed
+   supersession of the inset-only rule, scoped to this card only). The
+   --accent-fill-active row treatment is retired (recorded in PROGRESS.md).
+   Change 5 (selection grow-and-push): the active card grows its vertical
+   padding from --sp-14 to --sp-18 (+4px), transitioned by the .row padding
+   transition (~200ms ease) so neighbours slide as the layout reflows; under
+   prefers-reduced-motion the global guard makes it instant. Index accent, name
+   ink, tag hidden, glyph shown. Listed after :hover so the white card wins when
+   a row is both active and hovered (R4). */
 .row.is-active,
 .row.is-active:hover {
-  background: var(--accent-fill-active);
+  padding: var(--sp-18) var(--sp-16);
+  background: var(--surface-white);
+  border-color: var(--border);
+  box-shadow: var(--shadow-row-active);
+}
+
+/* Keep the focus-visible accent inset ring exactly as before, even on the active
+   card (change 2: "accessibility unchanged"). The new active-card box-shadow
+   (0,2,0) would otherwise clobber the .row:focus-visible ring (0,2,0, earlier in
+   source) on a focused active row. This 0,3,0 rule wins over both the active
+   box-shadow and .row.is-active:hover, and layers the ring over the card
+   elevation so a keyboard-focused active row shows the ring and stays raised. */
+.row.is-active:focus-visible {
+  box-shadow: var(--shadow-field-focus), var(--shadow-row-active);
 }
 
 .row.is-active .row-index {
@@ -458,14 +523,20 @@ a {
    -------------------------------------------------------------------------- */
 
 /* C1 rest: three drifting pastel layers at --cta-bg-size, white inset rim,
-   ink text, index at --cta-index, radius --radius-pill. Fill drift 22s rest.
-   overflow hidden clips the press bloom to the pill. */
+   ink text, index at --cta-index. Fill drift 22s rest. overflow hidden clips
+   the press bloom, which now follows the new 16px radius.
+   Client feedback round 1 (change 1): the CTA becomes a 16px rounded rectangle
+   (--radius-surface) to match the index cards, not a full pill. Only the radius
+   and geometry change; the pastel drift fill, white rim, edge lift, hover mist
+   and press bloom are all kept. The top margin is dropped so the .index-list
+   flex gap governs the spacing before it uniformly with the other rows. The
+   two-radii discipline holds: --radius-pill still serves the visit pill and the
+   submit button. Recorded in PROGRESS.md. */
 .row--cta {
   position: relative;
   overflow: hidden;
-  margin-top: var(--sp-14);
   border-bottom: 0;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-surface);
   padding: var(--sp-14) var(--sp-18);
   background-image: var(--cta-layer1), var(--cta-layer2), var(--cta-layer3);
   background-size: var(--cta-bg-size);
@@ -870,6 +941,18 @@ a {
 }
 
 /* ---- V2 project view -------------------------------------------------- */
+
+/* Client feedback round 1 (change 6): the media preview must be the dominant
+   element. The base .view caps at 560px (right for prose and the form card),
+   which left the preview at ~496px in a ~748px panel. The project view drops
+   that cap so the whole V2 block uses the panel generously: at desktop the view
+   fills the panel body (~746px inner) and, less its --sp-32 side padding, the
+   preview lands at ~91% of the panel body inner width. The title, sub, caption
+   and visit pill sit below at the same full width. On mobile the base .view is
+   already 100% (see the max-width:900px block), so this is a no-op there. */
+.view--project {
+  max-width: none;
+}
 
 /* Preview area on --surface-preview, framed by the single 1px border so the
    placeholder surface reads as an intentional media frame, not a broken box.
@@ -1362,9 +1445,13 @@ a {
 
   /* Contrast (section 10): at rest on --ground the 10px mono tags and the row
      indices are --grey-soft (fails AA); darken them to --ink-mid, which passes
-     4.5:1. Desktop rest colours are untouched (this is inside the breakpoint). */
+     4.5:1. Client feedback round 1 (change 3): the row name now rests at
+     --grey-label (also sub-AA), so it is darkened here too, the same
+     mobile-at-rest remediation. Desktop rest colours are untouched (this is
+     inside the breakpoint). */
   .row-index,
-  .row-tag {
+  .row-tag,
+  .row-name {
     color: var(--ink-mid);
   }
 

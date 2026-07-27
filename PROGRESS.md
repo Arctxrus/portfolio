@@ -1190,3 +1190,216 @@ Flag rulings applied:
   bumps to ?v=9.
 - HOLDING before stage 10 (cosmic-dawn PORTFOLIO_URL) until Zayn confirms
   the URL loads for him, per instruction.
+
+## Client feedback round 1 (CONCEPT amendments, owner-directed 2026-07-27)
+
+Owner-directed restyle of the index toward the Moritz Petersen reference (list
+items are quiet grey text at rest; the selected item is a raised white rounded-
+rectangle card with the arrow glyph on its right), plus bigger V2 previews and a
+re-record of the three clips with the top no longer cut. These changes SUPERSEDE
+the corresponding CONCEPT 3.1 / 3.3 / 3.4 rows where they conflict; each
+supersession is called out explicitly below. Where CONCEPT and the amendment
+brief agreed, CONCEPT still holds.
+
+- Status: BUILT, awaiting verification. Files changed: css/styles.css,
+  index.html, tools/capture.py, media/*.webm (three), media/*.jpg (three
+  posters), PROGRESS.md. All shipped asset refs bumped ?v=8 to ?v=9 (a push
+  follows): 13 in index.html, 2 in css/styles.css, 0 in js/main.js. No JS change
+  was needed (row selection already toggles .is-active; the restyle is pure CSS).
+  Encoding clean (Edit tool only, no BOM, no mojibake, no em dashes; grep
+  confirms 0 remaining ?v=8, special chars intact: £300, arrow glyph, middle dot).
+
+### Change 1 - Row shape: rounded rectangles at --radius-surface (16px)
+- Index rows 01 to 06 are now rounded-rectangle cards at var(--radius-surface)
+  (16px), no longer full-bleed square-edged hairline-separated rows. The CTA row
+  06 "Get in touch" is also a 16px rounded rectangle: only its radius and
+  geometry changed (var(--radius-pill) to var(--radius-surface)); its pastel
+  drift fill, white rim (--cta-rim), edge lift and hover mist / press bloom are
+  all kept, and the bloom still clips to the card via overflow:hidden, now
+  following the 16px radius.
+- Hairline separators retired (see change 4). The CTA's old margin-top:--sp-14 is
+  dropped so the .index-list flex gap governs spacing before it uniformly.
+- TWO-RADII DISCIPLINE HELD: a radius sweep of styles.css returns exactly
+  var(--radius-pill) (5 uses: visit pill, submit, trail dot, CTA mist, CTA bloom)
+  and var(--radius-surface) (7 uses: panel, preview, contact card, field, form
+  status, the index rows, and the CTA). 999px stays for the visit pill and submit
+  button as required.
+- SUPERSEDES CONCEPT 3.4 C1 "radius --radius-pill" for the CTA pill.
+
+### Change 2 - Selected (active) row: raised white card; hover neutralised
+- Active row (R3/R4) is now a raised white card: background var(--surface-white),
+  a 1px var(--border) rim, and ONE restrained drop shadow. Index number and the
+  arrow glyph are shown; name to --ink, tag hidden (unchanged).
+- OWNER-DIRECTED AMENDMENT to the "no drop shadows, inset only" rule (CONCEPT
+  3.1 shadows block / de-vibe item 4). House language is inset-only, but the
+  reference raised-card look needs real elevation and the owner's direction wins.
+  New token --shadow-row-active: 0 1px 3px rgba(20,20,22,0.06) (rgba(20,20,22)
+  is --ink, kept on-brand), declared in a separate :root amendment block (the
+  3.1 verbatim block is left untouched). It is the ONLY non-inset shadow on the
+  page and is used NOWHERE except the active row card (confirmed by grep). Tuned
+  by eye against the reference: quiet, the white fill + border + hidden dot grid
+  under the opaque card do most of the lift, the shadow just seats it.
+- The accent-blue active fill (--accent-fill-active) is RETIRED for rows.
+  SUPERSEDES CONCEPT 3.4 R3 "fill --accent-fill-active". --accent-fill-active is
+  now a defined-but-unused token (3.1 block kept verbatim; noted).
+- HOVER on a non-active row: the accent treatment is retired. --accent-fill-hover
+  and the accent inset shadow --shadow-row-hover are both dropped.
+  REPORTED CHOICE: the neutral hover background is var(--surface-preview)
+  (#F4F4F7), an existing surface token, chosen for strict token discipline and a
+  calm quiet wash that stays clearly distinct from the white active card (so
+  hover and active never read alike). The alternative "rgba white" the brief
+  offered was considered and rejected to avoid a new hard-coded value; the grey
+  wash matches the reference's calm feel. Index still goes to accent and the name
+  to --ink on hover, the tag fades out and the glyph fades in (indices/tags
+  unchanged per change 3). SUPERSEDES CONCEPT 3.4 R2 "fill --accent-fill-hover"
+  and the 3.3 "Row hover" inset-shadow. --accent-fill-hover and --shadow-row-hover
+  are now defined-but-unused tokens (noted; 3.1 kept verbatim).
+- FOCUS-VISIBLE UNCHANGED (accessibility): the accent inset ring
+  (--shadow-field-focus) is kept exactly. The new active-card box-shadow (0,2,0)
+  would otherwise clobber the .row:focus-visible ring (0,2,0, earlier in source)
+  on a focused active row, so a 0,3,0 rule .row.is-active:focus-visible layers
+  both (ring + card elevation), preserving the ring on a keyboard-focused active
+  card. Verified by specificity/source-order reasoning; the ring token is
+  untouched.
+
+### Change 3 - Unselected rows look more grey
+- Rest row name colour moves from --ink-mid to var(--grey-label) (#8E8E96) at
+  DESKTOP rest. SUPERSEDES CONCEPT 3.4 R1 "name --ink-mid" and the 3.2 row-name
+  colour at rest.
+- ACCESSIBILITY GUARD (established remediation pattern extended): #8E8E96 on
+  --ground is ~3.1:1, below WCAG AA, so the name darkens to var(--ink-mid)
+  (~7.0:1) at the mobile breakpoint at rest (added .row-name to the existing
+  @media max-width:900px darken group) AND under :focus-visible (added .row-name
+  to the existing .row:focus-visible darken group, declared before hover/active
+  so those still win to --ink). Hover and active still darken the name to --ink
+  (both pass AA). So the only sub-AA state is desktop MOUSE-rest, which is exactly
+  the accepted desktop-rest exception class already logged at stages 1/5/8/9 for
+  the grey tags, indices and mono labels; the row name now joins that class.
+  Recorded as an extension of that exception.
+- Tags and indices unchanged from their current handling (rest --grey-soft;
+  hover/active index to accent; mobile-rest and focus darkened to --ink-mid), per
+  the brief.
+
+### Change 4 - Healthy white space (gap replaces hairlines)
+- .index-list is now a flex column with gap var(--sp-6) (6px) between rows; the
+  border-top hairline and the per-row border-bottom hairlines are removed.
+  SUPERSEDES the CONCEPT 3.1 layout implication of flush hairline-separated rows.
+- Row vertical padding raised from the documented 11px literal to var(--sp-14)
+  (14px, on the scale) at rest. Horizontal padding raised to var(--sp-16) so the
+  card text has breathing room inside the rounded rectangle.
+- REPORTED CHOICES: gap --sp-6 (the tighter of the brief's --sp-6 / --sp-10
+  options) and padding --sp-14 were chosen deliberately as the tightest of the
+  brief's suggested values BECAUSE of the min-height 860 fit (below); --sp-10 gap
+  would have left the column dangerously tight once a low row is active.
+- MEASURED LEFT-COLUMN FIT (headless Playwright, viewport forced so the page
+  sits at min-height 860): page height 860; index-list 311px (six ~47px cards +
+  five 6px gaps); FRESH LOAD footer bottom 830.9 (29.1px clear of the 860 bottom,
+  no clip, no page scroll: document scrollHeight 860 equals a real 860 viewport);
+  DEEPEST ROW ACTIVE (row 05 Pricing, worst-case push, +8px from the grow) footer
+  bottom 838.9 (still 21.1px clear, no scroll); how->proof abut with proof's own
+  32px padding-top as the visual gap (no collision). On a normal 1440x900 desktop
+  (100vh 900) the proof re-pins toward the bottom with 13.1px of margin-top:auto
+  slack, as intended. Conclusion: the whole column fits within 100vh at min-height
+  860 in every state and the proof strip never collides with HOW IT WORKS.
+
+### Change 5 - Selection grow-and-push (carousel feel)
+- The active card grows its vertical padding from var(--sp-14) to var(--sp-18)
+  (+4px per side, +8px total height), transitioned via a padding transition on
+  .row at 200ms ease (within the existing 160 to 220ms band), so neighbours slide
+  smoothly as the flex layout reflows. Subtle, no bounce, no overshoot (plain
+  ease). The CTA does NOT grow (no persistent selected state; C5 stands).
+- REDUCED MOTION: the global 3.3 guard forces transition-duration ~0 on
+  everything, so the size change applies instantly (no transition) as required;
+  no extra rule needed.
+- MOTION TABLE AMENDMENT (new row, recorded as required):
+  | Name | Property | Duration | Delay | Easing | Trigger | Reduced motion |
+  | Selection grow | layout padding (--sp-14 to --sp-18) | ~200ms | 0 | ease | row select (.is-active) | instant |
+
+### Change 6 - Bigger V2 previews
+- The preview is now the dominant element. New rule .view--project { max-width:
+  none } drops the base .view 560px cap FOR THE PROJECT VIEW ONLY, so at desktop
+  the V2 block fills the panel body and, less the --sp-32 side padding, the
+  preview lands at ~91% of the panel body inner width. Title, sub, caption and
+  visit pill sit below at the same full width. The base 560px cap is kept for the
+  About/Pricing/form views (readable prose, 440px form card).
+- MEASURED at 1440x900 (Blackthorn selected): panel body inner width 746px,
+  view 746px, preview 682px = 91.4% of the panel body (target "roughly 90%");
+  preview ratio 1.778 = 16/9. The view fits the panel exactly (view scrollHeight
+  716 == panel-body clientHeight 716) and the panel does not scroll (panel
+  scrollHeight 766 == clientHeight 766). Zero layout shift between poster and
+  video is preserved (the .preview aspect-ratio reserves the box independent of
+  media, unchanged).
+- MOBILE unchanged: the base .view is already max-width:100% inside the
+  max-width:900px block, so change 6 is a no-op on mobile and the mobile 2/1
+  preview is untouched. MEASURED 60vh budget still holds and every view is the
+  same panel height (no reflow on swap), no horizontal scroll:
+  - 360x780: 60vh=468, panel 468 for V2/V3about/V3pricing/V4.
+  - 390x844: 60vh=506, panel 506.4 for all four.
+  - 768x1024: 60vh=614, panel 614.4 for all four.
+- Kept aspect-ratio 16/9 desktop, 2/1 mobile per CONCEPT.
+
+### Change 7 - Re-record all three clips, top no longer cut
+- ROOT CAUSE (confirmed from the stage-6 pipeline): capture recorded 1280x800 and
+  ffmpeg centre-cropped to 16:9, dropping 40px off the TOP (and bottom), which
+  chopped the Blackthorn nav pill. FIX (native-viewport route, as preferred by
+  the brief): tools/capture.py now records at a native 16:9 viewport REC_W,REC_H
+  = 1280,720 and vfilter() is a straight "scale=800:450" with NO crop, so the top
+  of every page is captured in full.
+- Re-recorded Blackthorn, Barker & Bloom AND the star clip with the SAME GPU args
+  and the SAME star parallax settings as the approved star take (t 0.845 peak
+  lens, circular pointer orbit amp 240x150, 3.5s period, 8.5s keeper) and the
+  same scroll scripts otherwise (blackthorn/barker absolute-px segments unchanged;
+  star still driven by timeline t so the epoch framing is identical, only the
+  viewport is 80px shorter). Star renderer re-confirmed in-context: ANGLE (NVIDIA
+  GeForce RTX 3060 Laptop GPU ... D3D11), so the tier-2 lens is real, not a
+  software fallback. Re-processed to 6 to 8s, 800px wide (800x450), VP9, posters
+  under ~40KB, SAME filenames (media refs unchanged, only ?v bumped).
+- NEW CLIP SIZES (all in the 300 to 500KB / 6 to 8s budget; dims 800x450; posters
+  under 40KB; old media backed up to the scratchpad before overwrite):
+  - blackthorn-preview.webm   7.03s  389KB (VP9 430k)   blackthorn-poster.jpg  38KB
+  - barker-bloom-preview.webm 6.03s  408KB (VP9 697k, auto-retuned up from 470k)
+                                                        barker-bloom-poster.jpg 38KB
+  - until-the-last-star-preview.webm 7.03s 401KB (VP9 650k auto-retuned to 484k)
+                                                        until-the-last-star-poster.jpg 32KB
+- CONFIRMED in the rendered page (poster = frame 0 of the processed clip): the
+  Blackthorn top nav pill (logo + Prices/Barbers/Gallery/About/Visit + Book now)
+  is FULLY visible in frame 0, no top crop. The Barker & Bloom nav pill is
+  likewise fully in frame, and the star clip shows the lensed black hole (THE
+  LONG NIGHT) with the photon ring. Frame-0 posters inspected directly.
+- MINOR (pre-existing, not a regression, out of scope): the star clip shows a
+  thin right-edge scrollbar from the recorded demo viewport (width was never
+  cropped, so this was present in the prior clip too). Left as-is; the brief was
+  the top crop.
+
+### Change 8 - Cache bust ?v=8 to ?v=9
+- Every shipped ?v=8 bumped to ?v=9 (a push follows): 13 in index.html (css, js,
+  six media refs, og:image, twitter:image, favicon.svg, favicon-32.png,
+  apple-touch-icon.png), 2 in css/styles.css (two @font-face src), 0 in
+  js/main.js. Media filenames carry no version, so the re-recorded clips are
+  picked up by the bumped refs. Done with the Edit tool (encoding-safe); grep
+  confirms 0 remaining ?v=8 in shipped files. The two ?v=8 in
+  verify/final/*.report.html are historical verification artifacts and were left
+  untouched.
+
+### Client feedback round 1 - deviations / notes
+- NEW TOKEN --shadow-row-active is the only non-inset shadow on the page,
+  owner-directed, scoped to the active row card only (change 2). Recorded as a
+  supersession of the inset-only rule for that card.
+- DEFINED-BUT-UNUSED TOKENS after this round (3.1 block kept verbatim per house
+  rules; flagged so the orchestrator records that these no longer have a live
+  consumer): --accent-fill-active, --accent-fill-hover, --shadow-row-hover (all
+  retired by the reference restyle), in addition to the previously-noted --sp-2
+  (now used again by the underline offset) and --grey-placeholder.
+- ROW NAME DESKTOP-REST CONTRAST: moving the rest name to --grey-label puts the
+  main interactive labels below AA at desktop mouse-rest. This is an owner-directed
+  design choice (the reference's quiet grey), remediated on mobile-rest and
+  focus-visible exactly like the established pattern, with hover/active at --ink.
+  Joined to the accepted desktop-rest exception class; must be re-checked at any
+  future de-vibe / accessibility gate.
+- NO JS CHANGE: the restyle is pure CSS; row selection already toggles .is-active
+  and shows the glyph on active, so the reference behaviour needed no script edit.
+- VERIFICATION NOTE: unlike the backgrounded Browser pane (which times out on
+  screenshots), all measurements and screenshots this round were taken with a
+  headless Playwright pass over file:// (reduced-motion for deterministic swaps);
+  the capture ran in real headed GPU Chromium. Numbers above are measured, not
+  estimated. Screenshot/visual sign-off remains the verifier's.
