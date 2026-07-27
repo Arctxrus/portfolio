@@ -8,8 +8,11 @@ poster jpg that index.html already references from media/.
 
 Two stages, either of which can run alone:
   1. capture  - scripted, headed recording of each site to tools/_raw/
-  2. process  - ffmpeg trim to a loop window, native 1280x720, strip audio,
-                VP9 CRF quality mode, and a 1280-wide poster jpg from frame 0
+  2. process  - ffmpeg into a SEAMLESS LOOP via a tail->head xfade crossfade
+                (all three are one continuous slow scroll that returns to its
+                start; the closing hold dissolves into the opening hold), native
+                1280x720, strip audio, VP9 CRF, a 1280-wide poster jpg from
+                frame 0, and a printed loop-seam pixel-diff verification
 
 Usage (run from anywhere, paths are resolved from this file):
   python tools/capture.py                 # capture then process, all three
@@ -21,9 +24,10 @@ House rules: UK English, no em dashes. Vanilla toolchain, no runtime deps.
 """
 
 import argparse
-import math
+import glob
 import os
 import subprocess
+import tempfile
 import time
 
 # Resolve repo paths from this file so the script is location independent.
@@ -60,9 +64,10 @@ GPU_ARGS = [
 # mode (constant quality, not a bitrate target) and kept as small as possible
 # while crisp at full panel size. The clips remain lazy-loaded, so the first-load
 # budget is untouched. WEBM_*_KB below is informational only (no enforcement).
-# Posters are re-exported at 1280 wide, target under ~80KB each.
+# Posters are re-exported at 1280 wide, target under ~80KB each (78 gives a
+# little margin under the ~80KB budget so the busy star frame is clearly under).
 WEBM_MIN_KB, WEBM_MAX_KB = 300, 500   # informational only, not enforced
-POSTER_MAX_KB = 80
+POSTER_MAX_KB = 78
 
 # VP9 constant-quality (CRF) per clip. Lower is crisper and larger. The brief
 # asks for ~32 to 34, tuned by eye on extracted frames. Across 32/33/34 the size
@@ -71,10 +76,20 @@ POSTER_MAX_KB = 80
 # "as small as possible while crisp" direction (see PROGRESS.md round 2).
 DEFAULT_CRF = 34
 
-# Client feedback round 3 (item 2): dense keyframe interval so the scroll-scrubbed
-# desktop preview seeks smoothly in both directions. -g 12 at 30fps is a keyframe
-# every ~0.4s. See encode_webm_crf for the rationale.
-KEYFRAME_INTERVAL = 12
+# Client feedback round 4 (item 5): the scroll-scrub is retired, so the dense
+# keyframe interval (round 3's -g 12, needed only for reverse seeking) is no
+# longer required. Back to a normal GOP: -g 60 at 30fps is a keyframe every 2s,
+# which keeps the muted autoplay loops small again. See vp9_args.
+KEYFRAME_INTERVAL = 60
+
+# Client feedback round 4 (item 3, owner amendment): every clip is a one-way slow
+# scroll that returns to its start, so a hard loop cut would jump. Each is
+# post-processed into a seamless loop by dissolving its tail (the closing hold)
+# into its head (the opening hold) with an xfade crossfade of this length; the
+# shipped clip then runs (base clip length minus CROSSFADE_S). Both endpoints are
+# the same opening composition, so the dissolve is clean (see choose_head_ss).
+CROSSFADE_S = 0.8
+FPS = 30
 
 # Scrollbar suppression (item 4). The owner dislikes the demo sites' scrollbar in
 # the captures. This CSS is injected into each page BEFORE the keeper so the
@@ -86,106 +101,98 @@ NO_SCROLLBAR_CSS = (
     "::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }"
 )
 
-# The clip is trimmed to the tail of the raw take: the scripted sequence ends on
-# its closing hold, and any frames after it are static at the same scroll
-# position, so anchoring the trim to the end reliably lands on the intended end
-# frame. This is robust against Playwright recording a timeline shorter than
-# wall-clock (its tail frames lag), which an absolute front offset would miss.
-# A small tail margin drops any frozen final frame.
+# The base clip ends near the tail of the raw take (its closing hold at the tour
+# start), less a small margin that drops any frozen final frame. Robust against
+# Playwright recording a timeline shorter than wall-clock (its tail frames lag).
 TAIL_MARGIN_S = 0.10
 
-# Per project capture plan. Scroll targets in CSS pixels came from probing each
-# live site at 1280x800 (section anchors and epoch scroll map). "segments" is
-# the scripted keeper motion: an eased scrollTo per {to, dur_ms} step and a
-# static pause per {hold_ms}. The clip is trimmed to start inside the opening
-# hold and end inside the closing hold, so the loop cut lands between two calm,
-# near static frames.
+# Round 4 verifier FAIL fix. A crossfade only reads clean when the two blended
+# endpoints match. The tours ended on the reviews/bento, so dissolving that into
+# the opening cover/hero gave a legible double exposure (peak diffs 144 and 46).
+# Fix: every tour now glides back to its START and holds a closing composition,
+# and demo heros are warmed into their settled BASE state before the keeper (a
+# scroll excursion and back; see capture_one), so the opening and closing frames
+# match. These takes are HEAD-anchored: choose_head_ss scans the region around the
+# keeper start for the CROSSFADE_S window that is most static and best matches the
+# settled closing frame, and the base clip runs from there to the closing hold.
+
+# Per project capture plan (owner amendment, round 4). ALL THREE clips are now a
+# single continuous, even, SLOW scroll down the page (no section glides, no anchor
+# stops, no mid-tour holds), then a brisk glide back to the start and a closing
+# hold on the same opening composition, crossfaded (0.8s) into the opening hold so
+# the loop is seamless. "tour" is that plan: open on `from`, drift slowly and
+# evenly (near-linear) to `to` over tour_dur_ms, glide back over return_dur_ms,
+# hold. A `from`/`to` given as {"t": frac} is a cosmic-dawn timeline fraction
+# resolved to pixels at capture time; a plain number is a pixel offset. All three
+# are head-anchored crossfades (choose_head_ss) so both dissolve endpoints match.
 PROJECTS = [
     {
         "name": "blackthorn",
         "url": "https://arctxrus.github.io/blackthorn-demo/",
         "out": "blackthorn-preview",
         "poster_out": "blackthorn-poster",
-        # Glide from the cover, through the price menu, to the rotating reviews.
-        "start_y": 0,
-        "settle_ms": 1200,
-        "segments": [
-            {"hold_ms": 800},          # cover
-            {"to": 1900, "dur_ms": 2200},   # arrive at the price menu (services)
-            {"hold_ms": 800},          # let the menu read
-            {"to": 5500, "dur_ms": 2600},   # down to the reviews pull-quote
-            {"hold_ms": 1400},         # linger on a rotating quote
-        ],
         "verify_nvidia": False,
-        "clip_len_s": 7.0,
+        "warmup": True,        # hero has a one-time load-in animation; warm to base
+        # The hero photo zooms in and the intro badges fade over several seconds on
+        # first load; wait it out at the top so the opening matches the settled
+        # closing (else the crossfade catches the load-in mid-animation).
+        "settle_ms": 4000,
+        # One slow even scroll cover -> down the page, then back to the cover.
+        "tour": {"from": 0, "to": 5200, "open_hold_ms": 1000,
+                 "tour_dur_ms": 13000, "return_dur_ms": 1700, "close_hold_ms": 1300},
     },
     {
         "name": "barker",
         "url": "https://arctxrus.github.io/barker-bloom-demo/",
         "out": "barker-bloom-preview",
         "poster_out": "barker-bloom-poster",
-        # Hero, the paw-trail thread drawing on scroll, a peek at the pricing bento.
-        "start_y": 0,
-        "settle_ms": 1200,
-        "segments": [
-            {"hold_ms": 800},          # hero
-            {"to": 1150, "dur_ms": 3400},   # slow draw down into the pricing bento
-            {"hold_ms": 2200},         # pricing bento settled
-        ],
         "verify_nvidia": False,
-        "clip_len_s": 6.0,
+        "warmup": True,
+        "settle_ms": 3500,     # let the hero load-in settle before the take
+        # One slow even scroll hero -> pricing bento, then back to the hero.
+        "tour": {"from": 0, "to": 1150, "open_hold_ms": 1000,
+                 "tour_dur_ms": 12000, "return_dur_ms": 1700, "close_hold_ms": 1300},
     },
     {
         "name": "star",
-        # ?tier=2 forces the T2 quality tier, so the real screen-space
-        # gravitational-lens pass (js/lensing.js) draws the black hole rather
-        # than the flat sprite fallback. The scene sustains ~140fps on the RTX
-        # 3060, well above the 55fps governor that would otherwise drop the lens.
+        # ?tier=2 forces the T2 quality tier so the real WebGL scene renders (not
+        # the sprite fallback). Owner amendment (round 4): the star is a bright
+        # SCROLLING capture, not the near-black fixed black-hole shot (poster
+        # luminance ~35). It waits 10s after load, then scrolls slowly through a
+        # NARROW window of THE AFTERGLOW ("the fog lifts", timeline t 0.13 to 0.17):
+        # a warm plasma nebula that is the brightest region in the scene. Probed
+        # (fine grid + a slow-scroll pass): mean luminance stays 69 -> 50 across the
+        # whole span and NEVER drops below ~50, with visible plasma motion (frame
+        # motion ~2.8 to 4.7, not a static hold). The wider t 0.15 to 0.21 window
+        # used earlier scrolled on into a dark trough (~19 at t 0.19+) mid-clip, the
+        # round-4b FAIL; this narrower window stays inside the bright material.
+        # Frame 0 (the poster) is the bright nebula at t 0.13 (~69). Avoids the dark
+        # ages (t 0.22+) and the near-black long night. Camera parallax DROPPED
+        # (fought the scroll; the crossfade carries the loop); no crop. The cosmos is
+        # inherently dark, so the mean caps below the ~80 aim; ~69 poster / ~50 floor
+        # is the brightest sustainable span.
         "url": "https://arctxrus.github.io/cosmic-dawn/?tier=2",
         "out": "until-the-last-star-preview",
         "poster_out": "until-the-last-star-poster",
-        # THE LONG NIGHT (timeline t 0.79..0.90): the Gargantua black hole with
-        # the lensed accretion disc and photon ring. Hold at peak lens (t 0.845)
-        # and run a slow eased mouse-parallax orbit: cosmic-dawn's scene.js reads
-        # the pointer into a spring-smoothed camera parallax orbit, and the
-        # lensing answers the viewpoint, so the lensed arcs and ring shift. An
-        # unmistakably 3D, reactive moment (decision 5h), not a starfield fade.
-        "start_t": 0.845,           # scroll position derived from the timeline t
-        "settle_ms": 2000,          # let the spring settle at t and the lens warm
-        # Client feedback round 3 (item 1): the previous large vertical amplitude
-        # (amp_y 150) swung the lensed accretion disc's lower arc down into the
-        # bottom of the panel preview, where the bottom fade dissolved it into a
-        # stray glowing "curve" (confirmed on extracted frames). The orbit is now
-        # dominated by the horizontal sweep (which still shifts the lens and reads
-        # as 3D) with only a small vertical component, so the disc stays centred
-        # and the frame keeps clean dark space top and bottom throughout the clip.
-        "parallax": {
-            "amp_x": 150, "amp_y": 44,    # px around the viewport centre: a gentle orbit
-            "period_s": 4.0,              # one camera orbit
-            "keeper_s": 8.5,             # > clip_len_s; the last clip_len_s is trimmed out
-            "step_ms": 20,               # ~50Hz pointer feed keeps the orbit from idling
-        },
         "verify_nvidia": True,
-        "clip_len_s": 7.0,
-        # Client feedback round 3 (item 1): a gentle bottom-anchored reframe crop
-        # on top of the reduced parallax. Drops the top 40px of dark sky and scales
-        # back to native, nudging the whole lensed disc up by ~40px so its bright
-        # lower arc stays clear of the panel preview's bottom fade across EVERY
-        # scrub frame (measured: fade-band luminance a steady ~120 vs ~137 uncropped
-        # and ~135 on the old clip). w,h,x,y for ffmpeg crop; scale restores 1280x720.
-        "crop": (1280, 680, 0, 40),
+        "warmup": False,               # WebGL scene, no load-in intro to warm off
+        "extra_load_wait_ms": 10000,   # owner: 10s after load before the take
+        "settle_ms": 2500,             # the afterglow brightens to ~69 over ~1.5s
+        "tour": {"from": {"t": 0.13}, "to": {"t": 0.17}, "open_hold_ms": 1200,
+                 "tour_dur_ms": 13000, "return_dur_ms": 1700, "close_hold_ms": 1500},
     },
 ]
 
-# Eased scroll run inside the page: easeInOutQuad over each segment via rAF, so
-# the motion is per-frame smooth rather than stepped from Python. Resolves when
-# the target is reached. No manual driving, no mouse.
+# Scroll run inside the page via rAF (per-frame smooth, no manual driving, no
+# mouse). The slow tour is near-linear (even, constant-ish speed, linear=true);
+# the brisk return glide is easeInOutQuad so it does not jerk at the ends.
 EASE_SCROLL_JS = """
-async ({toY, duration}) => {
+async ({toY, duration, linear}) => {
   const startY = window.scrollY;
   const dist = toY - startY;
   const t0 = performance.now();
-  const ease = t => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+  const easeInOut = t => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+  const ease = linear ? (t => t) : easeInOut;
   return new Promise(resolve => {
     function frame(now) {
       const t = Math.min(1, (now - t0) / duration);
@@ -226,32 +233,6 @@ DISMISS_SELECTORS = [
 
 def log(msg):
     print(msg, flush=True)
-
-
-def run_parallax(page, cfg):
-    """Drive a slow eased circular mouse orbit around the viewport centre for
-    keeper_s seconds (decision 5h). cosmic-dawn's scene.js reads pointermove
-    (mouse only) into a spring-smoothed camera parallax orbit, so the lensed arcs
-    and photon ring shift with the viewpoint. Continuous ~50Hz moves keep the
-    orbit alive (it decays to rest after 2.5s of pointer idle). The orbit is
-    periodic in position and velocity, so the end-anchored trim (last clip_len_s)
-    lands on a smooth, near-looping window with calm ends."""
-    cx, cy = REC_W / 2.0, REC_H / 2.0
-    ax, ay = cfg["amp_x"], cfg["amp_y"]
-    period = cfg["period_s"]
-    total = cfg["keeper_s"]
-    step_ms = cfg.get("step_ms", 20)
-    # settle the pointer onto the orbit start (phase 0: top of the ellipse)
-    page.mouse.move(cx, cy - ay)
-    page.wait_for_timeout(200)
-    t0 = time.monotonic()
-    while True:
-        elapsed = time.monotonic() - t0
-        if elapsed >= total:
-            break
-        phase = 2.0 * math.pi * elapsed / period
-        page.mouse.move(cx + ax * math.sin(phase), cy - ay * math.cos(phase))
-        page.wait_for_timeout(step_ms)
 
 
 def inject_no_scrollbar(page):
@@ -329,34 +310,53 @@ def capture_one(project):
                     f"({renderer!r}); refusing the take (software fallback)."
                 )
 
-        # Move to the start scroll position and let a scroll-driven scene catch
-        # up. Start can be given as an absolute pixel offset (start_y) or as a
-        # timeline position (start_t, 0..1), resolved here to the scroll pixel.
-        if "start_t" in project:
-            start_y = page.evaluate(
-                "t => t * (document.documentElement.scrollHeight - window.innerHeight)",
-                project["start_t"],
-            )
-        else:
-            start_y = project["start_y"]
-        page.evaluate("y => window.scrollTo(0, y)", start_y)
+        # Owner amendment (round 4): wait extra after load so a heavy WebGL scene
+        # is fully initialised before the take (the star waits 10s at the top).
+        if project.get("extra_load_wait_ms"):
+            page.wait_for_timeout(project["extra_load_wait_ms"])
+
+        tour = project["tour"]
+
+        def to_px(v):
+            # Pixel offset, or a cosmic-dawn timeline fraction {"t": frac}.
+            if isinstance(v, dict) and "t" in v:
+                return page.evaluate(
+                    "t => t * (document.documentElement.scrollHeight - window.innerHeight)",
+                    v["t"],
+                )
+            return v
+
+        from_y = to_px(tour["from"])
+        to_y = to_px(tour["to"])
+
+        # Open on the tour start and let it settle.
+        page.evaluate("y => window.scrollTo(0, y)", from_y)
         page.wait_for_timeout(project["settle_ms"])
 
-        # Keeper begins now. Record the offset into the video so ffmpeg can trim
-        # to the scripted window.
+        # Round 4 verifier fix. Demo heros play a one-time load-in animation that is
+        # still running through the opening hold, so the opening composition did not
+        # match the closing one (reached via scroll-return, base state), giving a
+        # legible crossfade double exposure. Warm the hero into its settled base
+        # state with a quick scroll excursion and back before the keeper. WebGL
+        # scenes have no such load-in, so they skip this.
+        if project.get("warmup"):
+            page.evaluate(EASE_SCROLL_JS, {"toY": from_y + 700, "duration": 500})
+            page.evaluate(EASE_SCROLL_JS, {"toY": from_y, "duration": 500})
+            page.wait_for_timeout(1200)
+
+        # Keeper begins now. Persist the offset for head-anchored processing.
         keeper_offset_s = time.monotonic() - t_ctx
         log(f"[{project['name']}] keeper starts at ~{keeper_offset_s:.2f}s into the take")
 
-        if "parallax" in project:
-            # No scripted scroll: hold at the peak-lens position and orbit the
-            # camera via the pointer (decision 5h).
-            run_parallax(page, project["parallax"])
-        else:
-            for seg in project["segments"]:
-                if "hold_ms" in seg:
-                    page.wait_for_timeout(seg["hold_ms"])
-                else:
-                    page.evaluate(EASE_SCROLL_JS, {"toY": seg["to"], "duration": seg["dur_ms"]})
+        # ONE continuous, even, slow scroll down the page, then a brisk glide back
+        # to the start and a closing hold on the same opening composition. The
+        # crossfade folds that closing hold into the opening hold for a clean loop.
+        page.wait_for_timeout(tour["open_hold_ms"])
+        page.evaluate(EASE_SCROLL_JS,
+                      {"toY": to_y, "duration": tour["tour_dur_ms"], "linear": True})
+        page.evaluate(EASE_SCROLL_JS,
+                      {"toY": from_y, "duration": tour["return_dur_ms"]})
+        page.wait_for_timeout(tour["close_hold_ms"])
 
         page.wait_for_timeout(150)  # let the final frames flush
         video = page.video
@@ -369,7 +369,12 @@ def capture_one(project):
     if os.path.exists(named):
         os.remove(named)
     os.replace(raw_path, named)
-    log(f"[{project['name']}] raw take: {named}  ({kb(named):.0f}KB)")
+    # Persist the keeper offset so head-anchored processing (return-to-top loops)
+    # can start the base clip inside the opening settle at scroll 0 (static hero).
+    with open(named + ".offset", "w") as fh:
+        fh.write(f"{keeper_offset_s:.3f}")
+    log(f"[{project['name']}] raw take: {named}  ({kb(named):.0f}KB, "
+        f"keeper offset {keeper_offset_s:.2f}s)")
     return named
 
 
@@ -391,52 +396,121 @@ def probe_duration(path):
 
 
 def vfilter(project=None):
-    # Client feedback round 2 (item 3): the take is native 16:9 (1280x720) and
-    # the output is native 1280x720 too (no downscale), so the clip stays crisp
-    # at full panel size. A straight scale keeps the full frame including the top
-    # nav pill; object-fit: cover in the panel handles the mobile 2/1 ratio.
-    # Client feedback round 3 (item 1): a project may carry a "crop" (w,h,x,y) to
-    # reframe before the scale (the star clip nudges the lensed disc up so the
-    # bottom stays clean); everything scales back to OUT_W x OUT_H afterwards.
-    crop = project.get("crop") if project else None
-    if crop:
-        w, h, x, y = crop
-        return f"crop={w}:{h}:{x}:{y},scale={OUT_W}:{OUT_H}"
+    # The take is native 16:9 (1280x720) and the output is native 1280x720 (no
+    # downscale), so the clip stays crisp at full panel size. A straight scale
+    # keeps the full frame; object-fit: cover in the panel handles the mobile 2/1
+    # ratio. (project is accepted for signature symmetry; no per-project crop.)
     return f"scale={OUT_W}:{OUT_H}"
 
 
-def encode_webm_crf(raw, out, ss, dur, crf, project=None):
-    """Single-pass VP9 constant-quality (CRF) encode. Client feedback round 2
-    (item 3): quality mode, not a bitrate target, so the clip is as crisp as CRF
-    dictates and as small as VP9 can make it at that quality. Audio stripped,
-    30fps, keyframed. -b:v 0 selects true constant-quality VP9.
-
-    Client feedback round 3 (item 2): the desktop preview is now scroll-scrubbed
-    (video.currentTime driven by scroll), which seeks all over the timeline,
-    including backwards. VP9 with sparse keyframes (-g 60, one every 2s) seeks
-    badly: a reverse seek must decode from the previous keyframe, so the frame
-    lags and stutters. The GOP is now DENSE (-g 12, a keyframe every ~0.4s at
-    30fps) so any seek lands within ~12 frames of a keyframe and scrubbing, in
-    either direction, resolves promptly. Sizes rise (accepted, quality wins);
-    alt-ref is kept for compression, the dense keyframes carry the seek quality.
-    KEYFRAME_INTERVAL is the single knob."""
-    common = [
-        "ffmpeg", "-y", "-ss", f"{ss:.3f}", "-t", f"{dur:.3f}", "-i", raw,
-        "-an", "-vf", vfilter(project), "-r", "30",
+def vp9_args(crf):
+    """Shared VP9 constant-quality (CRF) output args. Client feedback round 4
+    (item 5): the scroll-scrub is retired, so the GOP is back to normal (-g 60, a
+    keyframe every 2s, KEYFRAME_INTERVAL), which keeps the muted autoplay loops
+    small again. Audio stripped, 30fps, -b:v 0 selects true constant-quality VP9;
+    alt-ref kept for compression."""
+    return [
+        "-an", "-r", str(FPS),
         "-c:v", "libvpx-vp9", "-crf", str(crf), "-b:v", "0",
         "-deadline", "good", "-cpu-used", "1",
         "-auto-alt-ref", "1", "-lag-in-frames", "25",
         "-g", str(KEYFRAME_INTERVAL), "-row-mt", "1",
     ]
-    run(common + [out])
-    size = kb(out)
-    log(f"    VP9 crf {crf}: {size:.0f}KB (1280x720, quality mode)")
-    return crf, size
+
+
+def encode_crossfade(raw, out, ss, base_dur, crf, cross, project=None):
+    """Client feedback round 4 (item 3): make a mathematically seamless loop by
+    dissolving the clip's tail into its head. Standard xfade technique: split the
+    base clip of length D into hold=[0, D-C] and end=[D-C, D], then xfade `end`
+    over `hold` at offset 0 for duration C. Output length = D - C. The loop seam
+    (output last frame -> output first frame) maps to input[(D-C)-] -> input[D-C],
+    two ADJACENT source frames, so it is continuous; the first C seconds are the
+    intended tail->head dissolve. One VP9 encode straight from the raw take."""
+    d, c = base_dur, cross
+    spatial = vfilter(project)
+    fc = (
+        f"[0:v]{spatial},fps={FPS},format=yuv420p,setpts=PTS-STARTPTS,split[a][b];"
+        f"[a]trim=0:{d - c:.3f},setpts=PTS-STARTPTS[hold];"
+        f"[b]trim={d - c:.3f}:{d:.3f},setpts=PTS-STARTPTS[end];"
+        f"[end][hold]xfade=transition=fade:duration={c:.3f}:offset=0[v]"
+    )
+    cmd = (
+        ["ffmpeg", "-y", "-ss", f"{ss:.3f}", "-t", f"{d:.3f}", "-i", raw,
+         "-filter_complex", fc, "-map", "[v]"]
+        + vp9_args(crf) + [out]
+    )
+    run(cmd)
+    log(f"    VP9 crf {crf} crossfade {c:.2f}s: {kb(out):.0f}KB "
+        f"({OUT_W}x{OUT_H}, loop {d - c:.2f}s)")
+
+
+def seam_first_last_diff(out):
+    """Verification (items 3 and 6): mean absolute pixel diff (0..255 per channel)
+    between the OUTPUT clip's first and last frame. For a seamless loop these are
+    near-adjacent in the source, so a slow clip reads close to zero; a large value
+    means a visible jump at the loop point."""
+    import numpy as np
+    from PIL import Image
+    with tempfile.TemporaryDirectory() as td:
+        first_png = os.path.join(td, "first.png")
+        last_png = os.path.join(td, "last.png")
+        run(["ffmpeg", "-y", "-i", out, "-frames:v", "1", first_png])
+        # -update over the last 0.3s leaves the true final frame in last_png.
+        run(["ffmpeg", "-y", "-sseof", "-0.3", "-i", out,
+             "-update", "1", "-frames:v", "1000", last_png])
+        a = np.asarray(Image.open(first_png).convert("RGB"), dtype=np.int16)
+        b = np.asarray(Image.open(last_png).convert("RGB"), dtype=np.int16)
+    return float(np.mean(np.abs(a - b)))
+
+
+def choose_head_ss(raw, keeper_offset, spatial, raw_dur):
+    """Round 4 verifier fix. Pick the crossfade HEAD start: the CROSSFADE_S window
+    in the FIRST part of the take that best matches the settled closing hold (the
+    tail) and is calm. CONTENT-BASED, not reliant on the recorded video timeline
+    aligning with the wall-clock keeper offset (it does not: Playwright records a
+    non-linear timeline, so the offset only seeds a wide search). The settled
+    opening composition matches the closing and is calm; load-in and tour frames do
+    not match. Returns ss (seconds)."""
+    import numpy as np
+    from PIL import Image
+    win = int(round(CROSSFADE_S * FPS))                       # 24 frames = 0.8s
+    # Wide search over the first part of the take: load + settle + warmup + opening
+    # hold + a little into the tour. Generous so it still contains the opening hold
+    # even when the offset is off by a couple of seconds.
+    s0 = 1.0
+    s1 = min(raw_dur * 0.5, keeper_offset + 4.0)
+    nreg = int(round((s1 - s0) * FPS)) + win + 2
+    with tempfile.TemporaryDirectory() as td:
+        patt = os.path.join(td, "h_%04d.png")
+        run(["ffmpeg", "-y", "-ss", f"{s0:.3f}", "-i", raw,
+             "-vf", f"{spatial},fps={FPS}", "-frames:v", str(nreg),
+             "-start_number", "0", patt])
+        files = sorted(glob.glob(os.path.join(td, "h_*.png")))
+        reg = [np.asarray(Image.open(f).convert("RGB").resize((320, 180)), dtype=np.int16)
+               for f in files]
+        tref = os.path.join(td, "tail.png")
+        run(["ffmpeg", "-y", "-ss", f"{raw_dur - TAIL_MARGIN_S - 0.4:.3f}", "-i", raw,
+             "-vf", spatial, "-frames:v", "1", tref])
+        tail = np.asarray(Image.open(tref).convert("RGB").resize((320, 180)), dtype=np.int16)
+    best_i, best_score = 0, None
+    for i in range(0, len(reg) - win):
+        internal = max(float(np.mean(np.abs(reg[i + k] - reg[i + k + 1])))
+                       for k in range(win))              # peak per-frame motion in window
+        match = float(np.mean(np.abs(reg[i + win // 2] - tail)))   # match to closing
+        # Match-dominant: locate the settled opening that looks like the closing,
+        # with a light calmness tiebreaker.
+        score = match + 0.4 * internal
+        if best_score is None or score < best_score:
+            best_i, best_score = i, score
+    ss = s0 + best_i / FPS
+    log(f"    head-anchor scan: ss={ss:.2f}s (region {s0:.2f}-{s1:.2f}s, "
+        f"match-score {best_score:.2f})")
+    return ss
 
 
 def make_poster(webm, poster):
     """Frame 0 of the processed clip as a jpg, 1280 wide, quality tuned under the
-    ~80KB budget (item 3)."""
+    ~80KB budget (item 5)."""
     chosen = None
     for q in (3, 4, 5, 6, 8, 10, 12, 15):
         run([
@@ -457,22 +531,35 @@ def process_one(project):
     if not os.path.exists(raw):
         raise FileNotFoundError(f"[{project['name']}] no raw take at {raw}; run capture first")
 
-    # End-anchor the trim: take the last clip_len seconds of the raw take (less
-    # a small tail margin), so the clip ends on the scripted closing hold and
-    # runs the full requested length regardless of recorded-timeline drift.
     raw_dur = probe_duration(raw)
-    dur = project["clip_len_s"]
-    ss = max(0.0, raw_dur - dur - TAIL_MARGIN_S)
     out = os.path.join(MEDIA_DIR, project["out"] + ".webm")
     poster = os.path.join(MEDIA_DIR, project["poster_out"] + ".jpg")
-
     crf = project.get("crf", DEFAULT_CRF)
-    log(f"[{project['name']}] encoding webm  (raw {raw_dur:.2f}s, ss={ss:.2f}s, len={dur:.1f}s, crf={crf})")
-    encode_webm_crf(raw, out, ss, dur, crf, project)
-    size = kb(out)
+
+    # All three clips are head-anchored crossfade loops (owner amendment, round 4):
+    # the base clip starts at the opening composition (choose_head_ss picks the
+    # window best matching the settled closing hold using the persisted keeper
+    # offset) and runs to the closing hold, so BOTH crossfade endpoints are the same
+    # composition and the dissolve reads clean. Length is whatever the tour recorded
+    # (kept inside ~10 to 20s by the scripted durations), not a fixed clip_len_s.
+    off_file = raw + ".offset"
+    if not os.path.exists(off_file):
+        raise FileNotFoundError(
+            f"[{project['name']}] no {off_file}; re-capture so the keeper offset "
+            f"is persisted for head-anchored processing")
+    with open(off_file) as fh:
+        keeper_offset = float(fh.read().strip())
+    ss = choose_head_ss(raw, keeper_offset, vfilter(project), raw_dur)
+    base = raw_dur - ss - TAIL_MARGIN_S
+    log(f"[{project['name']}] crossfade loop (raw {raw_dur:.2f}s, ss={ss:.2f}s, "
+        f"base={base:.2f}s -> loop {base - CROSSFADE_S:.2f}s, "
+        f"cross={CROSSFADE_S:.2f}s, crf {crf})")
+    encode_crossfade(raw, out, ss, base, crf, CROSSFADE_S, project)
+    seam = seam_first_last_diff(out)
     make_poster(out, poster)
-    log(f"[{project['name']}] done: {os.path.basename(out)} {size:.0f}KB, "
-        f"{os.path.basename(poster)} {kb(poster):.0f}KB")
+    log(f"[{project['name']}] done: {os.path.basename(out)} {kb(out):.0f}KB, "
+        f"{os.path.basename(poster)} {kb(poster):.0f}KB, "
+        f"crossfade seam first-vs-last {seam:.2f}")
 
 
 def main():

@@ -1,0 +1,192 @@
+{
+  "rows_discovered": [
+    {
+      "id": "",
+      "cls": "row",
+      "text": "01\n            Blackthorn & Co.\n        "
+    },
+    {
+      "id": "",
+      "cls": "row",
+      "text": "02\n            Barker & Bloom\n          "
+    },
+    {
+      "id": "",
+      "cls": "row",
+      "text": "03\n            Until the Last Star\n     "
+    },
+    {
+      "id": "",
+      "cls": "row",
+      "text": "04\n            About\n            \n      "
+    },
+    {
+      "id": "",
+      "cls": "row",
+      "text": "05\n            Pricing\n            \n    "
+    },
+    {
+      "id": "",
+      "cls": "row row--cta",
+      "text": "06\n            Get in touch\n            "
+    }
+  ],
+  "desktop_blackthorn_box_before": {
+    "w": 680,
+    "h": 650,
+    "x": 650,
+    "y": 160
+  },
+  "desktop_blackthorn_box_after": {
+    "w": 680,
+    "h": 650,
+    "x": 650,
+    "y": 160
+  },
+  "desktop_blackthorn_video_state": {
+    "paused": false,
+    "muted": true,
+    "loop": true,
+    "autoplay": true,
+    "preload": "none",
+    "currentTime": 1.105545,
+    "duration": 16.166,
+    "readyState": 4,
+    "currentSrc": "http://localhost:8322/media/blackthorn-preview.webm?v=12",
+    "videoWidth": 1280,
+    "videoHeight": 720
+  },
+  "desktop_blackthorn_scrub_remnant_delta_s": 0.12140200000000001,
+  "desktop_barker_box_before": {
+    "w": 680,
+    "h": 650,
+    "x": 650,
+    "y": 160
+  },
+  "desktop_barker_box_after": {
+    "w": 680,
+    "h": 650,
+    "x": 650,
+    "y": 160
+  },
+  "desktop_barker_video_state": {
+    "paused": false,
+    "muted": true,
+    "loop": true,
+    "autoplay": true,
+    "preload": "none",
+    "currentTime": 1.118834,
+    "duration": 16.133,
+    "readyState": 4,
+    "currentSrc": "http://localhost:8322/media/barker-bloom-preview.webm?v=12",
+    "videoWidth": 1280,
+    "videoHeight": 720
+  },
+  "desktop_barker_scrub_remnant_delta_s": 0.108514,
+  "desktop_star_box_before": {
+    "w": 680,
+    "h": 650,
+    "x": 650,
+    "y": 160
+  },
+  "desktop_star_box_after": {
+    "w": 680,
+    "h": 650,
+    "x": 650,
+    "y": 160
+  },
+  "desktop_star_video_state": {
+    "paused": false,
+    "muted": true,
+    "loop": true,
+    "autoplay": true,
+    "preload": "none",
+    "currentTime": 1.149312,
+    "duration": 17.166,
+    "readyState": 4,
+    "currentSrc": "http://localhost:8322/media/until-the-last-star-preview.webm?v=12",
+    "videoWidth": 1280,
+    "videoHeight": 720
+  },
+  "desktop_star_scrub_remnant_delta_s": 0.12268699999999999,
+  "desktop_console_errors": [],
+  "mobile_blackthorn_box_before": {
+    "w": 268,
+    "h": 133,
+    "x": 46,
+    "y": 120.4375
+  },
+  "mobile_blackthorn_box_after": {
+    "w": 268,
+    "h": 133,
+    "x": 46,
+    "y": 86.4375
+  },
+  "mobile_blackthorn_video_state": {
+    "paused": false,
+    "muted": true,
+    "loop": true,
+    "autoplay": true,
+    "preload": "none",
+    "currentTime": 1.074264,
+    "duration": 16.166,
+    "readyState": 4,
+    "currentSrc": "http://localhost:8322/media/blackthorn-preview.webm?v=12",
+    "videoWidth": 1280,
+    "videoHeight": 720
+  },
+  "mobile_blackthorn_scrub_remnant_delta_s": 0.0838810000000001,
+  "mobile_barker_box_before": {
+    "w": 268,
+    "h": 133,
+    "x": 46,
+    "y": 119.4375
+  },
+  "mobile_barker_box_after": {
+    "w": 268,
+    "h": 133,
+    "x": 46,
+    "y": 85.4375
+  },
+  "mobile_barker_video_state": {
+    "paused": false,
+    "muted": true,
+    "loop": true,
+    "autoplay": true,
+    "preload": "none",
+    "currentTime": 1.08971,
+    "duration": 16.133,
+    "readyState": 4,
+    "currentSrc": "http://localhost:8322/media/barker-bloom-preview.webm?v=12",
+    "videoWidth": 1280,
+    "videoHeight": 720
+  },
+  "mobile_barker_scrub_remnant_delta_s": 0.0864720000000001,
+  "mobile_star_box_before": {
+    "w": 268,
+    "h": 133,
+    "x": 46,
+    "y": 110.4375
+  },
+  "mobile_star_box_after": {
+    "w": 268,
+    "h": 133,
+    "x": 46,
+    "y": 85.4375
+  },
+  "mobile_star_video_state": {
+    "paused": false,
+    "muted": true,
+    "loop": true,
+    "autoplay": true,
+    "preload": "none",
+    "currentTime": 1.083654,
+    "duration": 17.166,
+    "readyState": 4,
+    "currentSrc": "http://localhost:8322/media/until-the-last-star-preview.webm?v=12",
+    "videoWidth": 1280,
+    "videoHeight": 720
+  },
+  "mobile_star_scrub_remnant_delta_s": 0.09915999999999991,
+  "mobile_console_errors": []
+}

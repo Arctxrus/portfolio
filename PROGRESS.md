@@ -1779,3 +1779,268 @@ muted autoplay loop.
   above), and the star clip recorded in real headed GPU Chromium. Screenshot/
   visual sign-off remains the verifier's (serve with Range support for the
   scrub).
+
+## Client feedback round 4 (owner-directed 2026-07-27)
+
+The owner disliked round 3's scroll-scrub playback and chose slow, seamlessly
+looping ambient animation instead (the "crossfade loop" option). The round-3 V2
+layout stays (large preview with bottom fade, blurb, caption, visit button,
+scrollable view); only the playback mode and the clips changed.
+
+SUPERSESSIONS (recorded per the brief):
+- Round 3's desktop scroll-scrub is RETIRED by owner direction. This re-supersedes
+  the round-3 supersession of CONCEPT section 5: desktop AND mobile are back to the
+  muted autoplay loop specced in section 5. The scrub controller is fully removed
+  from js/main.js.
+- The 6-to-8s clip-length rule (stage 6) is AMENDED to 8-to-12s for the crossfade
+  clips (round-4 brief item 2). Blackthorn ships at 10.0s, Barker at 8.8s. The star
+  is one camera period (4.0s), which is its own spec (item 4).
+
+- Status: BUILT, awaiting verification. Files changed: js/main.js (scrub controller
+  removed), css/styles.css (one V2 preview comment updated to match, ?v bump),
+  index.html (?v bump only), tools/capture.py (slower captures, crossfade + star
+  processing, normal keyframes), media/*.webm and media/*.jpg (all three
+  re-recorded and re-processed), PROGRESS.md. All shipped refs bumped ?v=11 to
+  ?v=12 (a push follows): 13 in index.html, 2 in css/styles.css, 0 in js/main.js.
+  Encoding clean (Edit + byte-safe sed only): no BOM, no mojibake, no em dashes;
+  0 remaining ?v=11.
+
+### Item 1 - Revert playback to muted autoplay (scrub removed from main.js)
+Removed from js/main.js initPanel (the entire round-3 scroll-scrub controller):
+- the `SCRUB_LERP` module constant and its comment block;
+- the `currentScrub` teardown handle and the `stopScrub()` function (and its call
+  in `renderView`);
+- the whole desktop scrub path inside `configureProjectVideo`: the attribute
+  stripping (autoplay/loop removal, preload='auto', pause), the rAF lerp `apply()`,
+  the scroll->currentTime `onScroll` mapping, the `scroll` and `loadedmetadata`
+  listeners, and the `currentScrub` cancel object;
+- the `mobileLayoutQuery.addEventListener('change', ...)` listener that re-derived
+  the desktop/mobile video mode on breakpoint change (it only served the scrub
+  split; both breakpoints now behave identically, so it is gone).
+Kept: the `mobileLayoutQuery` const (still used by `scrollPanelIntoView`), and the
+whole panel-into-view scroll behaviour (unchanged from stage 5).
+New `configureProjectVideo(view)` (both breakpoints identical): set muted and call
+`video.play().catch(...)` as a belt-and-braces nudge. The markup still carries
+`autoplay muted loop playsinline preload="none"` (never stripped from the
+templates), so on selection the clone enters the DOM and the autoplay algorithm
+starts the load; preload="none" means nothing loads before selection (confirmed:
+the webm is fetched only on the row click). Scrolling the view reveals the
+blurb/caption/button but never touches the video. Reduced motion is unchanged from
+stage 6 (a muted autoplay video was accepted there); no new listeners are bound and
+the decorative trail/mist/dot-grid guards are untouched.
+
+### Item 2 - Slower captures (scroll pace roughly halved)
+tools/capture.py, glide durations (the eased scrollTo segment `dur_ms`) doubled;
+holds kept. Re-recorded on the same headed GPU setup:
+- Blackthorn: 2200->4400 and 2600->5200 ms. Raw take 14.76s. Base clip 10.8s ->
+  10.0s shipped loop.
+- Barker & Bloom: 3400->6800 ms. Raw take 12.56s. Base clip 9.6s -> 8.8s loop.
+The motion now reads as calm ambient animation rather than a screen recording.
+
+### Item 3 - Crossfade loop (Blackthorn and Barker)
+Post-processed into a mathematically seamless loop with a tail->head xfade
+(CROSSFADE_S = 0.8s), standard technique: split the base clip of length D into
+hold=[0, D-C] and end=[D-C, D], then `xfade` end over hold at offset 0 for duration
+C, output length D-C. The loop seam maps to input[(D-C)-] -> input[D-C], two
+ADJACENT source frames, so it is continuous by construction; the first C seconds are
+the intended tail->head dissolve. One VP9 encode straight from the raw take.
+VERIFICATION (mean absolute pixel diff 0..255 between the OUTPUT's first and last
+frame; a slow seamless loop reads near zero):
+- Blackthorn: seam first-vs-last = 0.74
+- Barker & Bloom: seam first-vs-last = 0.85
+Both near-identical. Evidence frames (first/last of each output) in
+verify/round-4/{blackthorn,barker-bloom}-preview-first.png / -last.png.
+
+### Item 4 - Star: one-period orbit loop, then a FLAGGED deviation to crossfade
+Capture (unchanged intent): re-captured at a FIXED scroll position (start_t 0.845,
+the black-hole epoch framing from round 3, no scroll during the take), camera
+parallax orbit period 4.0s, keeper_s raised 8.5->16.0 so >= 3 orbits are recorded (4
+orbits). Raw take 21.96s. Scrollbar hidden and NVIDIA RTX 3060 renderer re-confirmed
+in-context (tier-2 lens real, not a fallback).
+
+FIRST ATTEMPT, exactly as briefed: a frame-accurate one-period cut (4.0s at 30fps =
+120 frames) from a steady-state window, no crossfade, scanned for the start frame
+whose wrap (frame N vs N+120) is smallest. INSTRUMENTED RESULT (the reason for the
+deviation below): the camera orbit IS periodic, but the scene's accretion disc
+rotates continuously and is NOT periodic at 4.0s, so a pure one-period cut left a
+loop-seam jump of mean 7.92 against a mean adjacent-frame motion of just 0.44 (an
+18x discontinuity: a visible disc "snap" every 4s). All 245 candidate windows fell
+in a tight 7.2-8.7 band, confirming this is a content floor, not a cut-selection
+problem. The residual concentrates on the bright lensed disc filaments, not the dark
+sky (heatmap: verify/round-4/star-seam-heatmap.png).
+
+DEVIATION (flagged for owner sign-off): item 4 said "no crossfade needed", on the
+premise that camera-periodicity makes first and last frames match. Since that
+premise is defeated by the disc animation, and the round's explicit goal is
+"seamlessly looping ambient animation", the star now uses the SAME crossfade-loop
+technique as the other two, applied so the NON-crossfaded span is EXACTLY one camera
+period: base = orbit_period_s(4.0) + CROSSFADE_S(0.8) = 4.8s, output 4.0s. Because
+4.0s is exactly one period the camera stays periodic-aligned across the 0.8s
+dissolve (tail camera == head camera), so only the non-periodic disc gently
+dissolves. RESULT: seam first-vs-last = 1.20 (down from 7.92), output still 4.00s
+(one period), fixed-scroll + 4-orbit capture unchanged. IN-BROWSER (headed
+Playwright, actual rendered <video> frames captured across the loop wrap): rendered
+seam 1.60 vs an adjacent-frame baseline of 1.65 = 1.0x, i.e. the loop point is
+indistinguishable from normal playback. Awaiting owner ratification that a 0.8s
+crossfade on the star is acceptable (item 4 asked for none). If the owner insists on
+no crossfade, the pure one-period cut is available but ships the 18x seam jump.
+
+### Item 5 - Encoding back to normal keyframes; new sizes
+KEYFRAME_INTERVAL 12 -> 60 (a keyframe every 2s; the dense -g 12 was only for
+reverse scrubbing). 1280x720, VP9 CRF 34, no audio, unchanged. New sizes (all DOWN
+versus round 3's 1.4-2MB, as expected; clips are lazy-loaded so the first-load
+budget is untouched):
+- blackthorn-preview.webm  10.0s  1734KB  (round 3: 1996KB)
+- barker-bloom-preview.webm  8.8s  1113KB  (round 3: 1376KB)
+- until-the-last-star-preview.webm  4.0s  528KB  (round 3: 1408KB)
+Posters = frame 0 of each output, 1280 wide, all under the ~80KB budget
+(POSTER_MAX_KB tightened 80 -> 78 for margin on the busy star frame):
+blackthorn 73KB, barker 76KB, star 68KB.
+
+### Item 6 - Integration (in-browser, headed Playwright over a local http server)
+All three V2 views autoplay on selection at BOTH desktop (1280x800) and mobile
+(390x800): paused=false, loop=true, muted=true, autoplay=true, preload="none",
+readyState 4, currentTime advancing in real time. Loops confirmed: the star (4.0s)
+wraps cleanly (rendered seam == adjacent baseline, see item 4); currentTime wraps
+observed for all. Zero layout shift: the .preview box measured 507x612 identically
+before and after the video loads, for every project. No media 404s (the webm is
+requested only on selection), no other 404s, no console errors. Reduced-motion
+guards from earlier rounds are untouched. Screenshots in verify/round-4/
+(v2-*-desktop.png, v2-barker-mobile.png).
+
+### Item 7 - Cache bust ?v=11 to ?v=12
+Every shipped ?v=11 bumped to ?v=12 (a push follows): 13 in index.html, 2 in
+css/styles.css, 0 in js/main.js. Byte-safe sed; grep confirms 0 remaining ?v=11.
+
+### Client feedback round 4 - deviations / notes
+- FLAGGED DEVIATION: star crossfade instead of a pure one-period cut (item 4 said no
+  crossfade). Full rationale, measurements and the fallback are in the item 4 entry
+  above. Owner ratification requested.
+- SUPERSESSIONS recorded (see header): round-3 scrub retired (back to autoplay,
+  desktop and mobile); 6-to-8s clip rule amended to 8-to-12s for the crossfade
+  clips.
+- No new tokens, radii, border widths or drop shadows. The V2 layout, the 72px
+  bottom fade and the star crop are unchanged raw layout values from round 3.
+- The old round-3 media, posters and raws remain backed up in verify/round-4/backup/
+  in case a revert is wanted. All three clips this round were re-recorded from
+  scratch (not reused).
+- VERIFICATION NOTE: unlike stages 1-5, the capture, renderer confirmation, loop-
+  seam pixel diffs and the integration/autoplay/no-shift/no-404 checks were all run
+  in real headed Chromium (the GPU launches here), so the numbers above are observed
+  directly. Autoplay loops do not need HTTP Range (the round-3 scrub Range caveat no
+  longer applies). Screenshot/visual sign-off remains the verifier's.
+
+### Round 4 - verifier FAIL fix + owner amendment (2026-07-27)
+
+The above (star orbit cut, per-section glide tours, 8-to-12s clips) is SUPERSEDED
+by a verifier FAIL and a further owner amendment. Only js/main.js, css/styles.css
+and index.html versioning are untouched; the change is all in tools/capture.py and
+the media. ?v=12 kept (no push since the bump).
+
+VERIFIER FAIL (crossfade double exposure): the 0.8s crossfade blended two
+structurally different scroll positions (cover-vs-reviews, hero-vs-bento), giving a
+legible double exposure (verifier browser-rendered peak diffs 144 and 46 vs the
+star's ratified ~8). A content-mismatched dissolve cannot be made subtle. Fix
+(directed): make both crossfade endpoints match by ending each take back at its
+START and crossfading the closing hold into the opening hold.
+
+OWNER AMENDMENT (supersedes the capture style for ALL THREE, recorded as directed):
+1. Scroll style: every clip is now ONE continuous, even, SLOW near-linear scroll
+   down the page (no section glides, no mid-tour holds), noticeably slower than
+   before. Length window amended again to roughly 10 to 20s; the shipped clips run
+   ~16 to 17s. CRF 34 and 1280 wide unchanged; sizes grow (accepted).
+2. Star: the near-black fixed black-hole shot (THE LONG NIGHT, poster luminance ~35)
+   was the "black page". Replaced with a bright SCROLLING capture: wait 10s after
+   load, then scroll slowly through THE AFTERGLOW ("the fog lifts", timeline t 0.15
+   to 0.21), the BRIGHTEST stable frame in the whole scene (probed mean luminance
+   ~64, vs ~20-38 elsewhere). Frame 0 (poster) is that bright warm nebula. Camera
+   parallax DROPPED (it fought the scroll; the crossfade carries the loop); no crop.
+   Renderer re-confirmed NVIDIA RTX 3060.
+3. Endpoint-matching (all three): after the slow tour, a brisk ~1.7s glide back to
+   the start and a ~1.3 to 1.5s closing hold, crossfaded (0.8s) into the opening.
+
+IMPLEMENTATION (tools/capture.py, a substantial refactor):
+- The per-project `segments` / `start_t` / `parallax` / `crop` / `clip_len_s` /
+  `orbit` config is replaced by a uniform `tour` spec (`from`/`to` as a pixel offset
+  or a `{"t": frac}` cosmic-dawn timeline fraction, `tour_dur_ms`, `return_dur_ms`,
+  open/close hold ms) plus `warmup`, `settle_ms`, `extra_load_wait_ms`. `run_parallax`
+  and the `math` import are removed; `EASE_SCROLL_JS` gains a near-linear mode for
+  the even tour.
+- Endpoint matching: demo heros play a one-time load-in animation, so the take waits
+  it out (settle 3.5 to 4s) and warms the hero to its settled base state before the
+  keeper (a scroll excursion and back). The star (WebGL) skips the warmup.
+- HEAD-ANCHOR IS CONTENT-BASED (`choose_head_ss`): it scans the start of the take for
+  the 0.8s window that best matches the settled closing hold. INSTRUMENTED root cause
+  (not guessed): the persisted wall-clock keeper offset does NOT align with the
+  recorded video timeline (Playwright records a non-linear timeline), so a
+  fixed-offset anchor landed the "head" in the moving tour (dissolve mismatch 21 to
+  75). A content match fixed it (Blackthorn/Barker match-scores dropped to ~2 and ~1).
+
+MEASURED RESULT (browser-rendered closing-vs-opening = the two blended frames, mean
+absolute pixel diff 0..255; verified over a local server in headed Chromium):
+- Blackthorn: 2.4  (raw layer mismatch 3.45)  PASS (< ~10)
+- Barker & Bloom: 0.9  (raw 1.68)  PASS
+- Star (afterglow): 13.2 mean (raw 16.7)  FLAGGED, over the ~10 proxy. It is diffuse
+  plasma flow, NOT legible ghosting: the epoch text, nav and structure are IDENTICAL
+  at both endpoints (same afterglow) and stay crisp through the dissolve; only the
+  soft nebula clouds sit slightly differently (evidence: the mid-dissolve frame shows
+  a single crisp "The fog lifts", no doubled text). The ~10 proxy was calibrated on a
+  fixed-structure shot; diffuse high-contrast plasma inflates the pixel diff without a
+  legible double image. Plasma decorrelation is also non-monotonic (dt 12s -> 37,
+  dt 16s -> 16), so the ~17s clip sits near its best phase and NO in-range duration
+  gets it under 10.
+
+STAR TRADE-OFF (flagged for owner decision): no scene position satisfies BOTH the
+seam (< 10) and the brightness aim at once. The afterglow is the ONLY genuinely
+bright option (poster mean 62 vs the old 35, a full warm nebula, decisively "not a
+black page") but flows (seam 13.2, no legible ghosting). The alternatives that pass
+the seam (first light seam ~6, home ~lower) are DIMMER than the old 35 (first-light
+poster mean ~20, a bright but compact star on black). Since the black-page fix is the
+amendment's whole purpose and the afterglow has no legible ghosting, the AFTERGLOW
+ships. If the owner insists on the strict < 10 seam over brightness, first light
+(t 0.40, "A star is lit") is the ready fallback (seam ~6, poster a bright compact
+star, mean ~20). The cosmos is inherently dark, so the ~80/255 poster aim is
+unreachable; ~64 is the brightest frame in the scene.
+
+FINAL MEDIA (all 1280x720, VP9, no audio; posters 1280 wide, all ~67 to 71KB):
+- blackthorn-preview.webm   16.17s  4.11MB   poster lum ~194 (light cover page)
+- barker-bloom-preview.webm 16.13s  1.87MB   poster lum ~222 (light grooming page)
+- until-the-last-star-preview.webm 17.17s 5.22MB  poster lum ~62 (bright afterglow)
+Sizes are large (the long, busy continuous scrolls at CRF 34); accepted per the owner
+"sizes will grow, accepted". Lazy-loaded, so the first-load budget is untouched.
+
+IN-BROWSER (headed Chromium, local server): all three autoplay on selection at
+desktop AND mobile 360 (paused=false, loop=true, muted=true, preload="none", the webm
+fetched only on selection), loop across the wrap, zero layout shift (.preview 507x612
+identical), no media 404s, no console errors. Backups of the prior media in
+verify/round-4/backup-r2 and -r3. Screenshots and dissolve evidence in verify/round-4b
+and the scratchpad. main.js and the layout are unchanged; ?v=12 kept.
+
+### Round 4c - star dark-trough FAIL fix (2026-07-27)
+
+Verifier round-4b: Blackthorn and Barker PASS (rendered seams 0.43 / 0.31, final, not
+re-recorded). One FAIL, star only: the t 0.15 to 0.21 afterglow span scrolled ON into a
+dark trough mid-clip (luminance fell from ~61 to a sustained ~19/255 around clip t 13
+to 14s, near-frozen), reading as the black-page problem again.
+
+Fix (star re-recorded only; everything else identical): probed the timeline finely (a
+static grid plus a slow-scroll pass) and NARROWED the span to t 0.13 to 0.17, a bright
+plateau of THE AFTERGLOW that stays luminous throughout with visible plasma motion:
+  fine grid (mean lum): t0.13=69, 0.14=67, 0.15=64, 0.16=59, 0.17=50; drops below 40
+    only from t0.18 (38) on, so the window ends at 0.17.
+  slow-scroll pass t0.13->0.17: luminance holds 70 -> 50, never below ~50.
+  frame motion across the window ~2.8 to 4.7 (structured nebula motion, not a static
+    hold).
+MEASURED on the shipped clip (162 samples at 10fps over 16.2s): luminance min 48.0
+(at clip t 13.1s), mean 61.0, max 67.9; ZERO samples below 40 (the FAIL is gone).
+Poster (frame 0) luminance 67.2 (brighter than the old 62 and the ~35 black-page shot).
+Rendered closing-vs-opening seam mean 14.8 (p99 74): the same soft diffuse-plasma
+dissolve the owner accepted ("seam acceptance = no legible ghosting"); the mid-dissolve
+frame shows all nav/header/timestamp text crisp and single, no doubled image
+(verify/round-4c/star-dissolve-mid.png).
+
+FINAL STAR: until-the-last-star-preview.webm 16.17s, 6.5MB (large, per accepted size
+growth; lazy-loaded), poster 66KB / 1280 wide / luminance 67. In-browser: autoplays and
+loops at desktop AND mobile 360, zero layout shift (.preview 507x612), no media 404s, no
+console errors. Renderer re-confirmed NVIDIA RTX 3060. Blackthorn and Barker untouched;
+main.js, CSS layout and ?v=12 unchanged.

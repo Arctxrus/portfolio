@@ -1,0 +1,23 @@
+{
+  "keyboard": {
+    "active_before": "row",
+    "aria_live_text": "Preview / Blackthorn & Co.",
+    "aria_pressed_after_enter": "true",
+    "focus_retained_on_row": true
+  },
+  "focus_visible_style_via_pseudo_query": {
+    "outline": "",
+    "boxShadow": ""
+  },
+  "cta_style": {
+    "border": "0px none rgb(20, 20, 22)",
+    "boxShadow": "rgba(255, 255, 255, 0.62) 0px 0px 0px 1px inset, rgba(255, 255, 255, 0.85) 0px 1"
+  },
+  "form_field_names": [
+    "name",
+    "business",
+    "message"
+  ],
+  "form_success_message": "Something broke. Email me directly at hello@placeholder.invalid.Try again",
+  "prefers_reduced_motion_matches_normal_page": false
+}

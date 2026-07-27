@@ -1,0 +1,46 @@
+{
+  "duration": 16.166,
+  "frames": [
+    {
+      "i": 0,
+      "currentTime": 14.621107,
+      "elapsed": 0.406
+    },
+    {
+      "i": 1,
+      "currentTime": 15.140283,
+      "elapsed": 0.785
+    },
+    {
+      "i": 2,
+      "currentTime": 15.518967,
+      "elapsed": 1.222
+    },
+    {
+      "i": 3,
+      "currentTime": 15.959927,
+      "elapsed": 1.669
+    },
+    {
+      "i": 4,
+      "currentTime": 0.203148,
+      "elapsed": 2.167
+    },
+    {
+      "i": 5,
+      "currentTime": 0.704688,
+      "elapsed": 2.614
+    },
+    {
+      "i": 6,
+      "currentTime": 1.152574,
+      "elapsed": 3.056
+    },
+    {
+      "i": 7,
+      "currentTime": 1.58861,
+      "elapsed": 3.473
+    }
+  ],
+  "console": []
+}

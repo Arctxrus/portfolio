@@ -1,0 +1,130 @@
+{
+  "desktop": {
+    "Blackthorn & Co.": {
+      "attrs": {
+        "src": "http://localhost:8017/media/blackthorn-preview.webm?v=12",
+        "paused": false,
+        "muted": true,
+        "loop": true,
+        "autoplay": true,
+        "playsInline": true,
+        "preload": "none",
+        "readyState": 4,
+        "duration": 10,
+        "currentTime": 0.247436
+      },
+      "currentTime_after_300ms": 0.573639,
+      "advancing": true
+    },
+    "Barker & Bloom": {
+      "attrs": {
+        "src": "http://localhost:8017/media/barker-bloom-preview.webm?v=12",
+        "paused": false,
+        "muted": true,
+        "loop": true,
+        "autoplay": true,
+        "playsInline": true,
+        "preload": "none",
+        "readyState": 4,
+        "duration": 8.8,
+        "currentTime": 0.288333
+      },
+      "currentTime_after_300ms": 0.611807,
+      "advancing": true
+    },
+    "Until the Last Star": {
+      "attrs": {
+        "src": "http://localhost:8017/media/until-the-last-star-preview.webm?v=12",
+        "paused": false,
+        "muted": true,
+        "loop": true,
+        "autoplay": true,
+        "playsInline": true,
+        "preload": "none",
+        "readyState": 4,
+        "duration": 4,
+        "currentTime": 0.29422
+      },
+      "currentTime_after_300ms": 0.60985,
+      "advancing": true
+    }
+  },
+  "mobile": {
+    "blackthorn": {
+      "attrs": {
+        "paused": false,
+        "muted": true,
+        "loop": true,
+        "autoplay": true,
+        "playsInline": true,
+        "preload": "none",
+        "currentTime": 0.320973
+      },
+      "currentTime_after_300ms": 0.642501,
+      "advancing": true
+    },
+    "barker-bloom": {
+      "attrs": {
+        "paused": false,
+        "muted": true,
+        "loop": true,
+        "autoplay": true,
+        "playsInline": true,
+        "preload": "none",
+        "currentTime": 0.352889
+      },
+      "currentTime_after_300ms": 0.684247,
+      "advancing": true
+    },
+    "until-the-last-star": {
+      "attrs": {
+        "paused": false,
+        "muted": true,
+        "loop": true,
+        "autoplay": true,
+        "playsInline": true,
+        "preload": "none",
+        "currentTime": 0.308585
+      },
+      "currentTime_after_300ms": 0.668602,
+      "advancing": true
+    }
+  },
+  "media_requested_before_selection": [],
+  "first_load_transfer_bytes_excl_webm": 151924,
+  "scroll_independence": {
+    "pre_scroll_currentTime": 0.188247,
+    "immediately_after_scroll": 0.267972,
+    "500ms_after_scroll": 0.78865,
+    "still_advancing_normally": true
+  },
+  "visit_button_reachable": {
+    "1440x900": {
+      "x": 649,
+      "y": 775.3125,
+      "width": 158.734375,
+      "height": 36
+    },
+    "1280x720": {
+      "x": 649,
+      "y": 595.3125,
+      "width": 158.734375,
+      "height": 36
+    },
+    "1280x620": {
+      "x": 649,
+      "y": 735.3125,
+      "width": 158.734375,
+      "height": 36
+    }
+  },
+  "scroll_listener_adds_over_12_switches": 0,
+  "console_errors_after_repeated_switching": [],
+  "mobile_console_errors": [],
+  "reduced_motion_video": {
+    "paused": false,
+    "muted": true,
+    "loop": true,
+    "autoplay": true
+  }
+}

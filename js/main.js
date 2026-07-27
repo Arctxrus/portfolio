@@ -7,6 +7,8 @@
             sync, aria-live announcement, contact-form submit stub).
    Stage 4: contact form wiring (Formspree fetch, success/failure states,
             honeypot, native + trim validation, in-flight guard, aria).
+   Round 4: project previews reverted to muted autoplay loop (the round-3
+            scroll-scrub controller is retired by owner direction).
    Vanilla JS only. UK English. No em dashes.
    ========================================================================== */
 
@@ -353,16 +355,6 @@ function initFadeIn() {
 
 const SWAP_HALF = 130;   /* ms: out phase; the in phase mirrors it (260 total) */
 
-/* Client feedback round 3 (item 2): desktop project previews are scroll-scrubbed.
-   The view's scroll progress drives video.currentTime with a small rAF lerp so
-   the scrub feels smooth (about 18% of the remaining gap closed per frame, inside
-   the briefed 15 to 20%). Under reduced motion the currentTime snaps to the
-   scroll target with no rAF (scrubbing is user-driven and allowed, but no
-   autonomous smoothing animation runs). Mobile (below 900px) keeps the muted
-   autoplay loop. Attributes are managed in JS per breakpoint on the same cloned
-   <video> element (see configureProjectVideo in initPanel). */
-const SCRUB_LERP = 0.18;
-
 /* Panel-into-view scroll (CONCEPT.md section 8). After a selection on mobile the
    panel header must be on screen. The test is on the panel's top edge, measured
    in px and independent of viewport height. A visible-fraction test does not
@@ -411,112 +403,28 @@ function initPanel() {
 
   let currentView = null;   /* V1 welcome is showing; no view key yet. */
   let swapTimer = 0;
-  let currentScrub = null;  /* teardown handle for the shown desktop scrub */
 
-  /* Tear down any active scroll-scrub (its scroll listener, rAF and metadata
-     handler) before the view is replaced or reconfigured. */
-  function stopScrub() {
-    if (currentScrub) {
-      currentScrub.cancel();
-      currentScrub = null;
-    }
-  }
-
-  /* Client feedback round 3 (item 2). Per-breakpoint video behaviour, managed in
-     JS on the same cloned <video> element (two code paths, one element):
-     - Mobile (below 900px, no internal scroll): muted autoplay loop, unchanged.
-     - Desktop: no autonomous playback. Strip autoplay/loop, preload the frames
-       for smooth seeking, and drive currentTime from the view's scroll position.
-       progress = scrollTop / (scrollHeight - clientHeight) maps to the duration.
-       Normal motion eases currentTime toward that target via a rAF lerp; reduced
-       motion snaps it (no rAF). The poster (frame 0) shows until the first scroll.
-     The view is re-configured if the breakpoint changes while it is open. */
+  /* Client feedback round 4 (owner-directed): the round-3 scroll-scrub playback
+     is RETIRED. Desktop and mobile both return to the muted autoplay loop specced
+     in CONCEPT section 5. The clips are now slow, seamlessly looping ambient
+     captures, so a plain muted loop reads as calm animation, not a screen
+     recording. The markup carries autoplay/muted/loop/playsinline/preload="none";
+     on selection the element enters the DOM and the autoplay algorithm starts the
+     load. The play() nudge is belt and braces so a freshly cloned element starts
+     reliably (it is muted, so autoplay is permitted). Scrolling the view reveals
+     the blurb, caption and visit button but never touches the video. Under reduced
+     motion this is unchanged from stage 6, where a muted autoplay video was
+     accepted. */
   function configureProjectVideo(view) {
     const video = view.querySelector('.preview-video');
     if (!video) {
       return;
     }
-
-    if (mobileLayoutQuery.matches) {
-      /* Mobile: restore the muted autoplay loop on this element. */
-      video.autoplay = true;
-      video.loop = true;
-      video.muted = true;
-      video.setAttribute('autoplay', '');
-      video.setAttribute('loop', '');
-      const play = video.play();
-      if (play && play.catch) {
-        play.catch(function () {});
-      }
-      return;
-    }
-
-    /* Desktop: scroll-scrub. No autoplay, no loop, load frames for seeking. */
-    video.autoplay = false;
-    video.loop = false;
-    video.removeAttribute('autoplay');
-    video.removeAttribute('loop');
     video.muted = true;
-    video.preload = 'auto';
-    video.pause();
-
-    const reduced = prefersReducedMotion();
-    let target = 0;
-    let cur = 0;
-    let rafId = 0;
-    let looping = false;
-
-    function apply() {
-      const d = video.duration;
-      if (!isFinite(d) || d <= 0) {
-        looping = false;
-        return;
-      }
-      const diff = target - cur;
-      if (Math.abs(diff) < 0.01) {
-        cur = target;
-        try { video.currentTime = cur; } catch (e) { /* not seekable yet */ }
-        looping = false;
-        return;
-      }
-      cur += diff * SCRUB_LERP;
-      try { video.currentTime = cur; } catch (e) { /* not seekable yet */ }
-      rafId = window.requestAnimationFrame(apply);
+    const play = video.play();
+    if (play && play.catch) {
+      play.catch(function () {});
     }
-
-    function onScroll() {
-      const denom = view.scrollHeight - view.clientHeight;
-      const progress = denom > 0 ? view.scrollTop / denom : 0;
-      const d = video.duration;
-      if (!isFinite(d) || d <= 0) {
-        return;   /* metadata not ready: poster stays until it can seek */
-      }
-      target = Math.max(0, Math.min(1, progress)) * d;
-      if (reduced) {
-        cur = target;
-        try { video.currentTime = target; } catch (e) { /* not seekable yet */ }
-        return;   /* snap, no rAF: no autonomous motion under reduced motion */
-      }
-      if (!looping) {
-        looping = true;
-        rafId = window.requestAnimationFrame(apply);
-      }
-    }
-
-    view.addEventListener('scroll', onScroll, { passive: true });
-    /* If the user scrolled before metadata arrived, catch up once it is ready. */
-    video.addEventListener('loadedmetadata', onScroll);
-
-    currentScrub = {
-      cancel: function () {
-        view.removeEventListener('scroll', onScroll);
-        video.removeEventListener('loadedmetadata', onScroll);
-        if (rafId) {
-          window.cancelAnimationFrame(rafId);
-        }
-        looping = false;
-      }
-    };
   }
 
   function renderView(viewKey) {
@@ -524,7 +432,6 @@ function initPanel() {
     if (!tpl) {
       return;
     }
-    stopScrub();   /* remove the previous view's scrub before it is detached */
     panelBody.replaceChildren(tpl.content.cloneNode(true));
 
     /* Inject the Formspree endpoint into the freshly cloned form (single
@@ -536,7 +443,7 @@ function initPanel() {
       }
     }
 
-    /* Project views (V2) carry the scroll-scrub / autoplay video (item 2). */
+    /* Project views (V2) carry the muted autoplay loop video (round 4). */
     const projView = panelBody.querySelector('.view--project');
     if (projView) {
       configureProjectVideo(projView);
@@ -639,18 +546,6 @@ function initPanel() {
     row.addEventListener('click', function () {
       select(row);
     });
-  });
-
-  /* Client feedback round 3 (item 2): if the viewport crosses the 900px
-     breakpoint while a project view is open, re-configure the video for the new
-     mode (desktop scrub <-> mobile autoplay). The view element is unchanged, so
-     only its behaviour and attributes are re-derived. */
-  mobileLayoutQuery.addEventListener('change', function () {
-    const projView = panelBody.querySelector('.view--project');
-    if (projView) {
-      stopScrub();
-      configureProjectVideo(projView);
-    }
   });
 }
 

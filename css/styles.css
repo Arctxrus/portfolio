@@ -33,7 +33,7 @@
   font-weight: 400 600;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/archivo-latin-var.woff2?v=11') format('woff2');
+  src: url('../fonts/archivo-latin-var.woff2?v=12') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -43,7 +43,7 @@
   font-weight: 300 500;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/martian-mono-latin-var.woff2?v=11') format('woff2');
+  src: url('../fonts/martian-mono-latin-var.woff2?v=12') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -1047,16 +1047,13 @@ a {
    no hard-coded colour: the mask uses opaque/transparent sentinels only). */
 .view--project .preview {
   flex: 0 0 auto;
-  /* Client feedback round 3 (item 2): the desktop preview is now scroll-scrubbed
-     (js/main.js maps the view's scroll progress to video.currentTime). It fills
-     the visible panel (height 100% of the view content box) so at rest only the
-     preview shows and the copy below (title, sub, blurb, caption, visit) sits
-     under the fold. That copy is the scroll track: scrolling it reveals the copy
-     AND scrubs the video, giving a few hundred px of scrub range at every desktop
-     panel height (measured ~300 to 360px at 1440x900, 1280x720 and 1280x620).
-     Using 100% (not a fixed px) keeps the track present on tall desktops too,
-     where a fixed height would fit inside the panel and leave nothing to scroll.
-     The bottom fade stays as the "more below" cue. */
+  /* Client feedback round 4 (owner-directed): the round-3 scroll-scrub is retired,
+     but this round-2 V2 layout stays. The preview fills the visible panel
+     (height 100% of the view content box) so at rest only the muted autoplay loop
+     shows and the copy below (title, sub, blurb, caption, visit) sits under the
+     fold. Scrolling reveals that copy but no longer touches the video, which just
+     loops seamlessly on its own. Using 100% (not a fixed px) keeps the copy under
+     the fold on tall desktops too. The bottom fade stays as the "more below" cue. */
   height: 100%;
   aspect-ratio: auto;
   -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 72px), transparent 100%);

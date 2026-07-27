@@ -1,0 +1,28 @@
+{
+  "blackthorn": {
+    "video_state": {
+      "paused": false,
+      "muted": true,
+      "loop": true,
+      "autoplay": true,
+      "preload": "none",
+      "readyState": 4,
+      "currentTime": 1.321923,
+      "src": "http://localhost:8091/media/blackthorn-preview.webm?v=12"
+    },
+    "console": []
+  },
+  "barker": {
+    "video_state": {
+      "paused": false,
+      "muted": true,
+      "loop": true,
+      "autoplay": true,
+      "preload": "none",
+      "readyState": 4,
+      "currentTime": 1.341139,
+      "src": "http://localhost:8091/media/barker-bloom-preview.webm?v=12"
+    },
+    "console": []
+  }
+}

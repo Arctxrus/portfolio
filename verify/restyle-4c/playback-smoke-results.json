@@ -1,0 +1,98 @@
+{
+  "desktop_1440x900": {
+    "label": "desktop-1440x900",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "reduced_motion": false,
+    "media_fetched_pre_selection": [],
+    "preview_before_select": null,
+    "preview_after_select": {
+      "w": 682,
+      "h": 652
+    },
+    "preview_after_play": {
+      "w": 682,
+      "h": 652
+    },
+    "video_state": {
+      "paused": false,
+      "muted": true,
+      "loop": true,
+      "autoplay": true,
+      "preload": "none",
+      "readyState": 4,
+      "currentTime": 1.626627,
+      "src": "http://localhost:8091/media/until-the-last-star-preview.webm?v=12"
+    },
+    "media_requests_total": [
+      "http://localhost:8091/media/until-the-last-star-preview.webm?v=12"
+    ],
+    "console_messages": []
+  },
+  "mobile_360x780": {
+    "label": "mobile-360x780",
+    "viewport": {
+      "width": 360,
+      "height": 780
+    },
+    "reduced_motion": false,
+    "media_fetched_pre_selection": [],
+    "preview_before_select": null,
+    "preview_after_select": {
+      "w": 270,
+      "h": 135
+    },
+    "preview_after_play": {
+      "w": 270,
+      "h": 135
+    },
+    "video_state": {
+      "paused": false,
+      "muted": true,
+      "loop": true,
+      "autoplay": true,
+      "preload": "none",
+      "readyState": 4,
+      "currentTime": 1.63316,
+      "src": "http://localhost:8091/media/until-the-last-star-preview.webm?v=12"
+    },
+    "media_requests_total": [
+      "http://localhost:8091/media/until-the-last-star-preview.webm?v=12"
+    ],
+    "console_messages": []
+  },
+  "reduced_motion_desktop": {
+    "label": "reduced-motion-desktop",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "reduced_motion": true,
+    "media_fetched_pre_selection": [],
+    "preview_before_select": null,
+    "preview_after_select": {
+      "w": 682,
+      "h": 652
+    },
+    "preview_after_play": {
+      "w": 682,
+      "h": 652
+    },
+    "video_state": {
+      "paused": false,
+      "muted": true,
+      "loop": true,
+      "autoplay": true,
+      "preload": "none",
+      "readyState": 4,
+      "currentTime": 1.806151,
+      "src": "http://localhost:8091/media/until-the-last-star-preview.webm?v=12"
+    },
+    "media_requests_total": [
+      "http://localhost:8091/media/until-the-last-star-preview.webm?v=12"
+    ],
+    "console_messages": []
+  }
+}

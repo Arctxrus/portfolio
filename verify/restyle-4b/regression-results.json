@@ -1,0 +1,62 @@
+{
+  "1440x900_blurb_present": true,
+  "1440x900_visit_box": {
+    "x": 649,
+    "y": 775.3125,
+    "width": 158.734375,
+    "height": 36
+  },
+  "1280x620_visit_box": {
+    "x": 649,
+    "y": 495.3125,
+    "width": 158.734375,
+    "height": 36
+  },
+  "mobile_360x780_panel_heights": {
+    "Blackthorn": 468,
+    "Barker": 468,
+    "Star": 468,
+    "About": 468,
+    "Pricing": 468,
+    "Get in touch": 468
+  },
+  "mobile_390x844_panel_heights": {
+    "Blackthorn": 506.390625,
+    "Barker": 506.390625,
+    "Star": 506.390625,
+    "About": 506.390625,
+    "Pricing": 506.390625,
+    "Get in touch": 506.390625
+  },
+  "mobile_768x1024_panel_heights": {
+    "Blackthorn": 614.390625,
+    "Barker": 614.390625,
+    "Star": 614.390625,
+    "About": 614.390625,
+    "Pricing": 614.390625,
+    "Get in touch": 614.390625
+  },
+  "aria_live_selector_used": "[data-panel-live]",
+  "aria_live_text_after_click_select": "Preview / Blackthorn & Co.",
+  "keyboard_tab_sequence": [
+    "<button type=\"button\" class=\"row\" data-view=\"blackthorn\" aria-pressed=\"false\">\n            <span cla",
+    "<button type=\"button\" class=\"row\" data-view=\"barker\" aria-pressed=\"false\">\n            <span class=\"",
+    "<button type=\"button\" class=\"row\" data-view=\"star\" aria-pressed=\"false\">\n            <span class=\"ro",
+    "<button type=\"button\" class=\"row\" data-view=\"about\" aria-pressed=\"false\">\n            <span class=\"r",
+    "<button type=\"button\" class=\"row\" data-view=\"pricing\" aria-pressed=\"false\">\n            <span class=",
+    "<button type=\"button\" class=\"row row--cta\" data-view=\"form\" aria-pressed=\"false\">\n            <span ",
+    "<a href=\"mailto:hello@placeholder.invalid\">hello@placeholder.invalid</a>",
+    "<body>\n\n  <!-- Decorative dot grid, behind everything -->\n  <canvas id=\"dot-grid\" class=\"dot-grid\" a",
+    "<button type=\"button\" class=\"row\" data-view=\"blackthorn\" aria-pressed=\"false\">\n            <span cla",
+    "<button type=\"button\" class=\"row\" data-view=\"barker\" aria-pressed=\"false\">\n            <span class=\"",
+    "<button type=\"button\" class=\"row\" data-view=\"star\" aria-pressed=\"false\">\n            <span class=\"ro",
+    "<button type=\"button\" class=\"row\" data-view=\"about\" aria-pressed=\"false\">\n            <span class=\"r"
+  ],
+  "keyboard_enter_activation_header": "PREVIEW / NO SELECTION",
+  "focus_visible_style_on_active_row": {
+    "boxShadow": "none",
+    "outline": "rgb(20, 20, 22) none 3px",
+    "tag": "BODY",
+    "cls": ""
+  }
+}

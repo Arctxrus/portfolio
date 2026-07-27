@@ -37,7 +37,8 @@ that changes the visuals. Run from the repo root.
       python tools/capture.py --only star
 
 - Re-encode only, reusing the existing raw takes in `tools/_raw/` (fast, no
-  browser, useful when only tuning bitrate, trim or poster quality):
+  browser). Re-runs the crossfade, the head-anchor content scan and the poster;
+  useful when tuning the loop or poster without re-recording:
 
       python tools/capture.py --skip-capture
 
@@ -45,37 +46,55 @@ that changes the visuals. Run from the repo root.
 
       python tools/capture.py --skip-process
 
-## What each take captures
+## What each take captures (owner amendment, round 4)
+
+Every clip is now ONE continuous, even, SLOW scroll down the page, then a brisk
+glide back to its start and a closing hold on the same opening composition. The
+closing hold is crossfaded (0.8s) into the opening hold, so the loop is
+seamless. Both endpoints are the same composition, so the dissolve is clean.
 
 - `blackthorn` -> `media/blackthorn-preview.webm` + `blackthorn-poster.jpg`
-  Glide from the cover, through the price menu, to the rotating pull-quote.
+  Slow scroll from the cover down the page, then back to the cover.
 - `barker` -> `media/barker-bloom-preview.webm` + `barker-bloom-poster.jpg`
-  Hero, the paw-trail thread drawing on scroll, a peek at the pricing bento.
+  Slow scroll from the hero through the pricing bento, then back to the hero.
 - `star` -> `media/until-the-last-star-preview.webm` +
   `until-the-last-star-poster.jpg`
-  One epoch transition with lensing visible: First Light into The Web, the
-  cosmic web of galaxies lensed along dark-matter filaments. Recorded headed
-  with the GPU so the real visuals are captured.
+  Waits 10s after load for the WebGL scene to initialise, then a slow scroll
+  through THE AFTERGLOW ("the fog lifts", timeline t 0.15 to 0.21): a warm
+  plasma nebula, the brightest stable frame in the scene, so the poster is a
+  bright, structured frame (not the old near-black long-night shot). Recorded
+  headed on the GPU (renderer confirmed NVIDIA). No camera parallax, no crop.
+
+## Loop technique
+
+- The crossfade folds the tail (closing hold) into the head (opening hold);
+  output length = base clip minus `CROSSFADE_S` (0.8s). See `encode_crossfade`.
+- The demo heros play a one-time load-in animation, so the take waits it out
+  (`settle_ms`) and warms the hero to its settled base state before the keeper
+  (a scroll excursion and back; `warmup: True`). The star (WebGL) skips this.
+- `choose_head_ss` picks the crossfade head CONTENT-first: it scans the start of
+  the take for the window that best matches the settled closing hold. This does
+  not trust the recorded video timeline to align with the wall-clock keeper
+  offset (Playwright records a non-linear timeline), which is why a fixed-offset
+  anchor failed and a content match is used instead.
 
 ## Output shape and budget
 
-- Native 1280x720 (16:9), VP9, no audio, 30fps, 6 to 8 seconds.
-- Client feedback round 2 (2026-07-27): the clips are exported at native
-  1280x720 (no downscale) in VP9 CRF quality mode (`DEFAULT_CRF = 34`, within
-  the sanctioned 32 to 34) so they stay crisp at full panel size. The 300 to
-  500KB per-clip budget is AMENDED by owner direction: quality wins, each clip
-  is kept as small as CRF makes it while crisp. Clips stay lazy-loaded, so the
-  first-load budget is untouched. Poster jpgs are exported at 1280 wide, under
-  about 80KB.
-- The scrollbar is suppressed before recording (`NO_SCROLLBAR_CSS`, injected via
-  `page.add_style_tag`), so no frame shows the demo site's scrollbar.
-- `object-fit: cover` handles the mobile 2/1 box (trims the extra height); the
-  desktop project view shows the clip large with a bottom fade cue.
+- Native 1280x720 (16:9), VP9, no audio, 30fps. Length amended to roughly 10 to
+  20s (owner, round 4) to keep the scroll slow; the shipped clips run ~16 to 17s.
+- VP9 CRF quality mode (`DEFAULT_CRF = 34`). Sizes grow with the longer, busier
+  scrolls (accepted by owner direction); the clips stay lazy-loaded, so the
+  first-load budget is untouched. Poster jpgs are 1280 wide, under about 80KB
+  (`POSTER_MAX_KB`).
+- The scrollbar is suppressed before recording (`NO_SCROLLBAR_CSS`), so no frame
+  shows the demo site's scrollbar.
+- `object-fit: cover` handles the mobile 2/1 box; the desktop project view shows
+  the clip large with a bottom fade cue.
 
 ## Tuning knobs
 
-All per-project settings live in the `PROJECTS` list in `capture.py`: the
-scroll `segments` (eased scrollTo targets and static holds), `clip_len_s`,
-`bitrate`, and the `start_y` / `settle_ms` for scroll-driven scenes. The trim
-is anchored to the end of each raw take (its closing hold), which is robust
-against Playwright recording a timeline shorter than wall-clock.
+All per-project settings live in the `PROJECTS` list in `capture.py`: the `tour`
+(`from`/`to` as a pixel offset or a `{"t": frac}` cosmic-dawn timeline fraction,
+`tour_dur_ms`, `return_dur_ms`, the open/close hold ms), `settle_ms`, `warmup`,
+and `extra_load_wait_ms`. `CROSSFADE_S`, `KEYFRAME_INTERVAL` and `DEFAULT_CRF`
+are module constants.

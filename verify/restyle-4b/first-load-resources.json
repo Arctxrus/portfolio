@@ -1,0 +1,18 @@
+[
+  {
+    "name": "http://localhost:8099/css/styles.css?v=12",
+    "size": 57725
+  },
+  {
+    "name": "http://localhost:8099/js/main.js?v=12",
+    "size": 35115
+  },
+  {
+    "name": "http://localhost:8099/fonts/archivo-latin-var.woff2?v=12",
+    "size": 35228
+  },
+  {
+    "name": "http://localhost:8099/fonts/martian-mono-latin-var.woff2?v=12",
+    "size": 23856
+  }
+]
