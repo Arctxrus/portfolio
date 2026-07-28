@@ -1,0 +1,26 @@
+{
+  "blackthorn_duration": 17.233,
+  "blackthorn_wrapped_detected": false,
+  "blackthorn_currentTime_after_wrap": 3.451062,
+  "fit_1440x900_dpr2": {
+    "viewportW": 1440,
+    "viewportH": 900,
+    "devicePixelRatio": 2,
+    "previewRect": {
+      "w": 682,
+      "h": 652
+    },
+    "videoNative": {
+      "w": 1280,
+      "h": 1344
+    },
+    "bodyScrollHeight": 900,
+    "bodyScrollWidth": 1440
+  },
+  "preview_rect_css_px": {
+    "x": 649,
+    "y": 159,
+    "w": 682,
+    "h": 652
+  }
+}

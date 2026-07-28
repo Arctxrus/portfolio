@@ -1,0 +1,32 @@
+{
+  "blackthorn": {
+    "delta_min": 0.016000000000000014,
+    "delta_max": 0.08399999999999985,
+    "delta_mean": 0.028705882352941175,
+    "playback_quality": {
+      "totalVideoFrames": 242,
+      "droppedVideoFrames": 89
+    },
+    "num_deltas_over_25ms": 51
+  },
+  "barker-bloom": {
+    "delta_min": 0.016000000000000014,
+    "delta_max": 0.1499999999999999,
+    "delta_mean": 0.031932773109243695,
+    "playback_quality": {
+      "totalVideoFrames": 273,
+      "droppedVideoFrames": 104
+    },
+    "num_deltas_over_25ms": 59
+  },
+  "until-the-last-star": {
+    "delta_min": 0.016000000000000014,
+    "delta_max": 0.06700000000000017,
+    "delta_mean": 0.02815126050420168,
+    "playback_quality": {
+      "totalVideoFrames": 243,
+      "droppedVideoFrames": 76
+    },
+    "num_deltas_over_25ms": 59
+  }
+}

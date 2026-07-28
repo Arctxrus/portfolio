@@ -1,0 +1,130 @@
+{
+  "light_active_row_shadow_sweep": [
+    {
+      "tag": "BUTTON",
+      "cls": "row is-active",
+      "boxShadow": "rgba(20, 20, 22, 0.06) 0px 1px 3px 0px"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta",
+      "boxShadow": "rgba(255, 255, 255, 0.62) 0px 0px 0px 1px inset, rgba(255, 255, 255, 0.85) 0px 1px 0px 0px inset"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "boxShadow": "rgba(20, 20, 22, 0.06) 0px 1px 3px 0px"
+    }
+  ],
+  "light_welcome_centering": {
+    "panelCenter": [
+      990,
+      485.1461868286133
+    ],
+    "welcomeCenter": [
+      990,
+      485.1461868286133
+    ],
+    "deltaX": 0,
+    "deltaY": 0
+  },
+  "dark_welcome_centering": {
+    "panelCenter": [
+      990,
+      485.1464080810547
+    ],
+    "welcomeCenter": [
+      990,
+      485.1464080810547
+    ],
+    "deltaX": 0,
+    "deltaY": 0
+  },
+  "light_mobile360_panel_heights": {
+    "V1": 468,
+    "V2-blackthorn": 468,
+    "V2-barker": 468,
+    "V2-star": 468,
+    "V3-about": 468,
+    "V3-pricing": 468,
+    "V4-form": 468
+  },
+  "light_mobile360_scroll": {
+    "scrollWidth": 360,
+    "clientWidth": 360
+  },
+  "dark_mobile360_panel_heights": {
+    "V1": 468,
+    "V2-blackthorn": 468,
+    "V2-barker": 468,
+    "V2-star": 468,
+    "V3-about": 468,
+    "V3-pricing": 468,
+    "V4-form": 468
+  },
+  "dark_mobile360_scroll": {
+    "scrollWidth": 360,
+    "clientWidth": 360
+  },
+  "tab_sequence_last10": [
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "dataChoice": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "dataChoice": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "dataChoice": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "dataChoice": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "dataChoice": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta",
+      "dataChoice": null
+    },
+    {
+      "tag": "A",
+      "cls": "",
+      "dataChoice": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "dataChoice": "system"
+    }
+  ],
+  "theme_opt_focus_boxshadow": "rgb(26, 111, 212) 0px 0px 0px 1px inset, rgba(20, 20, 22, 0.06) 0px 1px 3px 0px",
+  "theme_opt_focus_outline": "none",
+  "next_tab_after_theme_opt": {
+    "dataChoice": "light"
+  },
+  "keyboard_activate_theme_opt": {
+    "before": "true",
+    "after": "true"
+  },
+  "light_reduced_motion_cta_layer_anim": {
+    "animationName": "none",
+    "animationDuration": "0s"
+  },
+  "light_reduced_motion_cta_transition_duration": "1e-05s",
+  "dark_reduced_motion_cta_layer_anim": {
+    "animationName": "none",
+    "animationDuration": "0s"
+  },
+  "dark_reduced_motion_cta_transition_duration": "1e-05s"
+}

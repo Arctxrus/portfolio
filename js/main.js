@@ -36,6 +36,89 @@ function isTouchDevice() {
 }
 
 /* --------------------------------------------------------------------------
+   Theme (Client feedback round 5). System / light / dark, via ONE mechanism:
+   the stored preference is resolved to a concrete theme and written as
+   data-theme on <html>; the CSS only reads [data-theme="dark"] (there is no
+   prefers-color-scheme query in the styles). An inline head script applies the
+   resolved theme before first paint (no flash); this controller wires the footer
+   toggle, persists the choice in localStorage, live-updates when the OS scheme
+   changes while following the system, and fires a 'themechange' event so the dot
+   grid canvas can re-read its colours and repaint. aria and reduced-motion
+   behaviour are unchanged by the theme.
+   -------------------------------------------------------------------------- */
+
+const THEME_STORAGE_KEY = 'zayn-theme';
+const themeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+function resolveTheme(pref) {
+  if (pref === 'dark' || pref === 'light') {
+    return pref;
+  }
+  return themeMediaQuery.matches ? 'dark' : 'light';   /* system */
+}
+
+function readThemePref() {
+  try {
+    const v = localStorage.getItem(THEME_STORAGE_KEY);
+    if (v === 'light' || v === 'dark' || v === 'system') {
+      return v;
+    }
+  } catch (e) { /* storage unavailable: fall through to the default */ }
+  return 'system';
+}
+
+function applyResolvedTheme(pref) {
+  const resolved = resolveTheme(pref);
+  document.documentElement.setAttribute('data-theme', resolved);
+  document.dispatchEvent(new CustomEvent('themechange', {
+    detail: { pref: pref, resolved: resolved }
+  }));
+}
+
+function initTheme() {
+  const buttons = Array.prototype.slice.call(document.querySelectorAll('.theme-opt'));
+  if (!buttons.length) {
+    return;
+  }
+
+  let pref = readThemePref();
+
+  function reflect() {
+    buttons.forEach(function (btn) {
+      const active = btn.dataset.themeChoice === pref;
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+  }
+
+  /* The inline head script already set data-theme for this pref, so only the
+     button state needs syncing on load (no redundant re-apply / themechange). */
+  reflect();
+
+  buttons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      pref = btn.dataset.themeChoice;
+      try {
+        localStorage.setItem(THEME_STORAGE_KEY, pref);
+      } catch (e) { /* ignore: the choice still applies for this session */ }
+      reflect();
+      applyResolvedTheme(pref);
+    });
+  });
+
+  /* Live-update on an OS scheme change, but only while following the system. */
+  function onSystemChange() {
+    if (pref === 'system') {
+      applyResolvedTheme(pref);
+    }
+  }
+  if (themeMediaQuery.addEventListener) {
+    themeMediaQuery.addEventListener('change', onSystemChange);
+  } else if (themeMediaQuery.addListener) {
+    themeMediaQuery.addListener(onSystemChange);   /* older Safari */
+  }
+}
+
+/* --------------------------------------------------------------------------
    Contact email - defined exactly once so it can be swapped in one edit.
    Placeholder until the real address is supplied (see PROGRESS.md).
    -------------------------------------------------------------------------- */
@@ -119,9 +202,18 @@ function initDotGrid() {
   const rootStyles = getComputedStyle(document.documentElement);
   const spacing = readNumberVar(rootStyles, '--dot-spacing');
   const size = readNumberVar(rootStyles, '--dot-size');
-  const rest = parseColour(rootStyles.getPropertyValue('--dot-rest').trim());
-  const warm = parseColour(rootStyles.getPropertyValue('--dot-warm').trim());
-  const restAlpha = rest.a;
+
+  /* Colours are re-read on a theme change (Client feedback round 5) so the grid
+     flips to light-on-dark or dark-on-light and repaints. spacing/size are
+     theme-neutral and read once above. */
+  let rest, warm, restAlpha;
+  function readColours() {
+    const s = getComputedStyle(document.documentElement);
+    rest = parseColour(s.getPropertyValue('--dot-rest').trim());
+    warm = parseColour(s.getPropertyValue('--dot-warm').trim());
+    restAlpha = rest.a;
+  }
+  readColours();
 
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isTouchOnly = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
@@ -240,6 +332,16 @@ function initDotGrid() {
 
   resize();
   window.addEventListener('resize', onResize);
+
+  /* Repaint on a theme change: re-read the dot colours, then draw a static frame.
+     In the animated case the running rAF loop immediately continues with the new
+     colours; in the static case this is the repaint. Registered before the static
+     early-return so it applies in both modes (CONCEPT 3.3 dot-grid guards are
+     unchanged: no mousemove listener is bound on touch/reduced-motion). */
+  document.addEventListener('themechange', function () {
+    readColours();
+    drawStatic();
+  });
 
   if (isStatic) {
     /* No mousemove listener bound, no rAF loop: static grid only. */
@@ -915,6 +1017,7 @@ function initCta() {
 
 function init() {
   wireFooter();
+  initTheme();
   initDotGrid();
   initDecode();
   initFadeIn();

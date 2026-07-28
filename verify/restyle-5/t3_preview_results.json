@@ -1,0 +1,69 @@
+{
+  "desktop_blackthorn": {
+    "video": {
+      "videoWidth": 1500,
+      "videoHeight": 1560,
+      "currentTime": 0.982856,
+      "paused": false,
+      "readyState": 4,
+      "clientWidth": 680,
+      "clientHeight": 650,
+      "objectFit": "cover"
+    },
+    "preview_box": {
+      "width": 682,
+      "height": 652,
+      "ratio": 1.0460122699386503
+    }
+  },
+  "desktop_barker-bloom": {
+    "video": {
+      "videoWidth": 1500,
+      "videoHeight": 1560,
+      "currentTime": 1.011086,
+      "paused": false,
+      "readyState": 4,
+      "clientWidth": 680,
+      "clientHeight": 650,
+      "objectFit": "cover"
+    },
+    "preview_box": {
+      "width": 682,
+      "height": 652,
+      "ratio": 1.0460122699386503
+    }
+  },
+  "desktop_until-the-last-star": {
+    "video": {
+      "videoWidth": 1500,
+      "videoHeight": 1560,
+      "currentTime": 1.017568,
+      "paused": false,
+      "readyState": 4,
+      "clientWidth": 680,
+      "clientHeight": 650,
+      "objectFit": "cover"
+    },
+    "preview_box": {
+      "width": 682,
+      "height": 652,
+      "ratio": 1.0460122699386503
+    }
+  },
+  "mobile360_blackthorn_preview_box": {
+    "width": 270,
+    "height": 135,
+    "ratio": 2
+  },
+  "mobile360_barker-bloom_preview_box": {
+    "width": 270,
+    "height": 135,
+    "ratio": 2
+  },
+  "mobile360_until-the-last-star_preview_box": {
+    "width": 270,
+    "height": 135,
+    "ratio": 2
+  },
+  "console_errors_desktop": []
+}

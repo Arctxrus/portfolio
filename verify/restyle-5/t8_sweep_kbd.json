@@ -1,0 +1,89 @@
+{
+  "light_rest_no_selection_sweep": [
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "boxShadow": "rgba(20, 20, 22, 0.06) 0px 1px 3px 0px"
+    }
+  ],
+  "light_row01_active_sweep": [
+    {
+      "tag": "BUTTON",
+      "cls": "row is-active",
+      "boxShadow": "rgba(20, 20, 22, 0.06) 0px 1px 3px 0px"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "boxShadow": "rgba(20, 20, 22, 0.06) 0px 1px 3px 0px"
+    }
+  ],
+  "light_cta_open_sweep": [
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta is-open",
+      "boxShadow": "rgba(255, 255, 255, 0.62) 0px 0px 0px 1px inset, rgba(255, 255, 255, 0.85) 0px 1px 0px 0px inset, rgba(20, 20, 22, 0.06) 0px 1px 3px 0px"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "boxShadow": "rgba(20, 20, 22, 0.06) 0px 1px 3px 0px"
+    }
+  ],
+  "dark_rest_no_selection_sweep": [
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "boxShadow": "rgba(0, 0, 0, 0.45) 0px 1px 3px 0px"
+    }
+  ],
+  "dark_row01_active_sweep": [
+    {
+      "tag": "BUTTON",
+      "cls": "row is-active",
+      "boxShadow": "rgba(0, 0, 0, 0.45) 0px 1px 3px 0px"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "boxShadow": "rgba(0, 0, 0, 0.45) 0px 1px 3px 0px"
+    }
+  ],
+  "dark_cta_open_sweep": [
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta is-open",
+      "boxShadow": "rgba(190, 216, 244, 0.2) 0px 0px 0px 1px inset, rgba(200, 224, 248, 0.3) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.45) 0px 1px 3px 0px"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "boxShadow": "rgba(0, 0, 0, 0.45) 0px 1px 3px 0px"
+    }
+  ],
+  "keyboard_activate_dark_test": {
+    "before": {
+      "choice": "dark",
+      "pressed": "false"
+    },
+    "after": {
+      "pressed": "true",
+      "dataTheme": "dark",
+      "localStorage": "dark",
+      "allPressed": [
+        [
+          "system",
+          "false"
+        ],
+        [
+          "light",
+          "false"
+        ],
+        [
+          "dark",
+          "true"
+        ]
+      ]
+    }
+  }
+}

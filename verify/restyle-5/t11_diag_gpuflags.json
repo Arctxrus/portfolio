@@ -1,0 +1,50 @@
+{
+  "blackthorn": {
+    "diag": {
+      "src": "http://localhost:8236/media/blackthorn-preview.webm?v=13",
+      "paused": true,
+      "readyState": 2,
+      "networkState": 1,
+      "error": {
+        "code": 3,
+        "message": "PipelineStatus::PIPELINE_ERROR_DECODE: video decode error!"
+      },
+      "currentTime": 0.063412,
+      "videoWidth": 1292,
+      "videoHeight": 1344
+    },
+    "console": []
+  },
+  "barker-bloom": {
+    "diag": {
+      "src": "http://localhost:8236/media/barker-bloom-preview.webm?v=13",
+      "paused": true,
+      "readyState": 2,
+      "networkState": 1,
+      "error": {
+        "code": 3,
+        "message": "PipelineStatus::PIPELINE_ERROR_DECODE: video decode error!"
+      },
+      "currentTime": 0.029102,
+      "videoWidth": 1292,
+      "videoHeight": 1344
+    },
+    "console": []
+  },
+  "until-the-last-star": {
+    "diag": {
+      "src": "http://localhost:8236/media/until-the-last-star-preview.webm?v=13",
+      "paused": true,
+      "readyState": 2,
+      "networkState": 1,
+      "error": {
+        "code": 3,
+        "message": "PipelineStatus::PIPELINE_ERROR_DECODE: video decode error!"
+      },
+      "currentTime": 0.039749,
+      "videoWidth": 1292,
+      "videoHeight": 1344
+    },
+    "console": []
+  }
+}

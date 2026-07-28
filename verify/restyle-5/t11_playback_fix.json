@@ -1,0 +1,55 @@
+{
+  "blackthorn": {
+    "num_rvfc_samples": 0,
+    "delta_min": null,
+    "delta_max": null,
+    "delta_mean": null,
+    "playback_quality": {
+      "totalVideoFrames": 2,
+      "droppedVideoFrames": 1,
+      "currentTime": 0.110724,
+      "paused": true,
+      "readyState": 2
+    },
+    "dropped_pct": 50.0,
+    "num_deltas_over_25ms": 0,
+    "num_spikes_50ms_plus": 0,
+    "spikes_50ms_plus": []
+  },
+  "barker-bloom": {
+    "num_rvfc_samples": 0,
+    "delta_min": null,
+    "delta_max": null,
+    "delta_mean": null,
+    "playback_quality": {
+      "totalVideoFrames": 2,
+      "droppedVideoFrames": 1,
+      "currentTime": 0.036378,
+      "paused": true,
+      "readyState": 2
+    },
+    "dropped_pct": 50.0,
+    "num_deltas_over_25ms": 0,
+    "num_spikes_50ms_plus": 0,
+    "spikes_50ms_plus": []
+  },
+  "until-the-last-star": {
+    "num_rvfc_samples": 0,
+    "delta_min": null,
+    "delta_max": null,
+    "delta_mean": null,
+    "playback_quality": {
+      "totalVideoFrames": 2,
+      "droppedVideoFrames": 1,
+      "currentTime": 0.029319,
+      "paused": true,
+      "readyState": 2
+    },
+    "dropped_pct": 50.0,
+    "num_deltas_over_25ms": 0,
+    "num_spikes_50ms_plus": 0,
+    "spikes_50ms_plus": []
+  },
+  "console_errors": [],
+  "headless": false
+}

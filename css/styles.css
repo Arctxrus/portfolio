@@ -33,7 +33,7 @@
   font-weight: 400 600;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/archivo-latin-var.woff2?v=12') format('woff2');
+  src: url('../fonts/archivo-latin-var.woff2?v=13') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -43,7 +43,7 @@
   font-weight: 300 500;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/martian-mono-latin-var.woff2?v=12') format('woff2');
+  src: url('../fonts/martian-mono-latin-var.woff2?v=13') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -142,6 +142,87 @@
 
 :root {
   --shadow-row-active: 0 1px 3px rgba(20, 20, 22, 0.06);
+}
+
+/* --------------------------------------------------------------------------
+   Owner-directed amendment (Client feedback round 5, 2026-07-27). A theme
+   toggle (system / light / dark) is added. CONCEPT section 13's "no dark mode"
+   is SUPERSEDED by owner direction (recorded in PROGRESS.md).
+
+   ONE mechanism (reported): system is resolved to a concrete theme in JS, and
+   the resolved theme is written as data-theme="light" | "dark" on <html> (an
+   inline head script applies it before first paint, so there is no flash). CSS
+   therefore only ever reads [data-theme="dark"]; there is no
+   prefers-color-scheme media query in the styles. The 3.1 light token block
+   above stays verbatim; the dark values are NEW tokens in this clearly-labelled
+   block and take effect only under [data-theme="dark"].
+
+   The dark palette is derived from the existing design language, not a new
+   aesthetic: a near-black ground, panel/card surfaces stepped up from it, ink
+   inverted to near-white, greys re-derived to keep the SAME contrast rules the
+   light theme enforces (AA at mobile rest and focus; the desktop-rest greys are
+   the same accepted sub-AA exception, mirrored), the accent lifted within the
+   sea-blue family so it clears AA as text on dark, and the CTA pastel drift
+   redrawn in deep water. Computed contrast (WCAG) on the dark ground #141416:
+   ink 16.2:1, ink-body 9.3:1, ink-mid 7.6:1 (6.7:1 on the dark field, for
+   placeholders), accent #4E95E8 5.95:1 (5.0:1 on the lifted card), CTA text
+   11.7:1 on the pill; the desktop-rest greys #74747C (4.0:1) and #68686F
+   (3.3:1) mirror the light exception. Recorded in PROGRESS.md. */
+
+:root {
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Ground & ink */
+  --ground:            #141416;
+  --ink:               #F0F0F2;
+  --ink-body:          #B8B8C0;
+  --ink-mid:           #A6A6AE;   /* the AA-pass grey: 7.6:1 ground, 6.7:1 field */
+  --grey-label:        #74747C;   /* quiet desktop-rest label (sub-AA exception) */
+  --grey-soft:         #68686F;   /* fainter desktop-rest index/tag (sub-AA) */
+  --grey-placeholder:  #8E8E96;   /* defined for parity; unused since stage 8 */
+
+  /* Accent, sea blue lifted so it clears AA as text/icon/ring on dark. */
+  --accent:            #4E95E8;
+  --accent-rgb:        78,149,232;
+  --accent-ghost:      rgba(94, 166, 240, 0.10);   /* faint ghost arrow on dark */
+
+  /* Borders & surfaces. Stepped: ground < panel/preview < field < lifted card. */
+  --border:            #33333A;
+  --surface-white:     #242428;   /* lifted dark card (active row, form, status) */
+  --surface-field:     #202024;
+  --surface-preview:   #1B1B1E;   /* panel + neutral preview frame for light clips */
+  --surface-panelhead: rgba(255, 255, 255, 0.04);
+  --submit-ink:        #EAEAEE;   /* inverted: a light button with a dark label */
+  --submit-ink-hover:  #FFFFFF;
+
+  /* CTA pill: dark-water variant. Deep blues at low luminance, same drift design
+     (the keyframes and --cta-bg-size are theme-neutral and unchanged). */
+  --cta-layer1: radial-gradient(70% 180% at 20% 15%, #1B3A5C 0%, rgba(27,58,92,0) 62%);
+  --cta-layer2: radial-gradient(60% 170% at 75% 85%, #16324A 0%, rgba(22,50,74,0) 64%);
+  --cta-layer3: linear-gradient(100deg, #163049, #12283D, #183453, #163049);
+  --cta-lightpass: radial-gradient(55% 150% at 50% 50%, rgba(150,190,235,0.14) 0%, rgba(150,190,235,0) 68%);
+  --cta-edge-lift: radial-gradient(120% 160% at 50% 50%, rgba(150,190,235,0) 42%, rgba(150,190,235,0.16) 100%);
+  --cta-rim:    inset 0 0 0 1px rgba(190,216,244,0.20), inset 0 1px 0 rgba(200,224,248,0.30);
+  --cta-hover-mist: radial-gradient(circle, rgba(120,170,230,0.30) 0%, rgba(120,170,230,0.14) 44%, rgba(120,170,230,0) 72%);
+  --cta-press-mist: radial-gradient(circle, rgba(200,224,248,0.40) 0%, rgba(200,224,248,0.20) 42%, rgba(200,224,248,0) 72%);
+  --cta-text:          #EAF2FB;
+  --cta-index:         rgba(234, 242, 251, 0.55);
+
+  /* Dot grid: light dots on the dark ground, warming toward the lifted accent.
+     The canvas re-reads these two tokens and repaints on a theme change (main.js). */
+  --dot-rest:  rgba(240, 240, 242, 0.07);
+  --dot-warm:  rgb(94, 166, 240);
+
+  /* Focus ring uses the lifted accent so it stays visible on dark. */
+  --shadow-field-focus: inset 0 0 0 1px #4E95E8;
+
+  /* The single quiet card shadow, deepened so it reads on dark surfaces (still
+     the only non-inset shadow on the page). */
+  --shadow-row-active: 0 1px 3px rgba(0, 0, 0, 0.45);
 }
 
 /* --------------------------------------------------------------------------
@@ -555,7 +636,7 @@ a {
   background-size: var(--cta-bg-size);
   background-repeat: no-repeat;
   box-shadow: var(--cta-rim);
-  transition: filter 240ms ease, padding 200ms ease;
+  transition: filter 240ms ease, padding 200ms ease, box-shadow 200ms ease;
   animation: cta-drift 22s ease-in-out infinite;
 }
 
@@ -576,6 +657,21 @@ a {
      so the +4px vertical grow (item 1) is preserved exactly with the border
      removed. */
   padding: calc(var(--sp-18) + var(--border-width)) calc(var(--sp-18) + var(--border-width));
+  /* Client feedback round 5 (item 3): when the form view is open the CTA takes
+     the SAME quiet elevation as the active index-row card, composed with (not
+     replacing) the existing white inset rim: rim first, then the drop shadow.
+     Renders in both themes (--shadow-row-active is deepened under [data-theme=
+     "dark"]). Recorded in PROGRESS.md as the C5 amendment update. */
+  box-shadow: var(--cta-rim), var(--shadow-row-active);
+}
+
+/* Open AND keyboard-focused: keep the accent ring, and keep both the rim and the
+   new active elevation. Without this, the 0,2,0 .row--cta:focus-visible rule later
+   in source would replace the box-shadow with the ring alone (dropping the rim and
+   the item-3 elevation). This 0,3,0 rule wins and layers all three (ring, rim,
+   active shadow), mirroring the .row.is-active:focus-visible pattern. */
+.row--cta.is-open:focus-visible {
+  box-shadow: var(--shadow-field-focus), var(--cta-rim), var(--shadow-row-active);
 }
 
 /* Light pass (--cta-lightpass), 2D reverse path, 30s rest, on its own layer.
@@ -826,6 +922,82 @@ a {
   font-weight: 400;
   text-transform: uppercase;
   color: var(--grey-soft);
+}
+
+/* --------------------------------------------------------------------------
+   Theme toggle (Client feedback round 5). A small segmented control in the
+   footer line: the email on the left, the toggle on the right, same row
+   (reference: the Moritz Petersen monitor / sun / moon segmented control). On
+   mobile the same footer flows at the page bottom, so the row layout carries
+   over unchanged. Three buttons with aria-pressed (the group is a role="group";
+   exactly one is pressed at a time), quiet --grey-label icons, the active
+   segment lifted with the established active treatment (white/dark card surface,
+   ink icon, the single quiet --shadow-row-active). 16px radius family.
+   -------------------------------------------------------------------------- */
+
+.footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-16);
+}
+
+/* The email line takes the remaining width and may wrap; the toggle never shrinks. */
+.footer-row .footer-email {
+  min-width: 0;
+}
+
+.theme-toggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-surface);
+  background: var(--surface-field);
+}
+
+.theme-opt {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-6);
+  border-radius: var(--radius-surface);
+  color: var(--grey-label);
+  background: transparent;
+  transition: color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+
+.theme-opt svg {
+  display: block;
+  width: 15px;
+  height: 15px;
+}
+
+/* Active segment: the established active-card treatment (lifted surface, ink
+   icon, the single quiet shadow). */
+.theme-opt[aria-pressed="true"] {
+  color: var(--ink);
+  background: var(--surface-white);
+  box-shadow: var(--shadow-row-active);
+}
+
+/* House-style focus ring; layered over the active elevation when the active
+   segment is the focused one (mirrors the .row.is-active:focus-visible pattern). */
+.theme-opt:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-field-focus);
+}
+
+.theme-opt[aria-pressed="true"]:focus-visible {
+  box-shadow: var(--shadow-field-focus), var(--shadow-row-active);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .theme-opt:not([aria-pressed="true"]):hover {
+    color: var(--ink);
+  }
 }
 
 /* --------------------------------------------------------------------------

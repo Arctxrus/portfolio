@@ -1,0 +1,42 @@
+{
+  "light_footer_layout_desktop": {
+    "emailLeft": 76,
+    "emailTop": 817.375,
+    "toggleLeft": 445,
+    "toggleTop": 807.875,
+    "sameRow": true
+  },
+  "light_console_errors": [],
+  "dark_footer_layout_desktop": {
+    "emailLeft": 76,
+    "emailTop": 817.375,
+    "toggleLeft": 445,
+    "toggleTop": 807.875,
+    "sameRow": true
+  },
+  "dark_console_errors": [],
+  "light_dotgrid_sample": {
+    "maxAlphaPixel": [
+      0,
+      0,
+      0,
+      6
+    ],
+    "canvasSize": [
+      1440,
+      900
+    ]
+  },
+  "dark_dotgrid_sample": {
+    "maxAlphaPixel": [
+      219,
+      219,
+      219,
+      7
+    ],
+    "canvasSize": [
+      1440,
+      900
+    ]
+  }
+}

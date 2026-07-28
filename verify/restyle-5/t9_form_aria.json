@@ -1,0 +1,30 @@
+{
+  "light_aria_live_after_select": {
+    "text": "Preview / Blackthorn & Co.",
+    "ariaLive": "polite",
+    "role": "status"
+  },
+  "light_form_success_state": {
+    "text": "Something broke. Email me directly at hello@placeholder.invalid.Try again",
+    "visible": true
+  },
+  "dark_aria_live_after_select": {
+    "text": "Preview / Blackthorn & Co.",
+    "ariaLive": "polite",
+    "role": "status"
+  },
+  "dark_form_success_state": {
+    "text": "Something broke. Email me directly at hello@placeholder.invalid.Try again",
+    "visible": true
+  },
+  "light_form_failure_state": {
+    "text": "Something broke. Email me directly at hello@placeholder.invalid.Try again",
+    "mailtoHref": "mailto:hello@placeholder.invalid",
+    "mailtoTextDecoration": "underline"
+  },
+  "dark_form_failure_state": {
+    "text": "Something broke. Email me directly at hello@placeholder.invalid.Try again",
+    "mailtoHref": "mailto:hello@placeholder.invalid",
+    "mailtoTextDecoration": "underline"
+  }
+}

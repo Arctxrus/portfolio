@@ -1,0 +1,47 @@
+{
+  "360_light_footer_layout": {
+    "emailRect": [
+      22,
+      829.375,
+      209,
+      28
+    ],
+    "toggleRect": [
+      247,
+      826.875,
+      91,
+      33
+    ],
+    "noHorizScroll": true
+  },
+  "390_dark_footer_layout": {
+    "emailRect": [
+      22,
+      829.375,
+      239,
+      28
+    ],
+    "toggleRect": [
+      277,
+      826.875,
+      91,
+      33
+    ],
+    "noHorizScroll": true
+  },
+  "768_light_footer_layout": {
+    "emailRect": [
+      48,
+      810.53125,
+      293.75,
+      14
+    ],
+    "toggleRect": [
+      629,
+      801.03125,
+      91,
+      33
+    ],
+    "noHorizScroll": true
+  }
+}

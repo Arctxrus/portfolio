@@ -2044,3 +2044,325 @@ growth; lazy-loaded), poster 66KB / 1280 wide / luminance 67. In-browser: autopl
 loops at desktop AND mobile 360, zero layout shift (.preview 507x612), no media 404s, no
 console errors. Renderer re-confirmed NVIDIA RTX 3060. Blackthorn and Barker untouched;
 main.js, CSS layout and ?v=12 unchanged.
+
+## Client feedback round 5 (owner-directed 2026-07-27)
+
+Three items plus a cache bust. Items 1 and 3 were diagnosed/reproduced first
+(instrumented), then fixed. CONCEPT supersessions recorded per the brief.
+
+- Status: BUILT, awaiting verification. Files changed: tools/capture.py (screencast
+  60fps capture, square-ish geometry, opening-hold head anchor), tools/README.md,
+  media/*.webm and media/*.jpg (all three re-recorded and re-processed), index.html
+  (color-scheme meta, inline theme init script, footer restructure + toggle, ?v
+  bump), css/styles.css (dark token block, theme-toggle styles, CTA is-open shadow,
+  ?v bump), js/main.js (theme controller, dot-grid colour re-read on theme change),
+  PROGRESS.md. All shipped refs bumped ?v=12 to ?v=13 (a push follows): 13 in
+  index.html, 2 in css/styles.css, 0 in js/main.js. Encoding clean (Edit + byte-safe
+  sed only): no BOM, no mojibake, no em dashes; 0 remaining ?v=12; special chars
+  intact (£300 x7, arrow x10, middle dot x14).
+
+CONCEPT SUPERSESSIONS (owner amendments, recorded as directed):
+- Section 13 "no dark mode" is SUPERSEDED: a system/light/dark theme toggle is
+  added (item 2).
+- Section 5 clip geometry and frame rate are amended: the recording moves from a
+  16:9 1280x720 capture to a SQUARE-ISH 1000x1040 (deviceScaleFactor 2) capture,
+  the output from 1280x720 30fps to 1500x1560 60fps (item 1). The 300 to 500KB
+  clip budget stays retired (round 2); files grow again (reported).
+- Section 3.4 C5 amendment update: when the CTA is open it takes the same
+  --shadow-row-active elevation as the active row card, composed with the inset
+  rim (item 3).
+- NO language toggle: single-language UK site, nothing to translate; skipped as
+  the brief allows (owner can override).
+
+### Item 1 - Preview crop, blur and frame rate (diagnosed, then fixed at capture level)
+
+DIAGNOSIS (instrumented, not guessed):
+- CROP: the desktop preview box is near-square (measured .preview 682x652 at
+  1440x900, ratio 1.046; the box ratio ranges 0.853 at 1280w to 1.397 at 1920w),
+  while the clips were 16:9 (1.778). object-fit: cover then cropped the sides ~41%
+  ("cropped in") and the 720 source rows upscaled ~1.8x at DPR 2 ("blurry").
+- FRAME RATE: measured the effective UNIQUE fps of the ?v=12 clips (mpdecimate
+  unique-frame count / duration): blackthorn 379/16.17 = 23.4, barker 251/16.13 =
+  15.6, star 401/16.17 = 24.8 unique fps, all well under the 30fps nominal
+  (Playwright recordVideo is ~25fps nominal and drops/duplicates under load).
+
+METHOD (reported): CDP `Page.startScreencast`. Probed on this RTX 3060: 75.6 fps
+(blackthorn) and 91.0 fps (star, NVIDIA renderer confirmed in-context), far above
+60. The screencast JPEG frames are timestamped and rebuilt into a 60fps CFR
+intermediate (a static hold is one frame held for its whole duration; the
+raw-assembly duration clamp was set above the ~1.6s hold length so holds are
+preserved, else the crossfade loses its static window). Chose screencast over
+ffmpeg gdigrab: self-contained, no window-geometry math, captures the page content
+(and GPU-composited WebGL) directly.
+
+GEOMETRY (reported): recording viewport 1000x1040 (ratio 0.962, the compromise
+across the two anchor box ratios 1.046 at 1440 and 0.853 at 1280) at
+deviceScaleFactor 2 (raw 2000x2080), encoded to 1500x1560 (1500 wide: the 1440 box
+is 682 CSS = 1364 device px at DPR 2, so 1500 is native-or-better and sits in the
+owner's 1400 to 1600 band). Desktop crop is now only ~8% top/bottom (was ~41%
+sides), with the full top nav in frame. The demo sites render legitimately at
+1000px wide.
+
+MOBILE CROP CHECK (reported): the mobile preview box is 2:1; a 0.962 source
+cover-crops to its middle ~48% vertical band. Simulated on the blackthorn poster:
+the hero (headline, hero image, CTAs, reviews) reads clearly; only the top nav
+pill and a lower section header fall outside the band, which is fine for a 2:1
+micro-preview. The star hero (nebula + "The fog lifts" + epoch nav) also reads.
+
+MEASURED OUTPUT (all 1500x1560, VP9, no audio, 60fps; effective unique fps over a
+mid-scroll motion window):
+- blackthorn-preview.webm  13.42s* -> 17.25s  6.7MB  seam 0.90  62 ufps  poster 93KB
+- barker-bloom-preview.webm 16.00s  3.0MB  seam 0.97  49 ufps  poster 96KB
+- until-the-last-star-preview.webm 15.32s  12.3MB  seam 1.95  poster 89KB / lum 72
+  (* blackthorn was re-timed; the shipped loop is 17.25s.)
+All unique-fps figures are the 3x-to-4x improvement asked for (old 15.6 to 24.8).
+Posters are all under the ~100KB budget. Frame 0 posters match the new aspect.
+
+STAR (reported): the round-4c bright-afterglow content plan is unchanged (10s
+preload wait, timeline t 0.13 to 0.17, no parallax, crossfade loop). Luminance
+profile on the shipped clip: poster 72.3, min 48.5, mean 62.3, ZERO samples below
+40 (no black-page / dark-trough regression). The crossfade is the round-4c-accepted
+diffuse plasma dissolve: the mid-dissolve frame shows all structural text (epoch
+nav, title, timestamp) crisp and SINGLE (no legible ghosting). The head anchor was
+bounded to the opening hold so it stays at the tour start scroll position (an
+earlier unbounded scan roamed to a mid-tour frame at a different position, risking
+a position ghost; fixed and re-processed).
+
+DEVIATIONS / notes (item 1):
+- Seam fix (instrumented): the demo heros run scroll-reveal animations that re-fire
+  on scroll-back; the warmup excursion re-triggers them, so the opening hold caught
+  them replaying and left too short a static window. Two fixes: (a) preserve static
+  holds in the raw assembly (the 0.25s duration clamp collapsed the 1.5s opening
+  hold, so the raw jumped into the scroll; raised to 2.5s); (b) keep the warmup but
+  add warmup_settle_ms (2500) so the reveals fully settle before the keeper. Result:
+  a clean 1.5s static opening window matching the tail (diff 0.4), seam 0.90/0.97.
+- Sizes grow (owner accepted): the star at 12.3MB is the largest (60fps + busy
+  plasma + 1500x1560 + 15.3s). All lazy-loaded, so the first-load budget is
+  untouched. If a smaller star is wanted, its CRF can be raised (plasma is diffuse
+  and forgiving); flagged for the owner.
+- The raw intermediate is now an H.264 CRF-12 mp4 (was a Playwright VP8 webm), so
+  process_one reads `<name>-raw.mp4`. The `.offset` file is no longer written (the
+  raw is keeper-only, so the head anchor no longer needs a wall-clock offset).
+
+### Item 2 - Theme toggle (system / light / dark)
+
+MECHANISM (my call, reported): ONE mechanism. The stored preference (system /
+light / dark; absent = system) is resolved to a concrete theme in JS and written
+as data-theme="light" | "dark" on <html>; the CSS only ever reads
+[data-theme="dark"] (there is NO prefers-color-scheme media query in the styles).
+Chosen over a two-mechanism scheme (data-theme for forced + a media query for
+system) because it keeps a single source of truth and avoids the two disagreeing.
+- Applied before first paint by a tiny inline <head> script reading localStorage
+  (wrapped in try/catch; falls back to light), so there is no flash.
+- js/main.js `initTheme` wires the three footer buttons, reflects aria-pressed,
+  persists to localStorage (key `zayn-theme`), live-updates on an OS scheme change
+  while following the system, and dispatches a `themechange` event.
+- The dot-grid canvas re-reads --dot-rest / --dot-warm and repaints on
+  `themechange` (verified: dark = light dots on dark). The CONCEPT 3.3 dot-grid
+  guards are unchanged (no mousemove listener bound on touch / reduced motion).
+- meta name="color-scheme" content="light dark" added; CSS `color-scheme` is set
+  per resolved theme so UA scrollbars/controls match.
+
+CONTROL (reported): a small segmented rounded-rect in the footer, 16px radius
+family (--radius-surface). Three buttons (monitor / sun / moon inline SVG icons,
+stroke=currentColor, ~15px) with aria-pressed (exactly one pressed), grouped in a
+role="group" aria-label="Colour theme"; icons decorative (aria-hidden), each button
+labelled. Quiet --grey-label icons; the active segment takes the established
+active-card treatment (--surface-white lift + --shadow-row-active, --ink icon);
+house focus-visible ring (--shadow-field-focus), layered over the active elevation
+on the active segment. Chose aria-pressed buttons over a roving-tabindex radiogroup
+(the brief allows either): simpler, each is a Tab stop, Enter/Space activates.
+
+PLACEMENT (verified, screenshots deferred to the verifier): desktop footer line of
+the left column, email on the left and toggle on the right of the SAME row
+(measured 1440x900: email right 370, toggle x 445, both centred at y 818);
+copyright below. Mobile: the same footer flows at the page bottom, same row (390:
+email wraps, toggle stays right and vertically centred, no horizontal scroll).
+
+DARK PALETTE (NEW tokens in a clearly-labelled [data-theme="dark"] block; the 3.1
+light block stays verbatim). Derived from the existing language, not a new
+aesthetic. Values and computed WCAG contrast on the dark ground #141416:
+- --ground #141416; --ink #F0F0F2 (16.2:1); --ink-body #B8B8C0 (9.3:1);
+  --ink-mid #A6A6AE (7.6:1 ground, 6.7:1 on the dark field for placeholders);
+  --grey-label #74747C (4.0:1) and --grey-soft #68686F (3.3:1) mirror the light
+  sub-AA desktop-rest exception.
+- --accent #4E95E8 (5.95:1 ground, 5.0:1 on the lifted card): the sea blue lifted
+  so it clears AA as text/icon/ring (the light #1A6FD4 is only 3.74:1 on dark).
+  --shadow-field-focus and the field:focus border use it, so focus rings stay
+  visible. --accent-ghost lightened for the ghost arrow.
+- Surfaces stepped: ground #141416 < panel/preview #1B1B1E < field #202024 <
+  lifted card --surface-white #242428 (the "white active row card becomes a lifted
+  dark card"). --submit-ink inverts to a light button (#EAEAEE) with a dark label
+  (the --surface-white token), --submit-ink-hover #FFFFFF. --border #33333A.
+- CTA dark-water: --cta-layer1/2/3 redrawn as deep blues (#1B3A5C / #16324A /
+  #163049 family, same drift keyframes and --cta-bg-size); rim/lightpass/edge-lift/
+  mist/press given light-blue-on-deep variants; --cta-text #EAF2FB (11.7:1 on the
+  pill); --cta-index rgba(234,242,251,0.55) with the mobile/focus darken to
+  --ink-mid clearing AA on the pill (4.81:1).
+- --dot-rest rgba(240,240,242,0.07) and --dot-warm rgb(94,166,240) (light dots).
+- --shadow-row-active deepened to 0 1px 3px rgba(0,0,0,0.45) so the single quiet
+  card shadow reads on dark (still the only non-inset shadow on the page).
+Every AA-required pair passes in dark; the two desktop-rest greys are the same
+accepted exception the light theme carries. The preview box stays a neutral dark
+surface with the existing thin border, so the light clips read as intentional.
+
+DEVIATIONS / notes (item 2):
+- No-JS: with JS off the inline script does not run, so data-theme is unset and the
+  page renders light (the site is JS-first; the panel/form already need JS). The
+  toggle buttons show but are inert without JS. Acceptable and flagged.
+- aria and reduced-motion behaviour are unchanged by the theme (the toggle adds no
+  motion; the CTA is-open shadow transition is forced instant by the 3.3 guard).
+- Pointer-trail colours (--trail-a/b) are read once at init and NOT re-read on
+  theme change; the light-blue trails read acceptably on both grounds, and trails
+  are ephemeral (2.2s). Left as-is to avoid over-engineering; noted.
+
+### Item 3 - CTA active shadow (C5 amendment update)
+
+When the CTA is open (.is-open), it now takes --shadow-row-active composed with the
+inset rim (rim first): `box-shadow: var(--cta-rim), var(--shadow-row-active)`.
+box-shadow was added to the .row--cta transition so it eases in with the grow. An
+.row--cta.is-open:focus-visible rule (0,3,0) layers the accent ring over the rim and
+the active shadow so an open, keyboard-focused CTA keeps all three. Verified the
+computed box-shadow in BOTH themes: light = white rim insets + rgba(20,20,22,0.06)
+0 1px 3px; dark = light-blue rim insets + rgba(0,0,0,0.45) 0 1px 3px.
+
+### Item 4 - Cache bust ?v=12 to ?v=13
+
+Every shipped ?v=12 bumped to ?v=13 (a push follows): 13 in index.html (css, js,
+six media refs, og:image, twitter:image, favicon.svg, favicon-32.png,
+apple-touch-icon.png), 2 in css/styles.css (two @font-face src), 0 in js/main.js.
+Byte-safe sed; grep confirms 0 remaining ?v=12. Media filenames carry no version,
+so the re-recorded clips are picked up by the bumped refs.
+
+### Client feedback round 5 - integration and verification notes
+- In-browser (headed-equivalent, local http server; autoplay loops need no Range):
+  all three V2 views autoplay on selection at desktop (dark 1440x900) and mobile
+  (light 390x844): paused=false, loop=true, muted=true, preload="none", readyState
+  4, currentTime advancing, source 1500x1560; zero layout shift (.preview box
+  identical before/after load); no media 404s, no console errors.
+- Theme verified programmatically: initial data-theme resolves from the pref;
+  clicking dark sets data-theme=dark + localStorage=dark + aria-pressed; a fresh
+  load with OS dark + system pref resolves to dark (system-follows-OS); the dot
+  grid flips to light-on-dark.
+- The capture, the NVIDIA renderer confirmation, the screencast fps probe and the
+  frame/luminance/crop inspections ran in real headed GPU Chromium; numbers above
+  are measured. Old ?v=12 media backed up to the scratchpad before overwrite.
+  Screenshot/visual sign-off (including the toggle placement and the dark theme
+  across every view) remains the verifier's.
+
+### Client feedback round 5 - playback-smoothness FAIL fix (2026-07-28)
+
+Verifier FAIL: in-browser playback dropped 31 to 45% of decoded frames on all three
+clips (getVideoPlaybackQuality; verify/restyle-5/t4b_playback_gpu.json: 37/38/31%),
+still ~22% in a bare page, so it is DECODE cost, not page contention. No re-record;
+re-encoded from the existing raws only. ?v=13 kept (no push since the bump). Files
+changed: tools/capture.py, tools/README.md, media/*.webm and *.jpg (three), PROGRESS.md.
+
+DIAGNOSIS (instrument then fix; reproduced the FAIL, then found the deeper cause):
+- Reproduced the baseline in a headed-GPU harness: 34.2 / 33.9 / 30.8% dropped on
+  the shipped 60fps 1500x1560 clips (matches the verifier's 37/38/31%).
+- ROOT CAUSE, deeper than the brief's "non-standard 1500x1560 at 60fps": the clips
+  were VP9 PROFILE 1 (yuv444p) - and had been since round 4 - which forces SOFTWARE
+  decode on virtually all hardware and doubles chroma. The xfade filter re-expanded
+  to yuv444p and the output pix_fmt was never pinned. That is WHY it was "software
+  VP9 decode". Combined with 60fps and 2.34M px it overran the decoder.
+
+FIX (three levers, most-to-least impactful):
+1. Force VP9 PROFILE 0 (yuv420p): `format=yuv420p` after the xfade plus
+   `-pix_fmt yuv420p` on the encode. 4:2:0 is hardware-decodable and halves chroma.
+2. 60fps -> 30fps CFR: a slow ambient drift reads perfectly smooth at 30 and it
+   halves the per-second decode load.
+3. MOD-16 dimensions 1500x1560 -> 1280x1344 (1280 = 80*16, 1344 = 84*16, ratio
+   0.952): macroblock-aligned decodes more efficiently; stepped down from the first
+   1440x1504 attempt for extra decode/composite margin. 1280 wide is a 6% upscale of
+   the 1364 device-px box at DPR 2 (imperceptible; sharpness kept high).
+
+MEASURED (deterministic, since a real-browser drop-% could not be produced here, see
+the limitation note):
+- SOFTWARE decode throughput (ffmpeg, 1 thread; browsers decode multi-threaded and,
+  for profile 0, in hardware): new 1280x1344 420p clips decode at blackthorn 208.8,
+  barker 340.9, star 96.9 fps - 3.2x to 11x the 30fps playback rate, comparable to
+  the previously-shipped-and-accepted round-4 clips (109 to 213 fps). Decode has
+  clear headroom; it is no longer the bottleneck.
+- The 60fps 444p baseline vs the 30fps 420p re-encode also dropped the drop-% in the
+  headed harness before it began render-throttling (34/34/31 -> 9.7/8.6/19.5 at the
+  intermediate 30fps step), confirming the direction.
+
+FINAL MEDIA (1280x1344, VP9 Profile 0 / yuv420p, 30fps, no audio; content, crossfade
+loops, star afterglow and luminance all unchanged from the round-5 recordings):
+- blackthorn-preview.webm   17.23s  4.1MB  seam 1.06  poster 97KB
+- barker-bloom-preview.webm  16.00s  1.6MB  seam 1.23  poster 90KB
+- until-the-last-star-preview.webm 15.30s 6.7MB  seam 2.42  poster 93KB (lum: poster
+  72.3, clip min 50.2, mean 62.6, zero samples < 40 - the afterglow is unchanged)
+Sizes fell from the 60fps 1500x1560 clips (6.7/3.0/12.3MB) with the fps halving and
+smaller frame. Seams re-checked (all pass, same acceptance). Posters re-exported at
+frame 0, 1280 wide, all under 100KB.
+
+MEASUREMENT LIMITATION (reported honestly): I could not reproduce the verifier's
+headed-GPU browser drop-% here. A headed Playwright window on this machine is
+render-throttled (the occluded window presents ~2 frames and auto-pauses;
+anti-backgrounding flags did not help), and headless Chromium is software-decode +
+no real vsync, so its drop-% (19 to 27%) is a compositor artifact that does NOT scale
+with resolution (26% at 1440 vs 22% at 1280 despite the decode benchmark showing huge
+headroom) and is not the deployment metric. The substantive evidence is the decode
+benchmark plus the deterministic profile-0 / 30fps / mod-16 change. The verifier
+should re-run its working headed-GPU harness (t4b) to confirm the drop-% under ~5%.
+READY FALLBACK if it still exceeds ~5% there: step down once more to 1152x1200
+(mod-16, ratio 0.96) - change OUT_W/OUT_H in tools/capture.py and re-run
+`python tools/capture.py --skip-capture`; that is a ~19% upscale of the box (softer)
+but lighter still. Everything else in round 5 is verified and untouched.
+
+### Client feedback round 5 - hardware-decode FAIL fix (SAR + colour metadata, 2026-07-28)
+
+The above 1280x1344 re-encode FAILED HARD on the verifier's headed-GPU path: MediaError
+code 3 PIPELINE_ERROR_DECODE on all three clips (6/6 reproductions), while headless
+software decode played them fine. This SUPERSEDES the "measurement limitation" note in
+the previous sub-section: the fix below was confirmed in a real headed-GPU Chromium
+(the earlier headed throttling was defeated with
+--disable-features=CalculateNativeWinOcclusion). Metadata fix only, no re-record, no
+resolution change. ?v=13 kept. Files: tools/capture.py, tools/README.md, media/*.webm
+and *.jpg (three), PROGRESS.md.
+
+ROOT CAUSE (precise, from ffprobe; the real reason it fell to software decode):
+- SAR 323:320. The CDP screencast raw is 1000x1040 (screencast returns CSS-PIXEL
+  frames; the deviceScaleFactor did NOT enlarge them - the "DPR 2 -> 2000x2080 raw"
+  assumption was wrong, so the output is a mild upscale from 1000 wide, accepted since
+  crop/blur passed round 5). Scaling 1000x1040 (DAR 25:26) to the non-matching
+  1280x1344 made ffmpeg's scale set a fractional SAR of 323:320 to preserve DAR, so
+  videoWidth reported 1292 not 1280. Non-square pixels break hardware VP9.
+- Colour: the raw is yuvj420p FULL-range tagged bt470bg (swscale's default when
+  libx264 encoded the RGB screencast JPEGs). color_range=pc + color_space=bt470bg is
+  an unusual pairing hardware VP9 paths reject; it carried straight through to the
+  output.
+
+FIX (encode metadata, in tools/capture.py `vfilter` + `vp9_args` + `encode_crossfade`):
+1. setsar=1:1 forces SQUARE pixels (videoWidth now 1280; the <1% aspect nudge is
+   invisible and cover-cropped).
+2. Convert (not retag) full-range/bt601 to tv-range/bt709 in the scale filter
+   (`in_range=full:out_range=tv:in_color_matrix=bt601:out_color_matrix=bt709`; bt601
+   is ffmpeg's name for the bt470bg matrix), then stamp all four fields with
+   `setparams=range=tv:colorspace=bt709:color_primaries=bt709:color_trc=bt709` and the
+   `-color_range tv -colorspace bt709 -color_primaries bt709 -color_trc bt709` encode
+   flags so pixels and tags agree.
+Same 1280x1344, yuv420p, Profile 0, 30fps. ffprobe now reports on all three:
+SAR 1:1, pix_fmt yuv420p, color_range tv, color_space/primaries/transfer all bt709.
+
+VERIFIED in HEADED GPU Chromium (occlusion detection disabled so the window renders):
+- No MediaError on any clip (was code 3 on all three); videoWidth 1280 (was 1292);
+  currentTime advances at real time (7.3s over ~7.5s).
+- Drop rate, 6s steady-state window: blackthorn 0/181, barker 0/181, star 0/181 = 0%
+  dropped; cumulative incl. startup 4/221, 3/223, 4/222 = 1.3 to 1.8%. Under the ~5%
+  acceptance, no repeated spikes. PASS.
+
+FINAL MEDIA (1280x1344, VP9 Profile 0 / yuv420p / 30fps, SAR 1:1, tv/bt709; content,
+crossfade loops and star afterglow unchanged):
+- blackthorn-preview.webm   3.4MB  seam 1.24  poster 97KB
+- barker-bloom-preview.webm 1.4MB  seam 1.31  poster 89KB
+- until-the-last-star-preview.webm 5.4MB  seam 2.55  poster 93KB
+Sizes fell again (tv-range encodes a touch smaller). Seams re-checked (pass). Posters
+re-exported at frame 0, 1280 wide, all under 100KB (frame 0 unchanged, but re-exported
+from the colour-corrected webm). Star luminance still bright: poster 68.8, clip min
+47.0, mean 59.5, zero samples below 40 (the full->tv range conversion nudges the
+measured jpg luminance down ~3 points from 72; the displayed brightness is preserved
+by the bt709/tv tags and it is decisively not a "black page"). No working dirs left in
+media/ (temp output kept in the scratchpad).

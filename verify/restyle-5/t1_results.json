@@ -1,0 +1,62 @@
+{
+  "dark_flash_test": {
+    "theme_immediately_after_goto": "dark",
+    "theme_after_load": "dark",
+    "body_bg_after_load": "rgb(20, 20, 22)"
+  },
+  "system_mode_os_dark": "dark",
+  "system_mode_live_update_to_light": "light",
+  "forced_light_under_os_dark": "light",
+  "forced_dark_under_os_light": "dark",
+  "persistence": {
+    "localStorage_after_click": "dark",
+    "attr_after_click": "dark",
+    "aria_pressed_after_click": [
+      [
+        "system",
+        "false"
+      ],
+      [
+        "light",
+        "false"
+      ],
+      [
+        "dark",
+        "true"
+      ]
+    ],
+    "attr_after_reload": "dark"
+  },
+  "first_load": {
+    "total_transfer_bytes": 184087,
+    "resource_count": 5,
+    "video_requests_before_selection": [],
+    "resources": [
+      {
+        "name": "http://localhost:8235/css/styles.css?v=13",
+        "transferSize": 65589,
+        "encodedBodySize": 65289
+      },
+      {
+        "name": "http://localhost:8235/js/main.js?v=13",
+        "transferSize": 38863,
+        "encodedBodySize": 38563
+      },
+      {
+        "name": "http://localhost:8235/fonts/archivo-latin-var.woff2?v=13",
+        "transferSize": 35228,
+        "encodedBodySize": 34928
+      },
+      {
+        "name": "http://localhost:8235/fonts/martian-mono-latin-var.woff2?v=13",
+        "transferSize": 23856,
+        "encodedBodySize": 23556
+      },
+      {
+        "name": "http://localhost:8235/",
+        "transferSize": 20551,
+        "encodedBodySize": 20251
+      }
+    ]
+  }
+}

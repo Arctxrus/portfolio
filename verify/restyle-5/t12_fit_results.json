@@ -1,0 +1,44 @@
+{
+  "desktop_blackthorn": {
+    "video": {
+      "videoWidth": 1292,
+      "videoHeight": 1344,
+      "clientWidth": 680,
+      "clientHeight": 650,
+      "objectFit": "cover"
+    },
+    "preview_box": {
+      "width": 682,
+      "height": 652,
+      "ratio": 1.0460122699386503
+    }
+  },
+  "desktop_barker-bloom": {
+    "video": {
+      "videoWidth": 1292,
+      "videoHeight": 1344,
+      "clientWidth": 680,
+      "clientHeight": 650,
+      "objectFit": "cover"
+    },
+    "preview_box": {
+      "width": 682,
+      "height": 652,
+      "ratio": 1.0460122699386503
+    }
+  },
+  "desktop_until-the-last-star": {
+    "video": {
+      "videoWidth": 1292,
+      "videoHeight": 1344,
+      "clientWidth": 680,
+      "clientHeight": 650,
+      "objectFit": "cover"
+    },
+    "preview_box": {
+      "width": 682,
+      "height": 652,
+      "ratio": 1.0460122699386503
+    }
+  }
+}
