@@ -1,0 +1,31 @@
+{
+  "mechanism": "history.scrollRestoration is left at its default 'auto'. pushDetailHistory() calls history.pushState({zaynDetail:1}, '') on every enterDetail (no URL change). On exit, closeDetail() calls history.back() whenever detailPushed is true (true for every row-opened detail), which is the case for both the on-page back-control tap and the Escape key. The browser's native popstate/back navigation restores window.scrollY to the value it had at the moment pushState was called (i.e. the scrollY when the user entered the detail), and it does this BEFORE the app's popstate listener (and therefore holdDocHeight/exitDetail) runs at all.",
+  "isolated_confirmation": {
+    "description": "Listener added before the back tap logs scrollY the instant popstate fires.",
+    "pre_exit_scrollY": 1069,
+    "entry_scrollY": 0,
+    "scrollY_at_popstate_fire": 0,
+    "note": "scrollY is already snapped to the entry-time value before any of the round-9 JS (holdDocHeight, applyFocus) executes."
+  },
+  "reproductions": {
+    "pointer_back_button_entry0_exit1069_360x780": { "before": 1069, "at_50ms": 0, "final": 0 },
+    "pointer_back_button_entry50_exit300_360x780": {
+      "before": 300,
+      "trace_around_snap": [
+        {"t_ms": 40.1, "y": 300},
+        {"t_ms": 56.6, "y": 0, "note": "single-frame jump, delta -300"},
+        {"t_ms": 73.5, "y": 50, "note": "single-frame jump, delta +50, lands on entry scrollY"}
+      ],
+      "final": 50
+    },
+    "escape_keyboard_entry300_exit668_360x780": { "before": 668, "after": 300, "note": "300 matches the entry scrollY, not a natural scroll-into-view computation" },
+    "genuine_browser_back_page.go_back_entry0_exit500_390x844": { "before": 500, "at_50ms": 0, "final": 0 },
+    "reduced_motion_exit_entry50_exit400_360x780": { "before": 400, "at_50ms": 50, "final": 50, "note": "bug is independent of the prefers-reduced-motion branch since it fires before any app JS" }
+  },
+  "contrast_with_PROGRESS_md_claim": {
+    "PROGRESS_claim": "EXIT, pointer, from the detail bottom (scrollY 1089): held at 1089 through the whole morph, then ONE instant settle to the new welcome bottom (endY 547, finalMax 547) at release",
+    "measured_actual_welcome_maxScroll_360x780": 573,
+    "measured_actual_behaviour": "endY lands on the scrollY recorded at ENTRY time (e.g. 0 or 50), not on the settled welcome page's bottom (~573), and the jump happens in two single-frame steps within ~70ms of the tap, well before HEIGHT_HOLD_EXIT_MS (460ms) release fires.",
+    "likely_cause_of_discrepancy": "PROGRESS.md's round-9 instrumentation appears to have called exitDetail()/closeDetail() directly (or exercised a path that does not go through a real history.back()/popstate cycle), so it never observed the browser's native scroll-restoration snap that a real user triggers via the back control or Escape."
+  }
+}

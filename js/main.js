@@ -45,6 +45,15 @@ function isTouchDevice() {
   return coarsePointerQuery.matches;
 }
 
+/* Input-modality heuristic (Client feedback round 9). A keyboard-initiated
+   activation (Enter / Space on a row or the back control, or Escape) should scroll
+   the newly focused control into view so a keyboard user can see where focus went;
+   a pointer tap must NOT scroll (that focus-driven scroll is part of the "snap" the
+   owner reported). Each handler that has the event decides directly: a click with
+   detail === 0 is a keyboard-synthesised activation, Escape is keyboard by
+   definition. A genuine browser / hardware back has no event and never calls
+   closeDetail, so it defaults to pointer-like (see the popstate handler). */
+
 /* --------------------------------------------------------------------------
    Theme (Client feedback round 5). System / light / dark, via ONE mechanism:
    the stored preference is resolved to a concrete theme and written as
@@ -575,6 +584,16 @@ const CARD_FADE_MS = 300;       /* per-card opacity + 6px translateY */
    the stagger IS their entrance), and the video decode starts a beat after that. */
 const SECTION_CARDS_DELAY = FLIP_MS;         /* begin the incremental mount at travel end */
 
+/* Height-reserve release timing (Client feedback round 9, see holdDocHeight). The
+   reserve is held across the morph and released once the incoming layout's own
+   height is in effect. Enter / switch: the stack cards mount incrementally from
+   SECTION_CARDS_DELAY, one per CARD_STAGGER_MS (up to five cards), and a card's
+   height is in flow the instant it is appended, so the settled height is reached
+   shortly after the last append. Exit: no cards mount; the welcome swap and the
+   index group fade settle within the travel. Both include a small margin. */
+const HEIGHT_HOLD_ENTER_MS = SECTION_CARDS_DELAY + 5 * CARD_STAGGER_MS + 120;  /* 760 */
+const HEIGHT_HOLD_EXIT_MS = FLIP_MS + 120;                                     /* 460 */
+
 /* Panel-into-view scroll (CONCEPT.md section 8). After a selection on mobile the
    panel header must be on screen. The test is on the panel's top edge, measured
    in px and independent of viewport height. A visible-fraction test does not
@@ -623,6 +642,23 @@ function initPanel() {
   if (!panelBody || !rows.length) {
     return;
   }
+
+  /* Take manual control of scroll restoration (Client feedback round 9, verifier).
+     The detail state routes its exit through a history entry (the back control and
+     Escape call history.back(), and a genuine browser / hardware back fires the same
+     popstate). Left at the browser default 'auto', the browser natively restored the
+     entry-time scrollY in the first frame of the popstate, BEFORE exitDetail could
+     run (measured 1069 -> 0 at about 16ms), which re-introduced the exit snap that
+     the height reserve is meant to prevent. With 'manual' the browser leaves the
+     scroll where it is and exitDetail's reserve + single settle own the position.
+     Defensive try/catch, matching the history.pushState / replaceState calls below;
+     on a full page load the page simply starts at the top, which is fine for a
+     one-page site (bfcache restores still preserve position independently). */
+  try {
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+  } catch (e) { /* ignore: falls back to the browser default */ }
 
   /* Map each row key to its row element and display name (round 7). The chips
      and the FLIP clones both use the project name, so the travelling text is the
@@ -999,6 +1035,90 @@ function initPanel() {
     });
   }
 
+  /* ---- scroll-preservation across the detail morph (round 9) ------------ */
+
+  /* Diagnosis (measured on a 360x780 phone, tapping a project from scrollY 100):
+     entering the detail state pins the index / pricing / how / proof out of flow
+     (about 489px) and renders an EMPTY panel shell (the cards mount at travel end),
+     so the document transiently collapses 1353 -> 807. maxScroll drops to 27, the
+     browser clamps scrollY 100 -> 27, and never restores it when the cards later
+     grow the document back to 1849: a -73px "snap down". Exit has the mirror
+     collapse (the tall detail shrinks to the short welcome). Fix: pin the document
+     height at its current value with a min-height on <body> (the scroll root) BEFORE
+     the morph mutates the flow, so maxScroll can never fall below the current
+     scrollY mid-morph; release it once the incoming layout's own height is in
+     effect. If the settled layout is genuinely shorter than the held offset (exit
+     from deep inside a tall detail), do the single unavoidable adjustment instantly
+     at release, not as a browser clamp part-way through the animation. Mobile-layout
+     only: on desktop the panel sits beside the index and never scrolls, so there is
+     no collapse to absorb. Reduced motion does no pinning and commits the full view
+     synchronously (measured: no clamp), so it does not reserve. */
+  let heightHoldTimer = 0;
+
+  function holdDocHeight() {
+    if (!mobileLayoutQuery.matches) { return; }
+    window.clearTimeout(heightHoldTimer);
+    document.body.style.minHeight = document.documentElement.scrollHeight + 'px';
+  }
+
+  function releaseDocHeight() {
+    window.clearTimeout(heightHoldTimer);
+    if (!document.body.style.minHeight) { return; }
+    document.body.style.minHeight = '';
+    /* Reserve gone: if the settled content is now shorter than the held offset,
+       land on the new bottom in one instant step (the normal case, a detail taller
+       than the index view, leaves scrollY untouched and this is a no-op). */
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    if (window.scrollY > maxScroll) {
+      window.scrollTo(0, Math.max(0, maxScroll));
+    }
+  }
+
+  function scheduleReleaseDocHeight(delay) {
+    window.clearTimeout(heightHoldTimer);
+    heightHoldTimer = window.setTimeout(releaseDocHeight, delay);
+  }
+
+  /* In-detail scroll tracking (Client feedback round 9, verifier re-check). Even
+     with history.scrollRestoration = 'manual', Chromium intrinsically zeroes scrollY
+     during a same-document back navigation (the scroll event at y=0 arrives BEFORE
+     popstate), so by the time exitDetail runs the offset is already gone and the
+     reserve has nothing to hold. This affects ALL three exit triggers, including a
+     hardware / browser back that never passes through closeDetail, so a per-click
+     stash is not enough. Instead, while a detail is open, a passive scroll listener
+     records the live offset; exitDetail restores it as its first action (before any
+     hold or DOM mutation) to undo the zeroing, then the held morph and the single
+     genuine settle at release proceed as designed. Guard: the intrinsic zeroing lands
+     at exactly 0 in one jump from a large offset, so a y === 0 event is ignored while
+     the tracked offset is still well above the top (a real user reaches the top
+     gradually, and exiting from a genuine top is snap-free anyway). */
+  let lastDetailScrollY = 0;
+  const DETAIL_ZERO_GUARD = 60;   /* px: below this a y===0 event is a real top, not the zeroing */
+
+  function onDetailScroll() {
+    const y = window.scrollY;
+    if (y === 0 && lastDetailScrollY > DETAIL_ZERO_GUARD) {
+      return;   /* the browser's intrinsic scroll-to-0 before a back: keep the offset */
+    }
+    lastDetailScrollY = y;
+  }
+  function startDetailScrollTracking() {
+    lastDetailScrollY = window.scrollY;
+    window.addEventListener('scroll', onDetailScroll, { passive: true });
+  }
+  function stopDetailScrollTracking() {
+    window.removeEventListener('scroll', onDetailScroll);
+  }
+  /* Undo the browser's intrinsic zeroing so the reserve + settle own the position.
+     A no-op when nothing zeroed the scroll (the direct, non-popstate exit path):
+     lastDetailScrollY then equals the current offset. */
+  function restoreDetailScroll() {
+    stopDetailScrollTracking();
+    if (window.scrollY !== lastDetailScrollY) {
+      window.scrollTo(0, lastDetailScrollY);
+    }
+  }
+
   /* ---- detail-state building blocks ------------------------------------- */
 
   function showEl(el) { if (el) { el.removeAttribute('hidden'); } }
@@ -1246,13 +1366,20 @@ function initPanel() {
     ], { duration: FLIP_MS, easing: FLIP_EASE });
   }
 
-  function focusAfterFlip(el) {
+  /* Focus a control, suppressing the browser's scroll-into-view for pointer
+     activations (round 9). Keyboard activations pass viaKeyboard true and keep the
+     natural scroll so the focused control is brought on screen. */
+  function applyFocus(el, viaKeyboard) {
+    if (!el) { return; }
+    el.focus(viaKeyboard ? undefined : { preventScroll: true });
+  }
+  function focusAfterFlip(el, viaKeyboard) {
     if (!el) { return; }
     if (prefersReducedMotion()) {
-      el.focus();
+      applyFocus(el, viaKeyboard);
     } else {
       window.setTimeout(function () {
-        if (el && el.isConnected) { el.focus(); }
+        if (el && el.isConnected) { applyFocus(el, viaKeyboard); }
       }, FLIP_MS);
     }
   }
@@ -1263,7 +1390,7 @@ function initPanel() {
      travels into the title; the two sibling rows travel into their chips; the
      non-project rows, INDEX label, HOW IT WORKS and proof strip slide down and
      fade as a group; the section cards stagger in. */
-  function enterDetail(row, key) {
+  function enterDetail(row, key, viaKeyboard) {
     const others = PROJECT_KEYS.filter(function (k) { return k !== key; });
     detailOriginRow = row;
     detailKey = key;
@@ -1277,12 +1404,17 @@ function initPanel() {
       enteringEls.forEach(function (el) { showEl(el); clearFx(el); });
       inDetail = true;
       pushDetailHistory();
+      startDetailScrollTracking();
       setPressed(key);
       commit(key, 'Preview / ' + PROJECT_NAMES[key]);
       currentView = key;
-      if (detailBack) { detailBack.focus(); }
+      if (detailBack) { applyFocus(detailBack, viaKeyboard); }
       return;
     }
+
+    /* Hold the document height across the morph BEFORE the flow is mutated, so the
+       transient collapse (pinned groups + empty shell) cannot clamp scrollY. */
+    holdDocHeight();
 
     const pageRect = page.getBoundingClientRect();
     const titleFirst = rowNameEl(key).getBoundingClientRect();
@@ -1302,6 +1434,7 @@ function initPanel() {
     enteringEls.forEach(showEl);
     inDetail = true;
     pushDetailHistory();
+    startDetailScrollTracking();
     setPressed(key);
     /* Panel: render the header + an EMPTY stack shell now (calm surface during the
        travel); the cards mount at travel end (SECTION_CARDS_DELAY) so the stagger
@@ -1340,13 +1473,14 @@ function initPanel() {
     /* The section cards are mounted incrementally at travel end by mountStackCards
        (scheduled via commit): one card per stagger beat, so the mount IS the
        entrance and its cost never lands here in the travel window. */
-    focusAfterFlip(detailBack);
+    scheduleReleaseDocHeight(HEIGHT_HOLD_ENTER_MS);   /* release once the cards have grown the doc */
+    focusAfterFlip(detailBack, viaKeyboard);
   }
 
   /* Switch project in place (a chip click). The clicked chip travels up into the
      title while the current title travels down into the vacated chip slot; the
      panel cards crossfade via the existing swap. */
-  function switchProject(newKey) {
+  function switchProject(newKey, viaKeyboard) {
     if (!inDetail || newKey === detailKey) { return; }
     const oldKey = detailKey;
     const thirdKey = PROJECT_KEYS.filter(function (k) {
@@ -1365,9 +1499,13 @@ function initPanel() {
       setPressed(newKey);
       commit(newKey, 'Preview / ' + PROJECT_NAMES[newKey]);
       currentView = newKey;
-      if (detailBack) { detailBack.focus(); }
+      if (detailBack) { applyFocus(detailBack, viaKeyboard); }
       return;
     }
+
+    /* Hold the document height across the swap: the panel crossfades to an empty
+       shell before the new cards mount, transiently shrinking the doc (round 9). */
+    holdDocHeight();
 
     /* First rects (before the mutation). */
     const clickedChip = chipByKey(newKey);
@@ -1423,8 +1561,10 @@ function initPanel() {
     });
     if (thirdChipNew) { flipMove(thirdChipNew, thirdFirst, thirdLast); }
 
+    scheduleReleaseDocHeight(HEIGHT_HOLD_ENTER_MS);   /* release once the new cards have grown the doc */
+
     /* Keep focus in the chips row: land on the previously-open project's chip. */
-    focusAfterFlip(chipByKey(oldKey));
+    focusAfterFlip(chipByKey(oldKey), viaKeyboard);
   }
 
   /* Exit the detail state back to the welcome (back / Escape / browser back).
@@ -1435,9 +1575,15 @@ function initPanel() {
      beneath; the panel card stack fades out via the welcome swap. Nothing is
      cloned, so the exit is frame-trace friendly by construction. Focus returns to
      the originating project row. Reduced motion is instant. */
-  function exitDetail() {
+  function exitDetail(viaKeyboard) {
     if (!inDetail) { return; }
     const origin = detailOriginRow;
+
+    /* FIRST action, before any hold or DOM mutation: undo the browser's intrinsic
+       scroll-to-0 that precedes a same-document back navigation (verifier re-check),
+       so the reserve and the single settle at release own the position. Stops the
+       scroll tracking as it does so. A no-op on the direct exit path (no zeroing). */
+    restoreDetailScroll();
 
     /* Cancel any pending stack mount / video start immediately (no zombie mount if
        the user exits within the travel window). */
@@ -1454,9 +1600,15 @@ function initPanel() {
       detailPushed = false;
       swap('welcome', 'Preview / No selection');
       currentView = null;
-      if (origin) { origin.focus(); }
+      if (origin) { applyFocus(origin, viaKeyboard); }
       return;
     }
+
+    /* Hold the document height across the exit morph: the tall detail shrinks to
+       the short welcome, which would clamp scrollY mid-animation from deep in the
+       stack (round 9). releaseDocHeight then makes the single settle-to-bottom step
+       once the welcome height is in effect. */
+    holdDocHeight();
 
     /* Pin the detail header + conversion where they sit so they fade out in place
        while the column reflows the index group back in beneath them. */
@@ -1475,13 +1627,18 @@ function initPanel() {
     detailPushed = false;
     swap('welcome', 'Preview / No selection');   /* cards fade out, welcome in */
     currentView = null;
-    focusAfterFlip(origin);
+    scheduleReleaseDocHeight(HEIGHT_HOLD_EXIT_MS);
+    focusAfterFlip(origin, viaKeyboard);
   }
 
   /* Leave the detail state onto a normal view (Pricing via the conversion line,
      or the form via the relocated CTA). A quiet group crossfade (no title/chip
      FLIP, since we are moving to a different view, not back to the index). */
   function exitDetailToView() {
+    /* Forward transition (no back navigation, so nothing zeroes the scroll): just
+       stop the in-detail scroll tracking; the target view owns any scroll (the form
+       intentionally scrolls itself into view). */
+    stopDetailScrollTracking();
     /* Cancel any pending stack mount / video start (no zombie mount). */
     teardownSectionObserver();
     moveCtaToIndex();
@@ -1527,31 +1684,51 @@ function initPanel() {
     currentView = key;
   }
 
-  function select(row) {
+  /* A button activated by keyboard (Enter / Space) fires a click with detail 0; a
+     pointer tap fires with detail >= 1. That is how each entry / switch / exit knows
+     whether to let the browser scroll the newly focused control into view (round 9). */
+  function clickIsKeyboard(event) {
+    return !!(event && event.type === 'click' && event.detail === 0);
+  }
+
+  function select(row, event) {
     const key = row.dataset.view;
     if (!key) { return; }
+    const viaKeyboard = clickIsKeyboard(event);
     if (PROJECT_KEYS.indexOf(key) !== -1) {
-      if (inDetail) { switchProject(key); }
-      else { enterDetail(row, key); }
+      if (inDetail) { switchProject(key, viaKeyboard); }
+      else { enterDetail(row, key, viaKeyboard); }
     } else {
       selectNormal(row, key);
     }
   }
 
-  /* The back control and Escape route through the history entry when one was
-     pushed, so browser back, the button and the key all land in the same place. */
-  function closeDetail() {
+  /* The back control and Escape route through the history entry when one was pushed,
+     so browser back, the button and the key all land in the same place. The modality
+     is stashed right before history.back() so it survives the popstate hop (round 9);
+     it is consumed and reset in popstate, so a GENUINE browser / hardware back (which
+     never calls closeDetail) defaults to false = pointer-like: preventScroll focus and
+     a settle to the true welcome max, not a focus scroll to the top (verifier spec). */
+  let popstateViaKeyboard = false;
+  function closeDetail(viaKeyboard) {
     if (!inDetail) { return; }
+    /* Capture the live offset synchronously here (the back control and Escape both
+       route through this), independent of scroll-event timing, so restoreDetailScroll
+       always has the true pre-back position even though the browser zeroes scrollY
+       before popstate. A genuine hardware back cannot be intercepted and relies on
+       the passive scroll listener, which fires continuously during real scrolling. */
+    lastDetailScrollY = window.scrollY;
     if (detailPushed) {
+      popstateViaKeyboard = !!viaKeyboard;
       history.back();   /* triggers popstate -> exitDetail */
     } else {
-      exitDetail();
+      exitDetail(viaKeyboard);
     }
   }
 
   rows.forEach(function (row) {
-    row.addEventListener('click', function () {
-      select(row);
+    row.addEventListener('click', function (event) {
+      select(row, event);
     });
   });
 
@@ -1560,25 +1737,32 @@ function initPanel() {
     detailChipsSlot.addEventListener('click', function (event) {
       const chip = event.target.closest('[data-chip-key]');
       if (chip && inDetail) {
-        switchProject(chip.dataset.chipKey);
+        switchProject(chip.dataset.chipKey, clickIsKeyboard(event));
       }
     });
   }
 
   if (detailBack) {
-    detailBack.addEventListener('click', closeDetail);
+    detailBack.addEventListener('click', function (event) {
+      closeDetail(clickIsKeyboard(event));
+    });
   }
 
   document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape' && inDetail) {
-      closeDetail();
+      closeDetail(true);   /* Escape is keyboard: keep the focused origin visible */
     }
   });
 
   window.addEventListener('popstate', function () {
     if (inDetail) {
       detailPushed = false;   /* the entry has already been popped */
-      exitDetail();
+      /* Consume the stash from closeDetail (back control / Escape); a genuine browser
+         or hardware back never set it, so it reads false = pointer-like (no scroll to
+         the top, just the settle). Reset so the next genuine back also defaults false. */
+      const viaKeyboard = popstateViaKeyboard;
+      popstateViaKeyboard = false;
+      exitDetail(viaKeyboard);
     }
   });
 }

@@ -1,0 +1,240 @@
+{
+  "360x780": {
+    "scrollRestoration": "manual",
+    "welcome_maxScroll": 573,
+    "deep-pointer-back": {
+      "pre_y": 1069,
+      "first_frame_y": 1069,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 2630,
+          "to_t": 2646.6,
+          "from_y": 1069,
+          "to_y": 0,
+          "delta": -1069
+        }
+      ],
+      "active": "row",
+      "minheight_after": "",
+      "settle_target_matches_maxScroll": false
+    },
+    "escape-from-deep": {
+      "pre_y": 1069,
+      "first_frame_y": 1069,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 2971.3,
+          "to_t": 2988.6,
+          "from_y": 1069,
+          "to_y": 0,
+          "delta": -1069
+        }
+      ],
+      "active": "row",
+      "minheight_after": ""
+    },
+    "escape-shallow-no-drift": {
+      "pre_y": 50,
+      "first_frame_y": 50,
+      "final_y": 50,
+      "jumps": [],
+      "active": "row",
+      "minheight_after": ""
+    },
+    "escape-from-mismatched-entry": {
+      "entry_y": 50,
+      "pre_escape_y": 300,
+      "first_frame_y": 300,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 2900,
+          "to_t": 2917.4,
+          "from_y": 300,
+          "to_y": 0,
+          "delta": -300
+        }
+      ],
+      "active": "row",
+      "minheight_after": ""
+    },
+    "genuine-go-back-deep": {
+      "pre_y": 1069,
+      "first_frame_y": 1069,
+      "final_y": 573,
+      "jumps": [
+        {
+          "from_t": 2949,
+          "to_t": 2967.8,
+          "from_y": 1069,
+          "to_y": 573,
+          "delta": -496
+        }
+      ],
+      "active": "row",
+      "minheight_after": "",
+      "settle_target_matches_maxScroll": true
+    },
+    "reduced-motion-exit-mismatched": {
+      "rm_matches": true,
+      "pre_y": 400,
+      "first_frame_y": 400,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 1774.5,
+          "to_t": 1790.6,
+          "from_y": 400,
+          "to_y": 0,
+          "delta": -400
+        }
+      ],
+      "minheight_after": ""
+    },
+    "smoke": {
+      "enter_jumps": [],
+      "switch_jumps": [],
+      "form_scrolled_into_view_top": 84.1875,
+      "console_errors": []
+    },
+    "multi_cycle": [
+      {
+        "cycle": 0,
+        "pre_y": 1069,
+        "final_y": 0,
+        "welcome_maxScroll": 573,
+        "minheight_after": "",
+        "scroll_listener_count_hint": "n/a"
+      },
+      {
+        "cycle": 1,
+        "pre_y": 1069,
+        "final_y": 0,
+        "welcome_maxScroll": 573,
+        "minheight_after": "",
+        "scroll_listener_count_hint": "n/a"
+      }
+    ]
+  },
+  "390x844": {
+    "scrollRestoration": "manual",
+    "welcome_maxScroll": 547,
+    "deep-pointer-back": {
+      "pre_y": 1089,
+      "first_frame_y": 1089,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 2563.4,
+          "to_t": 2580.8,
+          "from_y": 1089,
+          "to_y": 0,
+          "delta": -1089
+        }
+      ],
+      "active": "row",
+      "minheight_after": "",
+      "settle_target_matches_maxScroll": false
+    },
+    "escape-from-deep": {
+      "pre_y": 1089,
+      "first_frame_y": 1089,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 2844.1,
+          "to_t": 2860.5,
+          "from_y": 1089,
+          "to_y": 0,
+          "delta": -1089
+        }
+      ],
+      "active": "row",
+      "minheight_after": ""
+    },
+    "escape-shallow-no-drift": {
+      "pre_y": 50,
+      "first_frame_y": 50,
+      "final_y": 50,
+      "jumps": [],
+      "active": "row",
+      "minheight_after": ""
+    },
+    "escape-from-mismatched-entry": {
+      "entry_y": 50,
+      "pre_escape_y": 300,
+      "first_frame_y": 300,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 2924.5,
+          "to_t": 2941.5,
+          "from_y": 300,
+          "to_y": 0,
+          "delta": -300
+        }
+      ],
+      "active": "row",
+      "minheight_after": ""
+    },
+    "genuine-go-back-deep": {
+      "pre_y": 1089,
+      "first_frame_y": 1089,
+      "final_y": 547,
+      "jumps": [
+        {
+          "from_t": 2935.6,
+          "to_t": 2952.2,
+          "from_y": 1089,
+          "to_y": 547,
+          "delta": -542
+        }
+      ],
+      "active": "row",
+      "minheight_after": "",
+      "settle_target_matches_maxScroll": true
+    },
+    "reduced-motion-exit-mismatched": {
+      "rm_matches": true,
+      "pre_y": 400,
+      "first_frame_y": 400,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 1806.2,
+          "to_t": 1823.5,
+          "from_y": 400,
+          "to_y": 0,
+          "delta": -400
+        }
+      ],
+      "minheight_after": ""
+    },
+    "smoke": {
+      "enter_jumps": [],
+      "switch_jumps": [],
+      "form_scrolled_into_view_top": 103.375,
+      "console_errors": []
+    },
+    "multi_cycle": [
+      {
+        "cycle": 0,
+        "pre_y": 1089,
+        "final_y": 0,
+        "welcome_maxScroll": 547,
+        "minheight_after": "",
+        "scroll_listener_count_hint": "n/a"
+      },
+      {
+        "cycle": 1,
+        "pre_y": 1089,
+        "final_y": 0,
+        "welcome_maxScroll": 547,
+        "minheight_after": "",
+        "scroll_listener_count_hint": "n/a"
+      }
+    ]
+  }
+}

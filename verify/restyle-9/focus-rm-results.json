@@ -1,0 +1,37 @@
+{
+  "keyboard-enter-scrolls-back-into-view": {
+    "before_y": 250,
+    "after_y": 185,
+    "active": "detail-back",
+    "back_top_after": 0.1875
+  },
+  "pointer-enter-no-scroll": {
+    "before_y": 250,
+    "after_y": 203,
+    "active": "detail-back"
+  },
+  "pointer-exit-focus-origin": {
+    "active": "row",
+    "after_y": 203
+  },
+  "escape-exit-focus-scroll": {
+    "before_y": 668,
+    "after_y": 300,
+    "active": "row",
+    "origin_top_after": 5.1875
+  },
+  "minheight_leftover": {
+    "enter": "",
+    "exit": ""
+  },
+  "reduced_motion": {
+    "matches": true,
+    "jumps": [
+      {
+        "from": 0,
+        "to": 100
+      }
+    ],
+    "final_y": 100
+  }
+}

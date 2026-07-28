@@ -1,0 +1,37 @@
+{
+  "desktop-enter": {
+    "scrollY_unique": [
+      0
+    ],
+    "max_frame_ms": NaN,
+    "frames_over_33ms": [],
+    "body_minheight_after": ""
+  },
+  "desktop-switch": {
+    "before_y": 0,
+    "after_y": 0,
+    "body_minheight_after": ""
+  },
+  "desktop-exit": {
+    "before_y": 0,
+    "after_y": 0,
+    "body_minheight_after": ""
+  },
+  "theme_toggle": {
+    "found": true,
+    "html_data_theme": "dark",
+    "aria_pressed": "true"
+  },
+  "about": {
+    "found": true,
+    "before_expanded": "false",
+    "after_expanded": "true"
+  },
+  "pricing": {
+    "found": true,
+    "visible": true
+  },
+  "copy_email_btn_count": 1,
+  "copy_email_text_after_click": "Copied",
+  "console_errors": []
+}

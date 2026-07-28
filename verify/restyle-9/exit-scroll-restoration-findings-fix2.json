@@ -1,0 +1,34 @@
+{
+  "fix2_applied": "Passive scroll listener while a detail is open (startDetailScrollTracking/onDetailScroll/stopDetailScrollTracking, js/main.js ~1082-1120), a y===0-while-tracked->60 guard against the intrinsic zero, closeDetail synchronously stashing window.scrollY before history.back() (~line 1720), exitDetail's first action restoring the stashed value via restoreDetailScroll() (~line 1586), and genuine-back modality defaulting to pointer-like (popstateViaKeyboard defaults false, ~line 1712).",
+  "retraction_of_prior_fix1_report": "My fix1 verification mis-read two things as bugs that are not: (1) tapping the off-screen .detail-back control from a deep scrollY (e.g. 1069) forces Playwright's own actionability pre-step to scroll the target into view before the click can even dispatch - this is a TEST-METHODOLOGY artifact, not app behaviour: a real touchscreen user physically cannot tap an invisible button either, and .detail-back is a normal in-flow element (not sticky/fixed, confirmed via css/styles.css line 1636), so a real pointer user MUST scroll it into view themselves first, which is a legitimate user-initiated scroll, not a snap. (2) The scrollY change I flagged for Escape exits (landing near 0) is the INTENDED post-morph keyboard focus-into-view behaviour, not a residual bug: it fires at dt~340-380ms after popstate (matching FLIP_MS=340 via focusAfterFlip's setTimeout), i.e. AFTER the morph, not during it; the morph itself (popstate to ~340ms) holds scrollY exactly at its pre-exit value with zero drift at both widths. The landing value is 0 not because of a hardcoded reset but because Chromium's default focus() scroll-into-view centers the newly-focused row in the viewport, and every index row's centering target on this short page computes negative and clamps to 0 - confirmed by focusing a LOWER row (star, the 3rd project) and observing document.activeElement really is the star row post-settle (not a body fallback).",
+  "confirmed_now_passing": {
+    "genuine_go_back_deep": {
+      "360x780": {"pre_y": 1069, "final_y": 573, "matches_welcome_maxScroll": true},
+      "390x844": {"pre_y": 1089, "final_y": 547, "matches_welcome_maxScroll": true},
+      "reduced_motion_360x780": {"pre_y": 400, "final_y": 400, "note": "no move needed, 400 already within the synchronously-restored full welcome height"}
+    },
+    "escape_shallow_no_drift": {"pre_y": 50, "final_y": 50, "jumps": []},
+    "escape_from_deep": {
+      "360x780_blackthorn_origin": {"morph_held_until_dt_ms": "~340 (focusAfterFlip fires, then focus-scroll)", "final_y": 0, "focus_lands_on_origin_row": true},
+      "360x780_star_origin": {"final_y": 0, "focus_lands_on_origin_row": true, "note": "confirms landing value is a focus-driven scroll target (clamped centering), not a hardcoded 0 - a different, lower row still lands near 0 because every row's center-target on this short page clamps to 0, but activeElement correctly tracks the actual origin row each time"}
+    },
+    "escape_from_mismatched_entry_50_300": {
+      "360x780": {"jump_at_dt_ms": 365.4, "jump": "300 -> 0", "final_y": 0},
+      "390x844": {"jump_at_dt_ms": 381.1, "jump": "300 -> 0", "final_y": 0},
+      "verdict": "snap-free through the morph (held at 300 until ~365-381ms, i.e. after FLIP_MS=340), then the intended keyboard focus-scroll - PASS, not a bug"
+    },
+    "pointer_back_control_tap_from_a_reachable_position": {
+      "360x780_scrollY_175_normal_motion": {"pre_y": 175, "final_y": 175, "jumps": []},
+      "360x780_scrollY_175_reduced_motion": {"pre_y": 175, "final_y": 175, "jumps": []},
+      "note": ".detail-back cannot be tapped by a real pointer/touch user while scrolled deep (it is a normal in-flow, non-sticky element that is off-screen at those offsets); the reachable-position case is the correct realistic test and is clean with preventScroll honoured (no further scroll after settle)"
+    },
+    "multi_cycle_enter_exit_via_genuine_back_x3": {
+      "360x780": [{"pre":1069,"final":573},{"pre":1069,"final":573},{"pre":1069,"final":573}],
+      "390x844": [{"pre":1089,"final":547},{"pre":1089,"final":547},{"pre":1089,"final":547}],
+      "min_height_after_each_cycle": "'' (clean) every time",
+      "console_errors": "none"
+    },
+    "min_height_leftover": "clean ('') after every scenario above, including all exit variants",
+    "smoke_enter_switch_form": {"enter_jumps": [], "switch_jumps": [], "form_scroll_into_view": "still fires (top ~84-103px after)", "console_errors": []}
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "360x780": {
+    "scrollRestoration": "manual",
+    "welcome_maxScroll": 573,
+    "deep-pointer-back": {
+      "pre_y": 1069,
+      "first_frame_y": 1069,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 2372.1,
+          "to_t": 2389.4,
+          "from_y": 1069,
+          "to_y": 0,
+          "delta": -1069
+        }
+      ],
+      "active": "row",
+      "minheight_after": "",
+      "settle_target_matches_maxScroll": false
+    },
+    "escape-from-deep": {
+      "pre_y": 1069,
+      "first_frame_y": 1069,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 2698.3,
+          "to_t": 2714.7,
+          "from_y": 1069,
+          "to_y": 0,
+          "delta": -1069
+        }
+      ],
+      "active": "row",
+      "minheight_after": ""
+    },
+    "escape-from-mismatched-entry": {
+      "entry_y": 50,
+      "pre_escape_y": 300,
+      "first_frame_y": 300,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 2785.7,
+          "to_t": 2801.7,
+          "from_y": 300,
+          "to_y": 0,
+          "delta": -300
+        }
+      ],
+      "active": "row",
+      "minheight_after": ""
+    },
+    "genuine-go-back-deep": {
+      "pre_y": 1069,
+      "first_frame_y": 1069,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 2703,
+          "to_t": 2719.5,
+          "from_y": 1069,
+          "to_y": 0,
+          "delta": -1069
+        }
+      ],
+      "active": "row",
+      "minheight_after": ""
+    },
+    "reduced-motion-exit-mismatched": {
+      "rm_matches": true,
+      "pre_y": 400,
+      "first_frame_y": 400,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 1658.1,
+          "to_t": 1674.8,
+          "from_y": 400,
+          "to_y": 0,
+          "delta": -400
+        }
+      ],
+      "minheight_after": ""
+    },
+    "smoke": {
+      "enter_jumps": [],
+      "switch_jumps": [],
+      "form_scrolled_into_view_top": 84.1875,
+      "console_errors": []
+    }
+  },
+  "390x844": {
+    "scrollRestoration": "manual",
+    "welcome_maxScroll": 547,
+    "deep-pointer-back": {
+      "pre_y": 1089,
+      "first_frame_y": 1089,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 2361.6,
+          "to_t": 2379.2,
+          "from_y": 1089,
+          "to_y": 0,
+          "delta": -1089
+        }
+      ],
+      "active": "row",
+      "minheight_after": "",
+      "settle_target_matches_maxScroll": false
+    },
+    "escape-from-deep": {
+      "pre_y": 1089,
+      "first_frame_y": 1089,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 2708.8,
+          "to_t": 2725.6,
+          "from_y": 1089,
+          "to_y": 0,
+          "delta": -1089
+        }
+      ],
+      "active": "row",
+      "minheight_after": ""
+    },
+    "escape-from-mismatched-entry": {
+      "entry_y": 50,
+      "pre_escape_y": 300,
+      "first_frame_y": 300,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 2758.7,
+          "to_t": 2775.9,
+          "from_y": 300,
+          "to_y": 0,
+          "delta": -300
+        }
+      ],
+      "active": "row",
+      "minheight_after": ""
+    },
+    "genuine-go-back-deep": {
+      "pre_y": 1089,
+      "first_frame_y": 1089,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 2714,
+          "to_t": 2731.8,
+          "from_y": 1089,
+          "to_y": 0,
+          "delta": -1089
+        }
+      ],
+      "active": "row",
+      "minheight_after": ""
+    },
+    "reduced-motion-exit-mismatched": {
+      "rm_matches": true,
+      "pre_y": 400,
+      "first_frame_y": 400,
+      "final_y": 0,
+      "jumps": [
+        {
+          "from_t": 1669.3,
+          "to_t": 1684.7,
+          "from_y": 400,
+          "to_y": 0,
+          "delta": -400
+        }
+      ],
+      "minheight_after": ""
+    },
+    "smoke": {
+      "enter_jumps": [],
+      "switch_jumps": [],
+      "form_scrolled_into_view_top": 103.375,
+      "console_errors": []
+    }
+  }
+}

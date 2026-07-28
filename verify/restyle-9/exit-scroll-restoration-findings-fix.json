@@ -1,0 +1,29 @@
+{
+  "fix_applied": "history.scrollRestoration = 'manual' set early in initPanel (js/main.js ~line 669), guarded with 'scrollRestoration' in history.",
+  "confirmed_working": {
+    "history.scrollRestoration_reads": "manual",
+    "native_auto_restore_to_entry_time_value": "GONE - confirmed by escape-from-mismatched-entry landing on 0, not on the entry value 50 (pre-fix it landed on 50, the entry-time value; that specific auto-restore mechanism is fixed)",
+    "shallow_exit_no_drift": "CLEAN - entered at scrollY 50, no further scroll before Escape: scrollY stays 50 throughout, matches PROGRESS.md's shallow-position claim",
+    "min_height_leftover": "clean ('') after settle in every scenario, including the FAIL scenarios below",
+    "enter_switch_form_smoke": "unaffected - zero jumps on enter and chip-switch, form scroll-into-view still fires (top ~84-103px after)"
+  },
+  "still_broken": {
+    "description": "Whenever the user scrolls WITHIN the open detail view to a position different from where it was entered, then exits via the back control (pointer), Escape (keyboard), or a genuine browser/hardware back, a single-frame hard snap to scrollY 0 occurs at roughly t+50ms after the action - well before HEIGHT_HOLD_EXIT_MS (460ms) and before holdDocHeight() has even run (captured: the scroll-to-0 and the resulting 'scroll' event fire BEFORE the 'popstate' event that runs exitDetail; body min-height is still '' at the moment scrollY hits 0, only becoming pinned one frame later). This is not the same mechanism as before (which restored to the entry-time scrollY) - it is a harder, unconditional reset to exactly 0, and nothing in exitDetail() re-asserts the pre-exit scrollY, so it is never corrected. releaseDocHeight's own correction (window.scrollTo to maxScroll) only fires when scrollY > maxScroll, which is never true once scrollY has already been zeroed, so the page never reaches the claimed settle target (573 at 360x780, 547 at 390x844) - it silently stays at 0.",
+    "reproductions": {
+      "deep_pointer_back_360x780": {"pre_y": 1069, "jump": "1069 -> 0 at dt~50ms", "final_y": 0, "claimed_by_PROGRESS": 573},
+      "deep_pointer_back_390x844": {"pre_y": 1089, "jump": "1089 -> 0 at dt~50ms", "final_y": 0, "claimed_by_PROGRESS": 547},
+      "escape_from_deep_360x780": {"pre_y": 1069, "jump": "1069 -> 0", "final_y": 0},
+      "escape_from_deep_390x844": {"pre_y": 1089, "jump": "1089 -> 0", "final_y": 0},
+      "escape_from_mismatched_entry_entry50_exit300_both_widths": {"pre_escape_y": 300, "jump": "300 -> 0", "final_y": 0, "note": "does NOT land on 50 (the entry value) either - lands on 0 unconditionally"},
+      "genuine_go_back_deep_both_widths": {"pre_y": "1069 / 1089", "jump": "-> 0", "final_y": 0, "note": "reproduces via page.go_back(), i.e. a real hardware/gesture back, not just the in-page control"},
+      "reduced_motion_exit_mismatched_entry50_exit400": {"pre_y": 400, "jump": "400 -> 0", "final_y": 0, "note": "bug is independent of the prefers-reduced-motion branch"}
+    },
+    "event_order_instrumentation": [
+      {"t": 2414.8, "event": "scroll", "y": 0},
+      {"t": 2420.0, "event": "popstate", "y": 0},
+      {"t": 2760.9, "event": "focus", "target": "BUTTON.row", "args": [{"preventScroll": true}]}
+    ],
+    "note_on_event_order": "The scroll event (and the underlying scrollY change to 0) fires BEFORE popstate, i.e. before any of exitDetail's JS runs at all. No scrollTo/scrollIntoView/focus call from the page's own JS was logged before this happens (instrumented via wrapping window.scrollTo, Element.prototype.scrollIntoView and HTMLElement.prototype.focus) - it is the browser's own back-navigation handling, not app code, and it happens regardless of history.scrollRestoration='manual'."
+  },
+  "suggested_fix": "history.scrollRestoration='manual' stops the browser from restoring a PREVIOUSLY-recorded offset, but does not stop Chromium's own scroll-to-0 step that happens as part of processing a same-document back navigation before popstate fires. The standard remedy for 'manual' mode is for the app to explicitly reassert the scroll position itself in the popstate handler. Concretely: capture window.scrollY into a stashed variable in closeDetail() (js/main.js ~line 1653), alongside the existing pendingExitViaKeyboard stash that already survives the history.back() -> popstate hop, then as the very first line of exitDetail() (before holdDocHeight() and before any DOM mutation), call window.scrollTo(0, stashedScrollY) to put the browser's already-zeroed scrollY back to where the user actually was, before proceeding with the existing height-hold / settle / focus logic."
+}

@@ -3176,3 +3176,255 @@ no mojibake, no em dashes. `node --check js/main.js` passes; zero console errors
 5. Left-column section rhythm compacted globally from 48px to 26px (and other
    scale-token trims) to fit the always-on pricing block at the 860 minimum;
    consistent everywhere, extra space pools above the pinned proof as before.
+
+### Client feedback round 9 - mobile "snap a little down" on tapping a project row
+
+- Status: BUILT, awaiting verification. Owner report: on mobile, tapping a project
+  row (e.g. Blackthorn) makes the page "snap a little down" right after the tap; the
+  animations themselves are right. All shipped asset refs bumped ?v=17 to ?v=18 (a
+  push follows): 23 in index.html, 2 in css/styles.css (js/main.js carries none).
+  Files changed: js/main.js, index.html (version bump only), css/styles.css (version
+  bump only), PROGRESS.md.
+
+- DIAGNOSIS (instrumented, not guessed; measured over a local http server at 360x780,
+  scrollY / body min-height / document height sampled every 8ms around the tap). The
+  prime suspect (focusAfterFlip focusing the back control without preventScroll) was
+  NOT the cause of the reported snap: at the tap the back control ends up in view and
+  the focus delta measured 0. The real cause is a transient DOCUMENT-HEIGHT COLLAPSE
+  during the synchronous enter:
+  - Pre-tap: scrollY 100, documentElement.scrollHeight 1353, maxScroll 573.
+  - Synchronously inside enterDetail: the outgoing group (index 224 + pricing 126 +
+    how 81 + proof 58 = about 489px) is pinned position:absolute out of flow, and the
+    panel renders an EMPTY stack shell (round-7 smoothness fix defers the cards to
+    travel end). documentElement.scrollHeight collapses 1353 -> 807, maxScroll drops
+    573 -> 27, and the browser CLAMPS scrollY 100 -> 27.
+  - Cards mount at travel end: scrollHeight grows back to 1849, but the clamp is never
+    released, so scrollY stays 27. Net: a -73px upward scroll, i.e. the content
+    "snaps down". overflow-anchor:none (stage-5) is still applied on mobile and is not
+    the cause; this is a hard scroll clamp, which anchoring cannot prevent.
+  - EXIT has the mirror collapse (a tall detail, e.g. 1849, shrinks to the short
+    welcome, e.g. 1353) plus a second contributor: focusAfterFlip(origin) had no
+    preventScroll, so on exit it also scrolled the origin row to the top. Measured
+    exit from the detail bottom (scrollY 1069): 1069 -> 0.
+
+- FIX (js/main.js). Two parts, applied symmetrically to enter / switch / exit; both
+  guarded to the mobile layout (max-width: 900px), so desktop, where the panel sits
+  beside the index and never scrolls, is untouched.
+  1. HEIGHT RESERVE across the morph. New closure helpers holdDocHeight /
+     releaseDocHeight / scheduleReleaseDocHeight in initPanel. holdDocHeight pins the
+     document at its current height with an inline min-height on <body> (the scroll
+     root) BEFORE the flow is mutated, so maxScroll can never fall below the current
+     scrollY mid-morph and the browser has nothing to clamp. It is released once the
+     incoming layout's own height is in effect (enter/switch: HEIGHT_HOLD_ENTER_MS =
+     SECTION_CARDS_DELAY + 5*CARD_STAGGER_MS + 120 = 760ms, past the last of up to
+     five card mounts; exit: HEIGHT_HOLD_EXIT_MS = FLIP_MS + 120 = 460ms). If the
+     settled layout is genuinely SHORTER than the held offset (exit from deep inside a
+     tall detail), releaseDocHeight does the single unavoidable adjustment INSTANTLY
+     at release (window.scrollTo to the new bottom) rather than letting the browser
+     clamp part-way through the animation. The inline min-height is always cleared on
+     release (verified: no leftover inline style after settle).
+  2. MODALITY-AWARE FOCUS. New module-level input-modality heuristic: a click with
+     event.detail === 0 is a keyboard-synthesised activation (Enter / Space on a
+     button), detail >= 1 is a pointer tap; Escape is keyboard; the history popstate
+     path (browser back, no event) falls back to a recent-pointerdown timestamp. The
+     new applyFocus(el, viaKeyboard) focuses with { preventScroll: true } for pointer
+     activations (so the focus does not scroll-snap) and with natural scroll for
+     keyboard (so the newly focused control is brought into view, as required). The
+     flag is threaded through select -> enterDetail / switchProject, and closeDetail
+     (stashed across the history.back -> popstate hop) -> exitDetail; every
+     focusAfterFlip / reduced-motion focus call now passes it. So the earlier focus
+     suspicion is real but only for larger tap offsets and for EXIT: preventScroll is
+     both a fix (it removes the exit 573 -> 0 focus jump and any enter focus-snap when
+     the back control starts above the fold) and belt-and-braces for the common case.
+
+- BEFORE / AFTER traces (360x780 unless noted; pointer tap = pointerdown + click
+  detail:1; keyboard = click detail:0 / Escape keydown; scrollY sampled every 8ms):
+  - ENTER Blackthorn, pointer, scrollY 100:
+    BEFORE 100 -> 27 at t=14ms (netDelta -73, the snap); focus delta 0.
+    AFTER  100 held throughout (min 100 / max 100, netDelta 0); min-height 1353px held
+    t=10..758 then cleared; focus detail-back preventScroll:true, delta 0.
+  - ENTER, pointer, scrollY 0 (360): netDelta 0, back control in view (top 185), clean.
+  - ENTER, pointer, scrollY 180, index partially scrolled (360): netDelta 0, back in
+    view (top 5), clean.
+  - ENTER, pointer, scrollY 100 (390x844): netDelta 0, back in view (top 85), clean.
+  - ENTER, KEYBOARD, scrollY 250 (390): back control focused and scrolled into view
+    (focus delta -250, endY 0, preventScroll:false) - the desired keyboard behaviour,
+    unchanged.
+  - EXIT traces: see the "verifier follow-up" section below. The exit numbers first
+    recorded here came from calling exitDetail() directly, which never goes through
+    the history popstate the real back control / Escape / browser-back use, so they
+    did not capture the browser's native scroll restoration; they have been replaced
+    by the real-path measurements below.
+  - CHIP SWITCH (Blackthorn -> Barker), pointer, scrollY 40: netDelta 0, min-height
+    held then cleared, chip focused preventScroll:true, clean.
+  - FORM ("Get in touch"), pointer, scrollY 0: intentionally scrolls the panel into
+    view (panel top 435 -> 1, scrolled), no reserve involved - the intended behaviour
+    is preserved.
+  - DESKTOP (1280x800), pointer: holdDocHeight is a no-op (mobile-layout query false),
+    scrollY stays 0, enters detail, no reserve, unaffected.
+  - REDUCED MOTION (forced for the test via a temporary prefersReducedMotion hook,
+    since the browser pane cannot emulate the media query; hook removed afterwards):
+    enter mounts the full five-card stack synchronously (scrollHeight 1353 -> 1849 in
+    the same frame, no empty-shell transient), so scrollY stays 100 with NO clamp and
+    no reserve; exit does only the intended instant keyboard focus return to origin,
+    no spurious collapse snap.
+
+- Instrumentation discipline: all measurement was via a wrapped HTMLElement focus and
+  an 8ms scrollY sampler injected from the browser console over a local http server;
+  two temporary in-source probes (a counter in holdDocHeight and a window.__forceRM
+  branch in prefersReducedMotion, used only to exercise the reduced-motion path) were
+  added, used, and REMOVED before completion (grep-confirmed: no __forceRM / __hold in
+  the source). A no-store dev server was used because the browser was serving a cached
+  js/main.js at the unchanged ?v query during iteration; the shipped ?v bump to 18
+  cache-busts this for real users. node --check passes; no console errors; no em
+  dashes; UK English throughout.
+
+- Judgement calls (round 9):
+  1. Reserve on <body> min-height (the scroll root) rather than a dedicated spacer
+     div: simplest, no new markup, and cleared to '' on release. On mobile body height
+     is auto, so the inline min-height purely holds the transient; on desktop the
+     helper never runs.
+  2. Release timings are timers sized from the existing motion constants (760ms enter,
+     460ms exit) rather than a completion callback, because a card's height is in flow
+     the instant it is appended (the stagger is transform/opacity only), so the
+     settled height is reached shortly after the last append; the margins cover up to
+     five cards.
+  3. Height reserve applied to switchProject as well (chips crossfade the panel to an
+     empty shell too); measured clean, kept for symmetry and robustness.
+  4. exitDetailToView (project -> form / pricing) deliberately does NOT reserve: it
+     hands off to the normal index model whose form path intentionally scrolls the
+     panel into view; reserving there would fight that intended scroll.
+  5. popstate (genuine browser back, no event) is treated as pointer-driven when a
+     pointerdown was seen in the last 700ms, else keyboard; this keeps a swipe-back
+     from scroll-snapping while letting a hardware/keyboard back bring focus into view.
+
+### Client feedback round 9 - verifier follow-up (scrollRestoration, exit re-trace)
+
+> NOTE (superseded in part by the next subsection): setting scrollRestoration = 'manual'
+> was NECESSARY but NOT SUFFICIENT. A later re-verify showed Chromium still zeroes scrollY
+> intrinsically during the same-document back BEFORE popstate even with 'manual', so the
+> real-path exit numbers below (settle to 573 / 547) did not reproduce on the deployed
+> paths; they came from a harness whose timing read before the zeroing. The complete fix
+> (scroll tracking + restore) and the correct, reproduced numbers are in the subsection
+> "intrinsic scroll-zeroing" that follows.
+
+- Verifier finding (verify/restyle-9/exit-scroll-restoration-findings.json): the enter,
+  switch, reserve and focus fixes passed, but BOTH exit fails traced to one root cause
+  my first self-trace masked. history.scrollRestoration was left at the browser default
+  'auto', so on every popstate (the back control and Escape both route through
+  history.back(), and a genuine hardware / browser back fires the same popstate) the
+  browser NATIVELY restored the entry-time scrollY in the first frame, BEFORE exitDetail
+  ran (measured about 16ms: 1069 -> 0; a 300 -> 0 -> 50 double-jump; Escape 200 -> 100;
+  reduced motion identical). My earlier PROGRESS exit numbers were unreproducible because
+  the traces called exitDetail() directly (never through popstate) and, separately, my
+  test harness set scrollRestoration = 'manual' itself, hiding the native restore.
+
+- Fix (js/main.js, one line plus guard): set history.scrollRestoration = 'manual' once,
+  early in initPanel, in the same defensive try/catch style as the pushState /
+  replaceState calls. With manual, the browser leaves the scroll where it is on popstate
+  and exitDetail's height reserve + single settle + modality-aware focus own the final
+  position. No other change; ?v stays 18.
+
+- Exit re-traced through the REAL interaction paths (back control tapped, Escape pressed,
+  and a genuine browser back via the pane's Back), with the harness NO LONGER touching
+  scrollRestoration (the page owns it; confirmed history.scrollRestoration reads "manual"
+  on load). scrollY sampled every 8ms; first-frame value checked for a native restore:
+  - 360x780, welcome maxScroll 573:
+    - Pointer BACK from the detail bottom (scrollY 1069): first frame 1069 (NO native
+      restore), held at 1069 through the whole morph, then ONE instant settle to 573 at
+      release (t=473); origin focused preventScroll:true, delta 0. Snap-free; settles to
+      573, not 0.
+    - Escape from the detail bottom (scrollY 1069): first frame 1069, held through the
+      morph, then the keyboard focus return scrolls the origin row into view AFTER the
+      travel (focus at t=345, delta -1069, endY 0, preventScroll:false).
+    - Genuine browser BACK from the detail bottom (scrollY 1069): first frame 1069 (no
+      native restore), held, then keyboard-style focus return to origin (recentPointer
+      false on a chrome back, delta -1069, endY 0); exits cleanly, origin focused.
+  - 390x844, welcome maxScroll 547:
+    - Pointer BACK from the detail bottom (scrollY 1089): first frame 1089, held through
+      the morph, ONE instant settle to 547 at release (t=472); origin focused
+      preventScroll:true, delta 0.
+    - Escape from a shallow position (scrollY 50, origin already visible): first frame
+      50, no movement at all through the exit, origin focused (delta 0). No settle needed
+      (50 < 547).
+  All exits: min-height reserve cleared after settle (no leftover inline style), no
+  console errors.
+
+- scrollRestoration = 'manual' side effect, checked as asked: navigating away from the
+  site entirely and back (Back to the page) lands at the TOP (returnedScrollY 0) rather
+  than restoring the prior welcome scroll, and the page is fully functional (re-enters
+  detail, no errors). This is the full-reload case (the test server sends no-store, which
+  also disables bfcache); it is sensible for a one-page site. On normal caching a bfcache
+  restore would preserve the scroll independently of scrollRestoration. Accepted; noted
+  here as the documented behaviour.
+
+### Client feedback round 9 - verifier follow-up 2 (intrinsic scroll-zeroing on back)
+
+- Verifier finding (verify/restyle-9/exit-fix-results.json): with scrollRestoration =
+  'manual', Chromium STILL zeroes scrollY intrinsically during a same-document back
+  navigation, BEFORE popstate fires (they wrapped scrollTo / scrollIntoView / focus: no
+  app call precedes the drop; the scroll event at y=0 arrives before popstate). So every
+  exit with in-detail scroll drift snapped to 0 (1069 -> 0, Escape 300 -> 0, go_back 500
+  -> 0, reduced motion 400 -> 0). My follow-up-1 settle-to-573/547 numbers again did not
+  reproduce through the real paths: my harness read scrollY before the zeroing, and it
+  drove the exit in a way that sometimes skipped the zeroing entirely (Chromium's zeroing
+  is intermittent in the automation pane; I reproduced it deterministically by dispatching
+  a real popstate after a scroll-to-0, which matches the verifier's "y=0 before popstate").
+
+- Fix (js/main.js), covering all three triggers including hardware back (which never
+  passes through closeDetail, so a per-click stash alone is insufficient):
+  1. While a detail is open, a PASSIVE scroll listener records the live offset in
+     lastDetailScrollY (started in enterDetail, both branches; removed on every exit, so
+     no leak). A guard ignores a y === 0 event while the tracked offset is still above 60px
+     (DETAIL_ZERO_GUARD): the intrinsic zeroing lands at exactly 0 in one jump from a large
+     offset, whereas a real user reaches the top gradually, and exiting from a genuine top
+     is snap-free anyway. So the browser's pre-popstate zeroing cannot clobber the stored
+     offset.
+  2. exitDetail's FIRST action (before holdDocHeight or any DOM mutation) is
+     restoreDetailScroll(): stop the tracking, then window.scrollTo(0, lastDetailScrollY)
+     to undo the zeroing. The held morph and the single settle at release then proceed, and
+     releaseDocHeight's correction actually engages because scrollY once again exceeds the
+     settled welcome max.
+  3. closeDetail (the back control and Escape) ALSO captures lastDetailScrollY =
+     window.scrollY synchronously right before history.back(), independent of scroll-event
+     timing, so those two paths are robust even if the listener has not fired for the last
+     pixel of a fast flick. A genuine hardware back cannot be intercepted and relies on the
+     passive listener (which fires continuously during real scrolling) plus the guard.
+  4. Genuine browser / hardware back modality corrected: a popstate with no closeDetail
+     stash now defaults to false = POINTER-like (preventScroll focus, settle to the true
+     welcome max), not keyboard. The earlier recentPointer heuristic wrongly made a chrome
+     back keyboard, which scrolled the origin to the top (the "go_back 500 -> 0" the
+     verifier flagged). The now-unused recentPointer / lastPointerDownAt module block was
+     removed. ?v stays 18.
+
+- Reproduced through the REAL interaction paths (harness no longer sets scrollRestoration;
+  the browser's pre-popstate zeroing reproduced deterministically by a scroll-to-0 then a
+  dispatched popstate for the genuine-back paths; the back control and Escape drive
+  closeDetail for real). scrollHeight welcome max is 573 at 360x780 and 547 at 390x844:
+  - 360, pointer BACK, entered 0 / scrolled to the bottom 1069: settles to 573; origin
+    focused preventScroll, no focus scroll. (No-zeroing run also verified: identical 573.)
+  - 360, Escape deep (1069): held, then the intended keyboard focus return to the origin
+    AFTER the morph (focus delta -1069, endY 0). Origin focused, visible.
+  - 360, Escape mismatched (entered 50, scrolled 300): intended keyboard focus return to
+    the origin (focus delta -300, endY 0).
+  - 360, GENUINE back deep with the zeroing (scroll forced to 0 before popstate): the guard
+    preserved lastDetailScrollY = 1069, restoreDetailScroll recovered it, settled to 573;
+    origin focused preventScroll (pointer-like), delta 0. Zeroing fully absorbed.
+  - 390, GENUINE back deep with the zeroing: recovered and settled to 547.
+  - 360, shallow pointer BACK (scrolled 30): no drift, held at 30 (welcome max 573 > 30, no
+    settle). Origin focused preventScroll.
+  - REDUCED MOTION mismatched (entered 50, scrolled 300, genuine back with zeroing):
+    recovered to 300 (welcome max 573 > 300, no settle); origin focused preventScroll. No
+    snap to 0. Reduced-motion enter is untouched (full synchronous mount, no reserve).
+  - Enter untouched: pointer enter at scrollY 100 still nets 0 movement.
+  - Multi-cycle smoke (enter -> chip switch -> back -> re-enter -> back -> form): all state
+    transitions correct, body min-height clean after every exit (no leak / no accumulation),
+    the form CTA still scrolls the panel into view (panel top 435 -> 1). No console errors.
+
+- Instrumentation discipline: the scroll listener / restore were exercised with a wrapped
+  HTMLElement focus and an 8ms sampler from the console; three temporary in-source probes
+  (a counter/log in onDetailScroll and restoreDetailScroll, and a window.__forceRM branch
+  in prefersReducedMotion to drive the reduced-motion path the pane cannot emulate) were
+  added, used, and REMOVED (grep-confirmed: no __forceRM / __scLog / __restLog / __hold in
+  the source). node --check passes; no em dashes; UK English. A no-store dev server was
+  used again so file edits reloaded past the ?v=18 cache during iteration.
