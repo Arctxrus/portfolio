@@ -2646,3 +2646,234 @@ and IntersectionObserver run; zero console errors.
   two-column structure). The stack IS focusable, keyboard-scrollable and in the tab
   order, which is the substance of the FAIL; flagged so the orchestrator can rule if
   the exact position is required.
+
+## Client feedback round 7 (owner approved: project chips + FLIP choreography, 2026-07-28)
+
+Owner-approved proposal built on top of the round-6 detail state: the two OTHER
+projects become chips under the back control, and the flat two-phase morph is
+replaced by a FLIP choreography. Files changed: index.html (chips container +
+?v=14 to ?v=15 bump), css/styles.css (chip + flip-clone styles + version bump),
+js/main.js (detail controller rewritten). Safe revert point: commit 2b5c1d6.
+
+- Status: BUILT, awaiting verification. All shipped refs bumped ?v=14 to ?v=15
+  (a push follows): 23 in index.html, 2 in css/styles.css (two @font-face src),
+  0 in js/main.js. No BOM, no mojibake, no em dashes; 0 remaining ?v=14 in the
+  three shipped files. `node --check js/main.js` passes. Verified behaviourally
+  over a local http server in the Browser pane (enter, chip switch, back, Escape,
+  conversion-price to Pricing, relocated-CTA to form; desktop, 390, 360): zero
+  console errors, correct end states, no stuck inline styles, no horizontal
+  scroll, title never wraps, chips on one row at every width.
+
+### 1. Project chips (item 1)
+
+- MARKUP: a `<div class="detail-chips" data-detail-chips>` sits in `.detail`,
+  directly under the back control and before `.detail-copy`, so the tab order is
+  back control then chips then See it live (chips are "right after the back
+  control", the substance of the brief). main.js `renderChips(currentKey)` fills
+  it with the two OTHER projects on every enter and every switch, so it always
+  shows the two not-currently-open projects.
+- LABEL: the chip label is the PROJECT NAME (e.g. "Barker & Bloom"), not the niche
+  tag. This is deliberate: the FLIP swap morphs a chip's text into the title and
+  back, so the travelling text must be the same string at both ends. Niche-tag
+  TYPE is honoured (mono 10px UPPER, --grey-label) via CSS text-transform, so the
+  name renders uppercase; the underlying text stays the name.
+- STYLE (.chip): mono 10px 400 UPPER, --grey-label; quiet chip at rest
+  (16px radius = --radius-surface, 1px --border, --surface-field fill); hover
+  adopts the card treatment scaled down (--surface-white fill, --shadow-row-active,
+  label to --ink), gated behind (hover:hover) and (pointer:fine) like the rows so a
+  tap leaves no sticky hover; focus-visible shows the accent inset ring
+  (--shadow-field-focus). Real `<button>`s. No new tokens; dark variants come from
+  the existing dark token block (field #202024, border #33333A, label #74747C,
+  hover card #242428). The row wraps (flex-wrap) if the two labels do not fit;
+  measured NOT to wrap at 360/390/768/desktop (two chips about 262px wide).
+- ARIA APPROACH (reported as asked): chips carry NO aria-pressed. They are one-shot
+  navigation (each switches the open project), not toggles, and the open project is
+  never itself a chip, so there is no pressed/unpressed chip state to reflect. The
+  switch is announced through the existing panel `role=status aria-live=polite`
+  region (the "Preview / <name>" header string), same channel as every other view
+  change. Chip clicks are delegated on the persistent `[data-detail-chips]` so the
+  freshly rendered chips are always wired.
+- SWITCH IN PLACE: a chip click routes to `switchProject(newKey)` (never through the
+  index): the title block, sub line, blurb and See it live update (fillDetailCopy),
+  the chips row re-renders to the new "other two", the panel card stack swaps via
+  the EXISTING 130ms panel swap, and aria-live announces. After a switch, focus
+  lands on the chip for the PREVIOUSLY open project (which now sits where the
+  clicked chip was), so keyboard users stay in the chips row for continued
+  switching.
+
+### 2. FLIP choreography (item 2)
+
+- TECHNIQUE (reported): a real FLIP. First rects are measured with the current
+  layout live; the DOM is mutated to the final layout; Last rects are measured; then
+  the travelling pieces are animated from First to Last. Two mechanisms, by role:
+  - TRAVELLING TEXT (title, chips): fixed-position CLONES animated with WAAPI
+    (`element.animate`). A `<span>` borrowing the destination class (.detail-title
+    or .chip) is placed at the Last rect and inverted to the First rect
+    (translate + scale by width ratio, transform-origin top-left), then played to
+    identity. The real destination is hidden (opacity 0) until the clone's onfinish
+    reveals it and removes the clone; a belt-and-braces setTimeout(FLIP_MS+80)
+    guarantees cleanup if a finish/cancel event is ever missed. Clones are
+    aria-hidden, pointer-events:none, position:fixed, so they never affect layout or
+    hit-testing (verified: 0 clones and 0 stuck inline styles after every settle).
+  - GROUP FADE + PANEL CARDS: CSS transitions (opacity + transform) on the real
+    elements, driven by inline styles. The outgoing group (INDEX label + rows 04 to
+    06 via the whole .index, plus .how and .proof) is pinned out of flow
+    (position:absolute against the positioned .page, scroll-safe on both layouts) so
+    the column reflows to the final detail layout for the Last measurement, then
+    fades + slides down GROUP_SHIFT (8px, in the 6 to 10px band) over GROUP_FADE_MS
+    (260ms) and is hidden. The section cards stagger in (opacity + 6px translateY,
+    CARD_STAGGER_MS 60ms steps, CARD_FADE_MS 300ms each), same rhythm as the load-in
+    blocks; will-change is set for the move and cleared afterwards.
+- ENTER: clicked row NAME travels + scales into the detail title (clone; real title
+  fades in under it at the end); the two sibling rows travel into their chips
+  (clones); the group slides down and fades; the entering .detail + .conversion fade
+  and slide in (with the title/chips held hidden until their clones land); the cards
+  stagger. Primary travel FLIP_MS 340ms (within the ~350ms budget); card stagger
+  finishes about (n-1)*60 + 300 = about 540ms for 5 cards (inside "around 500ms").
+  Focus moves to the back control after the travel.
+- EXIT (back / Escape / browser back): reverse. Title travels back into its row and
+  the chips grow back into their rows (clones, with a fadeOutEnd so they dissolve
+  into the already-visible rows); .detail + .conversion pin and fade out; the group
+  fades + slides back in; the panel cards fade out first via the existing swap to
+  welcome. Focus returns to the ORIGINATING project row (verified: enter blackthorn,
+  switch to barker, Escape returns focus to the barker row, i.e. the open project).
+- CHIP SWITCH: the clicked chip text travels + scales up into the title while the
+  current title shrinks + travels into the vacated chip slot (two clones); the third
+  (persisting) chip is FLIP-moved by transform if it reorders; the supporting copy
+  (sub / blurb / See it live) crossfades (200ms) with the title held hidden for its
+  clone; the panel cards crossfade via the existing 130ms swap.
+- HOUSE EASING: `ease` everywhere (FLIP_EASE), no bounce/overshoot, transform +
+  opacity only. will-change used on clones and staggering cards and removed after.
+- REDUCED MOTION: enter / exit / switch / exit-to-view each early-return into an
+  instant branch guarded by prefersReducedMotion(): states apply directly, no
+  clones spawned, no transforms bound, staggerCards and flyText are no-ops. The
+  global CSS reduced-motion rule zeroes transition durations as before. Keyboard and
+  pointer triggers run identical code.
+
+### 3. CTA relocation (item 3, judgement call reported)
+
+The Get in touch CTA is still ONE element relocated between the index list and the
+conversion cluster. Its "gentle move" is carried by the CONTAINER fades rather than
+a bespoke animation: on entering it fades in with the .conversion cluster (part of
+the entering set), on exit it rejoins the index and fades in with the restored
+group. No separate CTA transition was added (cheap, and duplicating a fade on the
+node would double up with the container fade). Reported as the judgement the brief
+invited.
+
+### 4. Mobile (item 4, measured)
+
+Same choreography with the single-column geometry; the clones are fixed overlays so
+the travel works regardless of column layout. Measured at 360 and 390 (and 768 /
+desktop): the longest title "Until the Last Star" (34px, -0.015em) fits ONE line at
+360 (w about 316 in a 316 box) so the title clone never wraps; the two chips fit one
+row at every width (no wrap needed, though flex-wrap is available); NO horizontal
+scroll; the round-6 page-as-scroller detail behaviour is unchanged (section-stack
+overflow visible, page scrolls). Enter/switch/exit all settle with no stuck styles
+at 360/390.
+
+### 5. Preserved behaviour
+
+Observer-gated section-video playback (setupSectionVideos, teardown on every view
+swap), focus flow, aria-live announcements, the contact form / About / Pricing
+flows, the welcome exit target, history (one pushState per detail; back/Escape route
+through history.back; conversion-price/CTA exits consume the entry with
+replaceState) are all unchanged. Exit target on back/Escape/browser-back stays the
+WELCOME (V1), as in round 6.
+
+### Frame-trace / performance (reported honestly)
+
+The choreography is compositor-only after a single synchronous setup: measure First,
+pin, renderView, measure Last, write styles, spawn clones. That setup chunk measured
+4.3ms for the heaviest enter (the 3-video star) in the Browser pane, well under a
+16.7ms frame, let alone the ~33ms bar. During the animation nothing reads layout
+(only transform / opacity change), so no per-frame layout thrash is expected. A true
+rAF frame-delta trace could NOT be captured here: the Browser pane tab stays
+document.hidden (visibilityState "hidden"), which freezes rendering and animation
+currentTime at 0 (confirmed via getAnimations()), the same paused-pane limitation
+logged at stages 1 to 6. The enter and switch FLIPs were observed to settle fully
+(clones removed, inline styles cleared, cards at opacity 1) while the pane was
+foreground; the exit end-state was confirmed by force-finishing the animations
+(getAnimations().finish()) and reading the settled DOM. The verifier's headed-GPU
+harness should capture the rAF frame trace (no frame over ~33ms) as the sign-off.
+
+### Round 7 - deviations / judgement calls
+
+- CHIP LABEL is the project name (uppercased by CSS), not the niche tag, so the
+  chip-to-title FLIP text is coherent at both ends (see item 1). Reported.
+- GROUP FADE clones nothing: the whole .index (including the three project rows,
+  which are covered by their title/chip clones) plus .how and .proof are pinned out
+  of flow and fade as one, which is simpler and jank-free than cloning each label /
+  row. The clones fly over the top, so the covered project rows fading underneath
+  are never seen.
+- MEASURE-THEN-ANIMATE with a pin: the outgoing group is pinned absolute BEFORE the
+  Last measurement so the column reflows to the final layout in one pass (no
+  measure/revert dance, no flash). Pins are against the positioned .page, so the
+  approach is identical and scroll-safe on the desktop grid and the mobile flex/
+  page-scroller layouts.
+- EXIT clones use a fadeOutEnd (dissolve into the visible rows) rather than a hard
+  reveal, since on exit the destination rows are already fading in; ENTER clones use
+  a hard reveal (real title/chip held at opacity 0 until the clone lands).
+- FLIP-clone z-index 50 (above content) with pointer-events:none: a clone can never
+  block interaction, and the belt-and-braces timeout guarantees it is gone within
+  FLIP_MS+80 even if an event is dropped.
+- MOTION TABLE ADDITIONS (recorded as required, superseding the round-6 "Detail
+  morph out/in" rows):
+  | Name | Property | Duration | Delay | Easing | Trigger | Reduced motion |
+  | Detail title/chip travel | transform (translate+scale) on a fixed clone; opacity reveal | 340ms | 0 | ease | enter / exit / chip switch | instant, no clone |
+  | Detail group fade | opacity 1..0 + translateY 8px (out) / 0..1 (in) on index/how/proof or detail/conversion | 260ms | 0 | ease | enter / exit detail | instant |
+  | Section card stagger | opacity 0..1 + translateY 6px..0 | 300ms | 60ms per card | ease | enter detail | instant |
+  | Supporting copy crossfade | opacity 0..1 on .detail-copy | 260ms | 0 | ease | chip switch | instant |
+- Encoding clean (Edit + byte-safe sed only): no BOM, no mojibake, no em dashes; the
+  £ and · in the conversion line and the arrows are intact.
+
+### Round 7 - open items / notes for the orchestrator
+
+- The two OPEN BLOCKERs (real email, Formspree ID) and the de-vibe canonical list
+  are untouched by this round.
+- Screenshot / visual sign-off and the rAF frame-delta trace across enter / exit /
+  switch, both themes, plus a forced reduced-motion and a 360px run, remain the
+  verifier's (the Browser pane cannot render the animation while backgrounded).
+
+### Round 7 - verifier FAIL fix (deferred video decode, 2026-07-28)
+
+Verifier round-7 passed everything except ONE FAIL: entering or chip-switching TO
+the star project dropped a 41 to 48ms frame at about 90 to 180ms into the travel
+(3/3 reproducible; image-only projects clean; exit clean). Cause: the previous
+build mounted AND started the section-video decode synchronously inside commit()
+(setupSectionVideos), so for the three star clips the decode collided with the FLIP
+clone animation. Evidence: verify/restyle-7/results-frametrace-positions.json and
+results-frametrace-exit-switch.json. Fixed exactly per the verifier's suggestion;
+?v=15 kept (no push since the bump). Files changed: js/main.js, PROGRESS.md.
+
+- MOUNT is split from PLAYBACK. renderView still mounts the .section-stack in the
+  panel (so FLIP geometry / Last measurement stays correct) and now calls
+  primeSectionVideos(), which ONLY pauses + mutes every clip synchronously. That
+  cancels the autoplay-attribute decode (the collision), while the poster attribute
+  keeps rendering (paused, preload="none", so the poster shows and NOTHING decodes
+  during the travel). No observer is attached and no play() is called at mount.
+- PLAYBACK START is deferred. startSectionVideos() (the old setup body: attach the
+  IntersectionObserver at threshold 0.5, or the no-observer fallback play) is
+  scheduled by commit via scheduleSectionVideos(delay). The animated project enter
+  passes SECTION_START_DELAY (FLIP_MS + 40 = 380ms); the animated chip switch passes
+  SECTION_START_DELAY - SWAP_HALF through swap (commit runs at the 130ms swap
+  midpoint, so the start still lands 380ms from the click, just past the 340ms
+  travel and its clone reveal). The reduced-motion and non-animated paths (enter /
+  switch reduced, About / Pricing / form / welcome) pass 0, so the start is
+  immediate exactly as before (those views have no section videos anyway).
+- NO ZOMBIE TIMERS. teardownSectionObserver() now also clears sectionStartTimer and
+  runs at the TOP of every renderView (and on exit), so exiting or switching within
+  the defer window cancels the pending start before the old nodes are removed; a
+  fresh mount then schedules its own. The start is set AFTER renderView inside
+  commit, so the teardown-clear does not wipe the just-scheduled timer.
+- GATING UNCHANGED once started: only in-view cards play. Verified behaviourally in
+  the Browser pane over local http: on entering star all three clips are mounted
+  with posters and sources but PAUSED (paused=true x3) during the travel window; a
+  moment later (start fired) the two in-view cards play and the off-screen third
+  stays paused (paused = [false, false, true], currentTime advancing on the first
+  two); exiting leaves the welcome with zero section videos and zero playing
+  anywhere (full teardown). Zero console errors throughout.
+- The definitive rAF frame-delta re-run on the star enter/switch (no frame over
+  ~33ms) is the verifier's headed-GPU harness: the Browser pane stays
+  document.hidden and freezes rendering, so the frame trace cannot be captured here.
+  The collision CAUSE is removed (nothing decodes during the travel), which is the
+  substance of the fix.

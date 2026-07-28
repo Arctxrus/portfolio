@@ -1,0 +1,44 @@
+{
+  "videos_on_blackthorn": 0,
+  "video_state_after_reentry_to_star": [
+    {
+      "paused": false,
+      "currentTime": 0.744285
+    },
+    {
+      "paused": false,
+      "currentTime": 0.734917
+    },
+    {
+      "paused": true,
+      "currentTime": 0
+    }
+  ],
+  "video_state_after_reentry_to_star_plus500ms": [
+    {
+      "paused": false,
+      "currentTime": 1.250637
+    },
+    {
+      "paused": false,
+      "currentTime": 1.241264
+    },
+    {
+      "paused": true,
+      "currentTime": 0
+    }
+  ],
+  "about_view_smoke": "I'm Zayn, an astrophysics graduate who shipped a game played",
+  "pricing_view_smoke": "Websites from \u00a3300\n        A single page, written and built for your business.\n ",
+  "form_view_smoke": true,
+  "form_native_validation_blocks_empty": true,
+  "reduced_motion_decode_instant_welcome_text": "Select a project",
+  "reduced_motion_decode_instant_index_label": "Index",
+  "reduced_motion_cta_animation": {
+    "animationName": "none",
+    "animationDuration": "0s"
+  },
+  "reduced_motion_hover_mist_nodes": 0,
+  "reduced_motion_trail_dot_nodes": 0,
+  "console_errors_final": []
+}

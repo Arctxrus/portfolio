@@ -1,0 +1,40 @@
+{
+  "exit_star_t0": [],
+  "exit_star_t1": [],
+  "exit_star_t2": [],
+  "switch_star_to_blackthorn_t0": [
+    [
+      26,
+      218.1,
+      41.5
+    ],
+    [
+      27,
+      259.6,
+      34.7
+    ]
+  ],
+  "switch_star_to_blackthorn_t1": [],
+  "switch_star_to_blackthorn_t2": [],
+  "switch_blackthorn_to_star_t0": [
+    [
+      23,
+      173.4,
+      48.5
+    ]
+  ],
+  "switch_blackthorn_to_star_t1": [
+    [
+      24,
+      177.4,
+      41.7
+    ]
+  ],
+  "switch_blackthorn_to_star_t2": [
+    [
+      21,
+      178.8,
+      41.6
+    ]
+  ]
+}

@@ -13,6 +13,12 @@
             project header + conversion cluster; the panel shows a scrollable
             stack of section cards). Back control, Escape and browser back exit
             it; About / Pricing / form keep the normal index model.
+   Round 7: the flat two-phase morph is replaced by a FLIP choreography (the
+            clicked name travels into the title, the two other projects travel
+            into chips, the group slides down and fades, the cards stagger in).
+            The two OTHER projects become chips under the back control; a chip
+            switches the open project in place (a FLIP swap). All FLIP is skipped
+            under reduced motion (no clones spawned, no transforms bound).
    Vanilla JS only. UK English. No em dashes.
    ========================================================================== */
 
@@ -466,11 +472,25 @@ const SWAP_HALF = 130;   /* ms: out phase; the in phase mirrors it (260 total) *
    About and 05 Pricing and 06 the CTA keep the normal index model. */
 const PROJECT_KEYS = ['blackthorn', 'barker', 'star'];
 
-/* Left-column morph timing (round 6). A two-phase crossfade: the leaving set
-   fades to 0 over MORPH_MS, then the entering set fades from 0 to 1 over MORPH_MS
-   (~200ms ease each, no bounce). Driven with inline styles so it never conflicts
-   with the load-in .fade-block transition; instant under reduced motion. */
-const MORPH_MS = 200;
+/* Detail-state choreography timing (Client feedback round 7). The flat two-phase
+   crossfade of round 6 is replaced by a FLIP move: the clicked project name
+   travels and scales into the detail title, the two sibling rows travel into
+   their chips, the outgoing group slides down 8px and fades, and the section
+   cards stagger in. House easing only (ease), transform + opacity only, no bounce
+   or overshoot. Total within ~350ms for the primary travel; the card stagger
+   finishes around 500ms. All of this is skipped under reduced motion (no clones
+   spawned, no transforms bound; the states just apply). */
+const FLIP_MS = 340;            /* primary travel (title / chips), within ~350ms */
+const FLIP_EASE = 'ease';       /* house easing, no bounce */
+const GROUP_FADE_MS = 260;      /* outgoing / incoming group slide + fade */
+const GROUP_SHIFT = 8;          /* px slide of the fading group (6 to 10px band) */
+const CARD_STAGGER_MS = 60;     /* per-card step, same rhythm as the load-in blocks */
+const CARD_FADE_MS = 300;       /* per-card opacity + 6px translateY */
+/* Defer the section-video decode until just after the primary travel completes
+   (round 7 verifier FAIL: starting decode mid-travel dropped a 41 to 48ms frame on
+   the 3-video star). Measured from the start of the choreography; a small margin
+   past FLIP_MS keeps it clear of the clone reveal. */
+const SECTION_START_DELAY = FLIP_MS + 40;   /* 380ms from the choreography start */
 
 /* Panel-into-view scroll (CONCEPT.md section 8). After a selection on mobile the
    panel header must be on screen. The test is on the panel's top edge, measured
@@ -513,11 +533,37 @@ function initPanel() {
   const detailEl = document.querySelector('.detail');
   const detailCopySlot = document.querySelector('[data-detail-copy]');
   const detailBack = document.querySelector('[data-detail-back]');
+  const detailChipsSlot = document.querySelector('[data-detail-chips]');
   const conversionEl = document.querySelector('.conversion');
   const conversionPrice = document.querySelector('.conversion-price');
 
   if (!panelBody || !rows.length) {
     return;
+  }
+
+  /* Map each row key to its row element and display name (round 7). The chips
+     and the FLIP clones both use the project name, so the travelling text is the
+     same string at both ends (a chip label morphs cleanly into the title). */
+  const rowByKey = {};
+  const PROJECT_NAMES = {};
+  rows.forEach(function (row) {
+    const key = row.dataset.view;
+    if (key) {
+      rowByKey[key] = row;
+      const nameEl = row.querySelector('.row-name');
+      PROJECT_NAMES[key] = nameEl ? nameEl.textContent : '';
+    }
+  });
+  function chipByKey(key) {
+    return detailChipsSlot
+      ? detailChipsSlot.querySelector('[data-chip-key="' + key + '"]')
+      : null;
+  }
+  function detailTitleEl() {
+    return detailCopySlot ? detailCopySlot.querySelector('.detail-title') : null;
+  }
+  function rowNameEl(key) {
+    return rowByKey[key] ? rowByKey[key].querySelector('.row-name') : null;
   }
 
   /* The six rows form one single-selection group with aria-pressed; exactly one
@@ -529,18 +575,21 @@ function initPanel() {
     ctaRow.setAttribute('aria-pressed', 'false');
   }
 
-  /* The leaving / entering sets for the left-column morph. */
+  /* The leaving / entering sets for the detail-state choreography. On entering
+     detail the leaving set fades out and the entering set flies/fades in; on exit
+     the roles reverse. */
   const leavingEls = [indexSection, howSection, proofEl];
   const enteringEls = [detailEl, conversionEl];
 
   let currentView = null;      /* V1 welcome is showing; no view key yet. */
   let swapTimer = 0;
-  let morphTimer = 0;
+  let groupTimer = 0;          /* pending hide+unpin of a faded-out group */
   let inDetail = false;        /* the detail state is open */
   let detailKey = null;        /* which project is open */
   let detailOriginRow = null;  /* the row that opened it (focus returns here) */
   let detailPushed = false;    /* a history entry was pushed for this detail */
   let sectionObserver = null;  /* gates section-video playback by visibility */
+  let sectionStartTimer = 0;   /* deferred playback start (round 7 FAIL fix) */
 
   /* ---- panel content ---------------------------------------------------- */
 
@@ -566,17 +615,38 @@ function initPanel() {
       sectionObserver.disconnect();
       sectionObserver = null;
     }
+    /* Cancel any deferred playback start (round 7 verifier FAIL): if the user
+       exits or switches before the start fires, there is no zombie timer. */
+    window.clearTimeout(sectionStartTimer);
+    sectionStartTimer = 0;
   }
 
-  function setupSectionVideos() {
+  /* Round 7 verifier FAIL fix. Starting the section-video decode synchronously at
+     mount collided with the FLIP clone travel and dropped a 41 to 48ms frame on
+     the 3-video star (image-only projects were clean). Playback is now split from
+     the mount: primeSectionVideos() runs synchronously at mount and only PAUSES
+     the clips (cancelling the autoplay-attribute decode, so nothing decodes during
+     the travel while the posters still render); startSectionVideos() attaches the
+     visibility observer and lets it play the in-view clip(s), and is scheduled to
+     run after the primary travel (SECTION_START_DELAY) or immediately (delay 0)
+     on the reduced-motion / non-animated paths. */
+
+  function primeSectionVideos() {
+    const vids = panelBody.querySelectorAll('.section-video');
+    vids.forEach(function (v) {
+      v.muted = true;
+      try { v.pause(); } catch (e) { /* ignore: cancel the autoplay decode */ }
+    });
+  }
+
+  function startSectionVideos() {
     teardownSectionObserver();
     const vids = Array.prototype.slice.call(
       panelBody.querySelectorAll('.section-video'));
     if (!vids.length) {
       return;
     }
-    /* Pause every clip so the autoplay algorithm does not start all of them at
-       once; the observer then plays only the visible one(s). */
+    /* Keep them paused until the observer decides who is visible. */
     vids.forEach(function (v) {
       v.muted = true;
       try { v.pause(); } catch (e) { /* ignore */ }
@@ -606,6 +676,23 @@ function initPanel() {
     vids.forEach(function (v) { sectionObserver.observe(v); });
   }
 
+  /* Schedule the playback start: 0 (or falsy) starts it now; a positive delay
+     defers it past the travel. teardownSectionObserver (run at the top of every
+     renderView, and on exit) clears a pending start, so exiting or switching
+     within the window never leaves a zombie timer or a start on removed nodes. */
+  function scheduleSectionVideos(delay) {
+    window.clearTimeout(sectionStartTimer);
+    if (!delay) {
+      sectionStartTimer = 0;
+      startSectionVideos();
+      return;
+    }
+    sectionStartTimer = window.setTimeout(function () {
+      sectionStartTimer = 0;
+      startSectionVideos();
+    }, delay);
+  }
+
   function renderView(viewKey) {
     const tpl = document.getElementById('view-' + viewKey);
     if (!tpl) {
@@ -623,7 +710,10 @@ function initPanel() {
       const stack = frag.querySelector('.section-stack');
       if (stack) {
         panelBody.replaceChildren(stack);
-        setupSectionVideos();
+        /* Mount only: pause the clips now (cancel autoplay); the observer and any
+           play() are deferred by commit via scheduleSectionVideos so the decode
+           does not collide with the FLIP travel (round 7 verifier FAIL). */
+        primeSectionVideos();
       }
       return;
     }
@@ -646,12 +736,17 @@ function initPanel() {
     }
   }
 
-  function commit(viewKey, headerText) {
-    renderView(viewKey);
+  function commit(viewKey, headerText, videoDelay) {
+    renderView(viewKey);   /* mounts + primes (paused); teardown clears old timer */
     if (headerLabel) {
       headerLabel.textContent = headerText;
     }
     announce(headerText);
+    /* Start the section videos: 0 (default) is immediate (reduced motion and the
+       non-animated views, where there are no section videos anyway); a positive
+       delay defers the decode past the FLIP travel (animated project enter/switch).
+       Scheduled after renderView so its teardown does not clear this timer. */
+    scheduleSectionVideos(videoDelay || 0);
     /* Only the normal index-model views scroll the panel into view on mobile
        (round 6): the detail state morphs in place and its header sits in the left
        column, so a project selection must not scroll the panel over that header.
@@ -661,15 +756,19 @@ function initPanel() {
     }
   }
 
-  function swap(viewKey, headerText) {
+  /* videoDelay (round 7 FAIL fix) is passed through to commit so a project switch
+     defers its section-video decode past the FLIP travel. commit runs at the swap
+     midpoint (SWAP_HALF in), so the caller passes the delay measured FROM the
+     midpoint; 0 for the reduced-motion and non-video paths. */
+  function swap(viewKey, headerText, videoDelay) {
     if (prefersReducedMotion()) {
-      commit(viewKey, headerText);   /* instant, content still swaps */
+      commit(viewKey, headerText, 0);   /* instant, content still swaps */
       return;
     }
     window.clearTimeout(swapTimer);
     panelBody.classList.add('is-swapping');   /* out: opacity 0, translateY 6px */
     swapTimer = window.setTimeout(function () {
-      commit(viewKey, headerText);             /* switch at the midpoint */
+      commit(viewKey, headerText, videoDelay || 0);   /* switch at the midpoint */
       /* Flush the opacity 0 state with the new content, then drop the class so
          the body eases back in (130ms). A layout read is used rather than rAF
          so the fade-in is not left stuck when the tab is backgrounded. */
@@ -696,51 +795,24 @@ function initPanel() {
     });
   }
 
-  /* ---- left-column morph (round 6) -------------------------------------- */
+  /* ---- detail-state building blocks ------------------------------------- */
 
   function showEl(el) { if (el) { el.removeAttribute('hidden'); } }
   function hideEl(el) { if (el) { el.setAttribute('hidden', ''); } }
-  function clearFx(el) { if (el) { el.style.transition = ''; el.style.opacity = ''; } }
-
-  /* Two-phase crossfade: fade outEls to 0, then (at the midpoint) run onMid, hide
-     outEls and reveal inEls at 0, then fade them to 1. Inline styles only, so the
-     load-in .fade-block transition is never touched. Instant under reduced motion
-     (the CONCEPT 3.3 guard: no bound animation, content swaps immediately). */
-  function crossfade(outEls, inEls, onMid) {
-    if (prefersReducedMotion()) {
-      outEls.forEach(function (el) { hideEl(el); clearFx(el); });
-      if (onMid) { onMid(); }
-      inEls.forEach(function (el) { showEl(el); clearFx(el); });
-      return;
+  function clearFx(el) {
+    if (el) {
+      el.style.transition = '';
+      el.style.opacity = '';
+      el.style.transform = '';
     }
-    outEls.forEach(function (el) {
-      if (!el) { return; }
-      el.style.transition = 'opacity ' + MORPH_MS + 'ms ease';
-      el.style.opacity = '0';
-    });
-    window.clearTimeout(morphTimer);
-    morphTimer = window.setTimeout(function () {
-      outEls.forEach(function (el) { hideEl(el); clearFx(el); });
-      if (onMid) { onMid(); }
-      inEls.forEach(function (el) {
-        if (!el) { return; }
-        el.style.transition = 'none';
-        el.style.opacity = '0';
-        showEl(el);
-      });
-      if (inEls[0]) { void inEls[0].offsetWidth; }   /* flush the 0 state */
-      inEls.forEach(function (el) {
-        if (!el) { return; }
-        el.style.transition = 'opacity ' + MORPH_MS + 'ms ease';
-        el.style.opacity = '1';
-      });
-      window.setTimeout(function () { inEls.forEach(clearFx); }, MORPH_MS);
-    }, MORPH_MS);
   }
 
   /* The Get in touch CTA is ONE element. In the normal model it is row 06 in the
      index list; in the detail state it is relocated into the conversion cluster
-     (its click, drift, rim, mist and bloom listeners travel with the node). */
+     (its click, drift, rim, mist and bloom listeners travel with the node). The
+     relocation itself is not a FLIP: on entering, the CTA fades in with the
+     conversion cluster; on exit it fades in with the restored index (item 3, a
+     gentle move via the container fades rather than a bespoke animation). */
   function moveCtaToConversion() {
     if (ctaRow && conversionEl && ctaRow.parentElement !== conversionEl) {
       conversionEl.appendChild(ctaRow);
@@ -762,14 +834,35 @@ function initPanel() {
     }
   }
 
-  function focusAfterMorph(el) {
-    if (!el) { return; }
-    if (prefersReducedMotion()) {
-      el.focus();
-    } else {
-      /* Focus once the element is shown again (the crossfade reveals it at the
-         midpoint, MORPH_MS in). */
-      window.setTimeout(function () { el.focus(); }, MORPH_MS);
+  /* Build the two chips for the OTHER two projects (round 7). The chip label is
+     the project name, so the FLIP clone carries the same string at both ends
+     (chip <-> title). aria-pressed is intentionally NOT set: a chip is one-shot
+     navigation (it switches the open project), not a toggle, and the open project
+     is never itself a chip, so there is no pressed/unpressed chip to reflect. The
+     switch is announced through the panel aria-live region (announce). */
+  function renderChips(currentKey) {
+    if (!detailChipsSlot) { return; }
+    const others = PROJECT_KEYS.filter(function (k) { return k !== currentKey; });
+    const frag = document.createDocumentFragment();
+    others.forEach(function (k) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'chip';
+      btn.setAttribute('data-chip-key', k);
+      btn.textContent = PROJECT_NAMES[k];
+      frag.appendChild(btn);
+    });
+    detailChipsSlot.replaceChildren(frag);
+  }
+
+  function setPressed(key) {
+    indexRows.forEach(function (r) {
+      r.classList.remove('is-active');
+      r.setAttribute('aria-pressed', r.dataset.view === key ? 'true' : 'false');
+    });
+    if (ctaRow) {
+      ctaRow.classList.remove('is-open');
+      ctaRow.setAttribute('aria-pressed', 'false');
     }
   }
 
@@ -788,8 +881,6 @@ function initPanel() {
     }
   }
 
-  /* ---- selection routing ------------------------------------------------ */
-
   function nameOf(row) {
     const nameEl = row.querySelector('.row-name');
     return nameEl ? nameEl.textContent : '';
@@ -806,54 +897,436 @@ function initPanel() {
     }
   }
 
-  /* Project rows 01 to 03: open (or switch within) the detail state. */
-  function selectProject(row, key) {
-    if (inDetail && key === detailKey) {
-      return;   /* re-selecting the open project is a no-op */
-    }
-    const entering = !inDetail;
+  /* ---- FLIP primitives (round 7) ---------------------------------------- */
 
-    /* aria: this project pressed, everything else cleared. No raised card is
-       shown (the index is hidden in the detail state). */
-    indexRows.forEach(function (r) {
-      r.classList.remove('is-active');
-      r.setAttribute('aria-pressed', r === row ? 'true' : 'false');
+  /* Pin an element out of flow at its current on-screen box (measured against the
+     positioned .page, so it is scroll-safe on both layouts). Used to freeze the
+     outgoing group where it sits so the column can reflow to the final layout
+     while the group fades in place. */
+  function pinAbsolute(el, pageRect) {
+    if (!el) { return; }
+    const r = el.getBoundingClientRect();
+    el.style.position = 'absolute';
+    el.style.margin = '0';
+    el.style.left = (r.left - pageRect.left) + 'px';
+    el.style.top = (r.top - pageRect.top) + 'px';
+    el.style.width = r.width + 'px';
+    el.style.zIndex = '3';
+    el.style.pointerEvents = 'none';
+    el.dataset.pinned = 'true';
+  }
+  function unpin(el) {
+    if (!el) { return; }
+    el.style.position = '';
+    el.style.margin = '';
+    el.style.left = '';
+    el.style.top = '';
+    el.style.width = '';
+    el.style.zIndex = '';
+    el.style.pointerEvents = '';
+    clearFx(el);
+    if (el.dataset.pinned) { delete el.dataset.pinned; }
+  }
+
+  /* Fade + slide a pinned set out, then hide and unpin it. */
+  function playSetOut(els) {
+    els.forEach(function (el) {
+      if (!el) { return; }
+      el.style.transition = 'opacity ' + GROUP_FADE_MS + 'ms ease, transform ' +
+        GROUP_FADE_MS + 'ms ease';
+      void el.offsetWidth;
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(' + GROUP_SHIFT + 'px)';
     });
-    if (ctaRow) {
-      ctaRow.classList.remove('is-open');
-      ctaRow.setAttribute('aria-pressed', 'false');
-    }
+    window.clearTimeout(groupTimer);
+    groupTimer = window.setTimeout(function () {
+      els.forEach(function (el) { hideEl(el); unpin(el); });
+    }, GROUP_FADE_MS + 40);
+  }
 
+  /* Reveal a set from a slid/faded state to rest (in flow). Measure any FLIP Last
+     rects BEFORE calling this: the from-state applies a translateY that would
+     otherwise offset the measurement. */
+  function fadeSetIn(els) {
+    els.forEach(function (el) {
+      if (!el) { return; }
+      showEl(el);
+      el.style.transition = 'none';
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(' + GROUP_SHIFT + 'px)';
+    });
+    if (els[0]) { void els[0].offsetWidth; }
+    els.forEach(function (el) {
+      if (!el) { return; }
+      el.style.transition = 'opacity ' + GROUP_FADE_MS + 'ms ease, transform ' +
+        GROUP_FADE_MS + 'ms ease';
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+    });
+    window.setTimeout(function () { els.forEach(clearFx); }, GROUP_FADE_MS + 40);
+  }
+
+  /* Fly a text clone from a First rect to a Last rect, scaling by width so it
+     resolves to the destination type. The clone is a fixed overlay (no layout
+     effect) borrowing the destination class for its type; it is removed on finish
+     (and the real destination is revealed by onDone). fadeOutEnd dissolves the
+     clone into an already-visible destination (used on exit, where the rows are
+     shown). Never called under reduced motion. */
+  function flyText(text, cls, first, last, opts) {
+    opts = opts || {};
+    if (!first || !last) { if (opts.onDone) { opts.onDone(); } return null; }
+    const clone = document.createElement('span');
+    clone.className = cls + ' flip-clone';
+    clone.setAttribute('aria-hidden', 'true');
+    clone.textContent = text;
+    clone.style.left = last.left + 'px';
+    clone.style.top = last.top + 'px';
+    if (opts.wrap) {
+      clone.style.width = last.width + 'px';
+      clone.style.whiteSpace = 'normal';
+    }
+    clone.style.willChange = 'transform, opacity';
+    document.body.appendChild(clone);
+
+    const dx = first.left - last.left;
+    const dy = first.top - last.top;
+    const scale = (first.width && last.width) ? (first.width / last.width) : 1;
+    const startT = 'translate(' + dx + 'px,' + dy + 'px) scale(' + scale + ')';
+    const endT = 'translate(0px,0px) scale(1)';
+    const frames = opts.fadeOutEnd
+      ? [{ transform: startT, opacity: 1 },
+         { transform: endT, opacity: 1, offset: 0.7 },
+         { transform: endT, opacity: 0 }]
+      : [{ transform: startT }, { transform: endT }];
+    const anim = clone.animate(frames, {
+      duration: FLIP_MS, easing: FLIP_EASE, fill: 'both'
+    });
+    let settled = false;
+    function done() {
+      if (settled) { return; }
+      settled = true;
+      if (clone.parentNode) { clone.remove(); }
+      if (opts.onDone) { opts.onDone(); }
+    }
+    anim.onfinish = done;
+    anim.oncancel = done;
+    /* Belt and braces: if the finish/cancel event is ever missed (e.g. the clone
+       is detached out from under the animation), reveal the target and drop the
+       clone anyway. Idempotent via the settled guard. */
+    window.setTimeout(done, FLIP_MS + 80);
+    return anim;
+  }
+
+  /* Move a persisting element from its First to Last position (transform-only,
+     no clone). Used for the third chip when the two swapping chips reorder it. */
+  function flipMove(el, first, last) {
+    if (!el || !first || !last) { return; }
+    const dx = first.left - last.left;
+    const dy = first.top - last.top;
+    if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) { return; }
+    el.animate([
+      { transform: 'translate(' + dx + 'px,' + dy + 'px)' },
+      { transform: 'translate(0px,0px)' }
+    ], { duration: FLIP_MS, easing: FLIP_EASE });
+  }
+
+  /* Stagger the section cards in: opacity + 6px translateY, 60ms steps, the same
+     rhythm as the load-in blocks. Skipped under reduced motion (cards just show).
+     will-change is set for the move and cleared afterwards. */
+  function staggerCards() {
+    if (prefersReducedMotion()) { return; }
+    const cards = Array.prototype.slice.call(
+      panelBody.querySelectorAll('.section-card'));
+    if (!cards.length) { return; }
+    cards.forEach(function (c) {
+      c.style.transition = 'none';
+      c.style.opacity = '0';
+      c.style.transform = 'translateY(6px)';
+      c.style.willChange = 'opacity, transform';
+    });
+    void panelBody.offsetWidth;
+    cards.forEach(function (c, i) {
+      const delay = i * CARD_STAGGER_MS;
+      c.style.transition = 'opacity ' + CARD_FADE_MS + 'ms ease ' + delay +
+        'ms, transform ' + CARD_FADE_MS + 'ms ease ' + delay + 'ms';
+      c.style.opacity = '1';
+      c.style.transform = 'translateY(0)';
+    });
+    const total = (cards.length - 1) * CARD_STAGGER_MS + CARD_FADE_MS + 60;
+    window.setTimeout(function () {
+      cards.forEach(function (c) {
+        c.style.transition = '';
+        c.style.opacity = '';
+        c.style.transform = '';
+        c.style.willChange = '';
+      });
+    }, total);
+  }
+
+  function focusAfterFlip(el) {
+    if (!el) { return; }
+    if (prefersReducedMotion()) {
+      el.focus();
+    } else {
+      window.setTimeout(function () {
+        if (el && el.isConnected) { el.focus(); }
+      }, FLIP_MS);
+    }
+  }
+
+  /* ---- enter / exit / switch (round 7 FLIP choreography) ---------------- */
+
+  /* Enter the detail state from a project row (index visible). The clicked name
+     travels into the title; the two sibling rows travel into their chips; the
+     non-project rows, INDEX label, HOW IT WORKS and proof strip slide down and
+     fade as a group; the section cards stagger in. */
+  function enterDetail(row, key) {
+    const others = PROJECT_KEYS.filter(function (k) { return k !== key; });
     detailOriginRow = row;
     detailKey = key;
-    fillDetailCopy(key);
 
-    if (entering) {
+    if (prefersReducedMotion()) {
+      fillDetailCopy(key);
+      renderChips(key);
+      moveCtaToConversion();
       page.classList.add('is-detail');
+      leavingEls.forEach(function (el) { hideEl(el); clearFx(el); });
+      enteringEls.forEach(function (el) { showEl(el); clearFx(el); });
       inDetail = true;
       pushDetailHistory();
-      crossfade(leavingEls, enteringEls, moveCtaToConversion);
-      focusAfterMorph(detailBack);
+      setPressed(key);
+      commit(key, 'Preview / ' + PROJECT_NAMES[key]);
+      currentView = key;
+      if (detailBack) { detailBack.focus(); }
+      return;
     }
 
-    swap(key, 'Preview / ' + nameOf(row));
+    const pageRect = page.getBoundingClientRect();
+    const titleFirst = rowNameEl(key).getBoundingClientRect();
+    const chipFirst = others.map(function (k) {
+      return rowNameEl(k).getBoundingClientRect();
+    });
+
+    /* Pin the outgoing group out of flow so the column reflows to the final
+       detail layout (needed to measure the Last rects), while the group stays
+       visible where it was to fade out. */
+    leavingEls.forEach(function (el) { pinAbsolute(el, pageRect); });
+
+    fillDetailCopy(key);
+    renderChips(key);
+    moveCtaToConversion();
+    page.classList.add('is-detail');
+    enteringEls.forEach(showEl);
+    inDetail = true;
+    pushDetailHistory();
+    setPressed(key);
+    /* panel stack, no fade; defer the section-video decode past the FLIP travel */
+    commit(key, 'Preview / ' + PROJECT_NAMES[key], SECTION_START_DELAY);
     currentView = key;
+
+    /* Last rects, measured with the entering set at its resting transform. */
+    const titleEl = detailTitleEl();
+    const titleLast = titleEl ? titleEl.getBoundingClientRect() : null;
+    const chipEls = others.map(function (k) { return chipByKey(k); });
+    const chipLast = chipEls.map(function (c) {
+      return c ? c.getBoundingClientRect() : null;
+    });
+
+    /* Hide the real targets until their clones land. */
+    if (titleEl) { titleEl.style.opacity = '0'; }
+    chipEls.forEach(function (c) { if (c) { c.style.opacity = '0'; } });
+
+    playSetOut(leavingEls);      /* outgoing group fades + slides out */
+    fadeSetIn(enteringEls);      /* detail + conversion fade + slide in */
+
+    flyText(PROJECT_NAMES[key], 'detail-title', titleFirst, titleLast, {
+      wrap: true,
+      onDone: function () { if (titleEl) { titleEl.style.opacity = ''; } }
+    });
+    others.forEach(function (k, i) {
+      const c = chipEls[i];
+      flyText(PROJECT_NAMES[k], 'chip', chipFirst[i], chipLast[i], {
+        onDone: function () { if (c) { c.style.opacity = ''; } }
+      });
+    });
+
+    staggerCards();
+    focusAfterFlip(detailBack);
+  }
+
+  /* Switch project in place (a chip click). The clicked chip travels up into the
+     title while the current title travels down into the vacated chip slot; the
+     panel cards crossfade via the existing swap. */
+  function switchProject(newKey) {
+    if (!inDetail || newKey === detailKey) { return; }
+    const oldKey = detailKey;
+    const thirdKey = PROJECT_KEYS.filter(function (k) {
+      return k !== oldKey && k !== newKey;
+    })[0];
+
+    if (prefersReducedMotion()) {
+      detailKey = newKey;
+      detailOriginRow = rowByKey[newKey];
+      fillDetailCopy(newKey);
+      renderChips(newKey);
+      setPressed(newKey);
+      commit(newKey, 'Preview / ' + PROJECT_NAMES[newKey]);
+      currentView = newKey;
+      if (detailBack) { detailBack.focus(); }
+      return;
+    }
+
+    /* First rects (before the mutation). */
+    const clickedChip = chipByKey(newKey);
+    const chipFirst = clickedChip ? clickedChip.getBoundingClientRect() : null;
+    const titleElOld = detailTitleEl();
+    const titleFirst = titleElOld ? titleElOld.getBoundingClientRect() : null;
+    const thirdChipOld = thirdKey ? chipByKey(thirdKey) : null;
+    const thirdFirst = thirdChipOld ? thirdChipOld.getBoundingClientRect() : null;
+
+    detailKey = newKey;
+    detailOriginRow = rowByKey[newKey];
+    fillDetailCopy(newKey);
+    renderChips(newKey);          /* chips now show oldKey + thirdKey */
+    setPressed(newKey);
+    /* panel crossfade; defer the video decode to FLIP_MS+40 from this click. swap
+       commits at SWAP_HALF, so pass the delay measured from that midpoint. */
+    swap(newKey, 'Preview / ' + PROJECT_NAMES[newKey], SECTION_START_DELAY - SWAP_HALF);
+    currentView = newKey;
+
+    /* Crossfade the supporting copy (sub, blurb, See it live); the title inside
+       it stays hidden for its clone. */
+    if (detailCopySlot) {
+      detailCopySlot.style.transition = 'none';
+      detailCopySlot.style.opacity = '0';
+      void detailCopySlot.offsetWidth;
+      detailCopySlot.style.transition = 'opacity ' + GROUP_FADE_MS + 'ms ease';
+      detailCopySlot.style.opacity = '1';
+      window.setTimeout(function () {
+        detailCopySlot.style.transition = '';
+        detailCopySlot.style.opacity = '';
+      }, GROUP_FADE_MS + 40);
+    }
+
+    /* Last rects (new elements). */
+    const titleElNew = detailTitleEl();
+    const titleLast = titleElNew ? titleElNew.getBoundingClientRect() : null;
+    const oldChipNew = chipByKey(oldKey);
+    const oldChipLast = oldChipNew ? oldChipNew.getBoundingClientRect() : null;
+    const thirdChipNew = thirdKey ? chipByKey(thirdKey) : null;
+    const thirdLast = thirdChipNew ? thirdChipNew.getBoundingClientRect() : null;
+
+    if (titleElNew) { titleElNew.style.opacity = '0'; }
+    if (oldChipNew) { oldChipNew.style.opacity = '0'; }
+
+    flyText(PROJECT_NAMES[newKey], 'detail-title', chipFirst, titleLast, {
+      wrap: true,
+      onDone: function () { if (titleElNew) { titleElNew.style.opacity = ''; } }
+    });
+    flyText(PROJECT_NAMES[oldKey], 'chip', titleFirst, oldChipLast, {
+      onDone: function () { if (oldChipNew) { oldChipNew.style.opacity = ''; } }
+    });
+    if (thirdChipNew) { flipMove(thirdChipNew, thirdFirst, thirdLast); }
+
+    /* Keep focus in the chips row: land on the previously-open project's chip. */
+    focusAfterFlip(chipByKey(oldKey));
+  }
+
+  /* Exit the detail state back to the welcome (back / Escape / browser back). The
+     title travels back into its row, the chips grow back into their rows, the
+     hidden group fades/slides back in, and the panel cards fade out first. */
+  function exitDetail() {
+    if (!inDetail) { return; }
+    const origin = detailOriginRow;
+    const key = detailKey;
+    const others = PROJECT_KEYS.filter(function (k) { return k !== key; });
+
+    if (prefersReducedMotion()) {
+      moveCtaToIndex();
+      page.classList.remove('is-detail');
+      enteringEls.forEach(function (el) { hideEl(el); clearFx(el); });
+      leavingEls.forEach(function (el) { showEl(el); clearFx(el); });
+      clearAllSelection();
+      inDetail = false;
+      detailKey = null;
+      detailPushed = false;
+      swap('welcome', 'Preview / No selection');
+      currentView = null;
+      if (origin) { origin.focus(); }
+      return;
+    }
+
+    const pageRect = page.getBoundingClientRect();
+    const titleEl = detailTitleEl();
+    const titleFirst = titleEl ? titleEl.getBoundingClientRect() : null;
+    const chipFirst = others.map(function (k) {
+      const c = chipByKey(k);
+      return c ? c.getBoundingClientRect() : null;
+    });
+
+    moveCtaToIndex();                       /* CTA rejoins the index, fades in */
+    enteringEls.forEach(function (el) { pinAbsolute(el, pageRect); });
+    page.classList.remove('is-detail');
+    leavingEls.forEach(showEl);
+    clearAllSelection();
+
+    const titleLast = rowNameEl(key) ? rowNameEl(key).getBoundingClientRect() : null;
+    const chipLast = others.map(function (k) {
+      const n = rowNameEl(k);
+      return n ? n.getBoundingClientRect() : null;
+    });
+
+    playSetOut(enteringEls);                /* detail + conversion fade out */
+    fadeSetIn(leavingEls);                  /* index / how / proof fade in */
+
+    /* Clones dissolve into the rows (which are already fading in). */
+    flyText(PROJECT_NAMES[key], 'detail-title', titleFirst, titleLast, {
+      wrap: true, fadeOutEnd: true
+    });
+    others.forEach(function (k, i) {
+      flyText(PROJECT_NAMES[k], 'chip', chipFirst[i], chipLast[i], {
+        fadeOutEnd: true
+      });
+    });
+
+    inDetail = false;
+    detailKey = null;
+    detailPushed = false;
+    swap('welcome', 'Preview / No selection');   /* cards fade out, welcome in */
+    currentView = null;
+    focusAfterFlip(origin);
+  }
+
+  /* Leave the detail state onto a normal view (Pricing via the conversion line,
+     or the form via the relocated CTA). A quiet group crossfade (no title/chip
+     FLIP, since we are moving to a different view, not back to the index). */
+  function exitDetailToView() {
+    moveCtaToIndex();
+    if (prefersReducedMotion()) {
+      page.classList.remove('is-detail');
+      enteringEls.forEach(function (el) { hideEl(el); clearFx(el); });
+      leavingEls.forEach(function (el) { showEl(el); clearFx(el); });
+    } else {
+      const pageRect = page.getBoundingClientRect();
+      enteringEls.forEach(function (el) { pinAbsolute(el, pageRect); });
+      page.classList.remove('is-detail');
+      playSetOut(enteringEls);
+      fadeSetIn(leavingEls);
+    }
+    inDetail = false;
+    detailKey = null;
+    consumeDetailHistory();
   }
 
   /* Rows 04 About, 05 Pricing, 06 CTA: the normal index model. If the detail
-     state is open, exit it first (restore the index), then show the view. */
+     state is open, exit it onto the chosen view first. */
   function selectNormal(row, key) {
     const cameFromDetail = inDetail;
     if (!cameFromDetail && key === currentView) {
       return;   /* no-op re-select of the shown view */
     }
     if (cameFromDetail) {
-      page.classList.remove('is-detail');
-      inDetail = false;
-      detailKey = null;
-      consumeDetailHistory();
-      crossfade(enteringEls, leavingEls, moveCtaToIndex);
-      focusAfterMorph(row);
+      exitDetailToView();
     }
 
     indexRows.forEach(function (r) {
@@ -875,32 +1348,16 @@ function initPanel() {
     const key = row.dataset.view;
     if (!key) { return; }
     if (PROJECT_KEYS.indexOf(key) !== -1) {
-      selectProject(row, key);
+      if (inDetail) { switchProject(key); }
+      else { enterDetail(row, key); }
     } else {
       selectNormal(row, key);
     }
   }
 
   function selectByKey(key) {
-    const row = rows.filter(function (r) { return r.dataset.view === key; })[0];
+    const row = rowByKey[key];
     if (row) { select(row); }
-  }
-
-  /* Exit the detail state back to the welcome (back control, Escape, browser
-     back). Restores the full index, clears selection, returns focus to the row
-     that opened the detail. */
-  function exitToWelcome() {
-    if (!inDetail) { return; }
-    const origin = detailOriginRow;
-    page.classList.remove('is-detail');
-    inDetail = false;
-    detailKey = null;
-    detailPushed = false;
-    clearAllSelection();
-    crossfade(enteringEls, leavingEls, moveCtaToIndex);
-    swap('welcome', 'Preview / No selection');
-    currentView = null;
-    focusAfterMorph(origin);
   }
 
   /* The back control and Escape route through the history entry when one was
@@ -908,9 +1365,9 @@ function initPanel() {
   function closeDetail() {
     if (!inDetail) { return; }
     if (detailPushed) {
-      history.back();   /* triggers popstate -> exitToWelcome */
+      history.back();   /* triggers popstate -> exitDetail */
     } else {
-      exitToWelcome();
+      exitDetail();
     }
   }
 
@@ -919,6 +1376,16 @@ function initPanel() {
       select(row);
     });
   });
+
+  if (detailChipsSlot) {
+    /* Delegated so freshly rendered chips are always wired. */
+    detailChipsSlot.addEventListener('click', function (event) {
+      const chip = event.target.closest('[data-chip-key]');
+      if (chip && inDetail) {
+        switchProject(chip.dataset.chipKey);
+      }
+    });
+  }
 
   if (conversionPrice) {
     conversionPrice.addEventListener('click', function () {
@@ -939,7 +1406,7 @@ function initPanel() {
   window.addEventListener('popstate', function () {
     if (inDetail) {
       detailPushed = false;   /* the entry has already been popped */
-      exitToWelcome();
+      exitDetail();
     }
   });
 }

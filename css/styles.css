@@ -33,7 +33,7 @@
   font-weight: 400 600;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/archivo-latin-var.woff2?v=14') format('woff2');
+  src: url('../fonts/archivo-latin-var.woff2?v=15') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -43,7 +43,7 @@
   font-weight: 300 500;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/martian-mono-latin-var.woff2?v=14') format('woff2');
+  src: url('../fonts/martian-mono-latin-var.woff2?v=15') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -1549,6 +1549,76 @@ a {
   outline: none;
   box-shadow: var(--shadow-field-focus);
   border-radius: var(--radius-surface);
+}
+
+/* Project chips (Client feedback round 7). The two OTHER projects sit here as
+   small chips directly under the back control; clicking one switches the detail
+   in place. A quiet chip at rest (16px radius, 1px --border, --surface-field
+   fill, niche-tag type: mono 10px UPPER, --grey-label). Real buttons, so they
+   carry focus-visible; the accent inset ring matches the fields and rows. The
+   chips row wraps if the two labels do not fit (mobile). Both themes work with
+   existing tokens (dark: field #202024, border #33333A, label #74747C, and the
+   hover card lifts to --surface-white #242428). */
+.detail-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-6);
+}
+
+/* No chips (welcome / instant states): collapse so the .detail gap does not
+   leave a phantom row. */
+.detail-chips:empty {
+  display: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--sp-6) var(--sp-12);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-surface);
+  background: var(--surface-field);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--grey-label);
+  transition: background 160ms ease, border-color 160ms ease,
+              box-shadow 200ms ease, color 160ms ease;
+}
+
+/* Hover adopts the card treatment scaled down (mouse only, mirroring the row
+   hover guard so a tap leaves no sticky hover): white fill and the single quiet
+   card shadow, label to --ink. */
+@media (hover: hover) and (pointer: fine) {
+  .chip:hover {
+    background: var(--surface-white);
+    border-color: var(--border);
+    box-shadow: var(--shadow-row-active);
+    color: var(--ink);
+  }
+}
+
+.chip:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-field-focus);
+}
+
+/* FLIP travel clones (Client feedback round 7). A fixed-position overlay that
+   flies a title or chip label between its list and detail positions; it is
+   removed as soon as the real element is revealed. Fixed and pointer-inert so it
+   never affects layout or hit-testing. Not spawned at all under reduced motion
+   (main.js guards). The clone borrows the .detail-title or .chip type so the
+   travelling text matches its destination. */
+.flip-clone {
+  position: fixed;
+  z-index: 50;
+  margin: 0;
+  pointer-events: none;
+  transform-origin: top left;
 }
 
 /* Per-project copy, cloned in from the project template. */

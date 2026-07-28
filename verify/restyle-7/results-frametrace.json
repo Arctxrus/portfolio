@@ -1,0 +1,53 @@
+{
+  "enter_blackthorn_trial0": {
+    "count": 106,
+    "max_delta": 34.80000000000018,
+    "over_33_count": 2,
+    "over_33_values": [
+      34.80000000000018,
+      34.80000000000018
+    ],
+    "longtasks": []
+  },
+  "enter_blackthorn_trial1": {
+    "count": 125,
+    "max_delta": 20.90000000000009,
+    "over_33_count": 0,
+    "over_33_values": [],
+    "longtasks": []
+  },
+  "enter_barker_trial0": {
+    "count": 115,
+    "max_delta": 41.600000000000136,
+    "over_33_count": 1,
+    "over_33_values": [
+      41.600000000000136
+    ],
+    "longtasks": []
+  },
+  "enter_barker_trial1": {
+    "count": 117,
+    "max_delta": 27.799999999999955,
+    "over_33_count": 0,
+    "over_33_values": [],
+    "longtasks": []
+  },
+  "enter_star_trial0": {
+    "count": 81,
+    "max_delta": 48.5,
+    "over_33_count": 1,
+    "over_33_values": [
+      48.5
+    ],
+    "longtasks": []
+  },
+  "enter_star_trial1": {
+    "count": 85,
+    "max_delta": 34.600000000000136,
+    "over_33_count": 1,
+    "over_33_values": [
+      34.600000000000136
+    ],
+    "longtasks": []
+  }
+}

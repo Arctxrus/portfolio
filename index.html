@@ -42,7 +42,7 @@
   <meta property="og:url" content="https://arctxrus.github.io/portfolio/">
   <meta property="og:title" content="Zayn · Web design for local businesses">
   <meta property="og:description" content="I build fast, polished websites for local businesses. From £300.">
-  <meta property="og:image" content="https://arctxrus.github.io/portfolio/og-image.png?v=14">
+  <meta property="og:image" content="https://arctxrus.github.io/portfolio/og-image.png?v=15">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -52,17 +52,17 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Zayn · Web design for local businesses">
   <meta name="twitter:description" content="I build fast, polished websites for local businesses. From £300.">
-  <meta name="twitter:image" content="https://arctxrus.github.io/portfolio/og-image.png?v=14">
+  <meta name="twitter:image" content="https://arctxrus.github.io/portfolio/og-image.png?v=15">
   <meta name="twitter:image:alt" content="Zayn. I build fast, polished websites for local businesses. From £300.">
 
   <!-- Favicon: hand-authored "Z" mark, ink on transparent. SVG first, PNG
        fallback for browsers without SVG icon support, apple-touch-icon for iOS.
        These rel=icon links stop Chromium requesting a default /favicon.ico. -->
-  <link rel="icon" href="favicon.svg?v=14" type="image/svg+xml">
-  <link rel="icon" href="favicon-32.png?v=14" sizes="32x32" type="image/png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=14">
+  <link rel="icon" href="favicon.svg?v=15" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png?v=15" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=15">
 
-  <link rel="stylesheet" href="css/styles.css?v=14">
+  <link rel="stylesheet" href="css/styles.css?v=15">
 
   <!-- No-JS reveal (approval round). The load-in blocks start at opacity 0 and
        are only shown by JS adding .is-in (or by the reduced-motion override). So
@@ -166,6 +166,14 @@
           <span class="detail-back-glyph" aria-hidden="true">&#8592;</span>
           Back to index
         </button>
+        <!-- Project chips (Client feedback round 7). The two OTHER project rows
+             become small chips here, directly under the back control, so a
+             visitor can switch project without a trip back through the index.
+             Populated by main.js (renderChips): each chip is a real button in
+             the tab order right after the back control; clicking one switches
+             the detail in place with a FLIP swap. About and Pricing are NOT
+             chips (the pricing line stays in the conversion cluster). -->
+        <div class="detail-chips" data-detail-chips></div>
         <div class="detail-copy" data-detail-copy></div>
       </section>
 
@@ -314,31 +322,31 @@
     <div class="section-stack" tabindex="0" role="region" aria-label="Blackthorn and Co. previews">
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/blackthorn-cover.jpg?v=14" alt="Blackthorn &amp; Co. cover: the shop name over a Heywood barbershop, with a book your chair button and a 4.9 star rating." loading="lazy" width="1280" height="720">
+          <img class="section-img" src="media/blackthorn-cover.jpg?v=15" alt="Blackthorn &amp; Co. cover: the shop name over a Heywood barbershop, with a book your chair button and a 4.9 star rating." loading="lazy" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The cover</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/blackthorn-prices.jpg?v=14" alt="The price menu, listing cuts, beard and shave services with prices from a 12 pound kids' cut to the 52 pound full works." loading="lazy" width="1280" height="720">
+          <img class="section-img" src="media/blackthorn-prices.jpg?v=15" alt="The price menu, listing cuts, beard and shave services with prices from a 12 pound kids' cut to the 52 pound full works." loading="lazy" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The price menu</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/blackthorn-barbers.jpg?v=14" alt="The barbers section, with a profile and specialisms for each of the four named barbers." loading="lazy" width="1280" height="720">
+          <img class="section-img" src="media/blackthorn-barbers.jpg?v=15" alt="The barbers section, with a profile and specialisms for each of the four named barbers." loading="lazy" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The barbers</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/blackthorn-reviews.jpg?v=14" alt="A five-star Google review of the barbershop, one of a rotating set." loading="lazy" width="1600" height="900">
+          <img class="section-img" src="media/blackthorn-reviews.jpg?v=15" alt="A five-star Google review of the barbershop, one of a rotating set." loading="lazy" width="1600" height="900">
         </div>
         <figcaption class="section-caption">In their words</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/blackthorn-booking.jpg?v=14" alt="The booking form, capturing a name, mobile, service, preferred date and time, and a chosen barber." loading="lazy" width="1280" height="720">
+          <img class="section-img" src="media/blackthorn-booking.jpg?v=15" alt="The booking form, capturing a name, mobile, service, preferred date and time, and a chosen barber." loading="lazy" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The booking form</figcaption>
       </figure>
@@ -356,28 +364,28 @@
     <div class="section-stack" tabindex="0" role="region" aria-label="Barker and Bloom previews">
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/barker-hero.jpg?v=14" alt="The Barker &amp; Bloom welcome: a calm dog grooming salon with a book a groom button." loading="lazy" width="1600" height="900">
+          <img class="section-img" src="media/barker-hero.jpg?v=15" alt="The Barker &amp; Bloom welcome: a calm dog grooming salon with a book a groom button." loading="lazy" width="1600" height="900">
         </div>
         <figcaption class="section-caption">The welcome</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/barker-prices.jpg?v=14" alt="The price menu, with full groom and bath and brush priced by small, medium and large dog, plus little extras." loading="lazy" width="1280" height="720">
+          <img class="section-img" src="media/barker-prices.jpg?v=15" alt="The price menu, with full groom and bath and brush priced by small, medium and large dog, plus little extras." loading="lazy" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The price menu</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <video class="section-video" poster="media/barker-beforeafter-poster.jpg?v=14"
+          <video class="section-video" poster="media/barker-beforeafter-poster.jpg?v=15"
                  autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-            <source src="media/barker-beforeafter.webm?v=14" type="video/webm">
+            <source src="media/barker-beforeafter.webm?v=15" type="video/webm">
           </video>
         </div>
         <figcaption class="section-caption">Before and after</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/barker-booking.jpg?v=14" alt="The two-step booking form, choosing a dog size on the first step." loading="lazy" width="1280" height="720">
+          <img class="section-img" src="media/barker-booking.jpg?v=15" alt="The two-step booking form, choosing a dog size on the first step." loading="lazy" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The booking form</figcaption>
       </figure>
@@ -395,27 +403,27 @@
     <div class="section-stack" tabindex="0" role="region" aria-label="Until the Last Star previews">
       <figure class="section-card">
         <div class="section-media">
-          <video class="section-video" poster="media/star-first-poster.jpg?v=14"
+          <video class="section-video" poster="media/star-first-poster.jpg?v=15"
                  autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-            <source src="media/star-first.webm?v=14" type="video/webm">
+            <source src="media/star-first.webm?v=15" type="video/webm">
           </video>
         </div>
         <figcaption class="section-caption">The first star</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <video class="section-video" poster="media/star-web-poster.jpg?v=14"
+          <video class="section-video" poster="media/star-web-poster.jpg?v=15"
                  autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-            <source src="media/star-web.webm?v=14" type="video/webm">
+            <source src="media/star-web.webm?v=15" type="video/webm">
           </video>
         </div>
         <figcaption class="section-caption">The cosmic web</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <video class="section-video" poster="media/star-last-poster.jpg?v=14"
+          <video class="section-video" poster="media/star-last-poster.jpg?v=15"
                  autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-            <source src="media/star-last.webm?v=14" type="video/webm">
+            <source src="media/star-last.webm?v=15" type="video/webm">
           </video>
         </div>
         <figcaption class="section-caption">The last star</figcaption>
@@ -480,6 +488,6 @@
     </div>
   </template>
 
-  <script src="js/main.js?v=14"></script>
+  <script src="js/main.js?v=15"></script>
 </body>
 </html>

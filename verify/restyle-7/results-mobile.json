@@ -1,0 +1,57 @@
+{
+  "360_non_detail": {
+    "panel_height": 468,
+    "scrollWidth": 345,
+    "clientWidth": 345
+  },
+  "360_detail_open": {
+    "scrollWidth": 360,
+    "clientWidth": 360,
+    "chips_info": {
+      "flexWrap": "wrap",
+      "rowTops": [
+        198.1875,
+        198.1875
+      ]
+    }
+  },
+  "360_clones_after_settle": 0,
+  "360_clones_after_exit": 0,
+  "390_non_detail": {
+    "panel_height": 506.390625,
+    "scrollWidth": 375,
+    "clientWidth": 375
+  },
+  "390_detail_open": {
+    "scrollWidth": 390,
+    "clientWidth": 390,
+    "chips_info": {
+      "flexWrap": "wrap",
+      "rowTops": [
+        198.1875,
+        198.1875
+      ]
+    }
+  },
+  "390_clones_after_settle": 0,
+  "390_clones_after_exit": 0,
+  "768_non_detail": {
+    "panel_height": 614.390625,
+    "scrollWidth": 753,
+    "clientWidth": 753
+  },
+  "768_detail_open": {
+    "scrollWidth": 768,
+    "clientWidth": 768,
+    "chips_info": {
+      "flexWrap": "wrap",
+      "rowTops": [
+        224.1875,
+        224.1875
+      ]
+    }
+  },
+  "768_clones_after_settle": 0,
+  "768_clones_after_exit": 0,
+  "console_errors_mobile": []
+}

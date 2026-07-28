@@ -1,0 +1,62 @@
+{
+  "tab_to_star_row_sequence": [
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "view": "blackthorn",
+      "chipKey": null,
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px inset"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "view": "barker",
+      "chipKey": null,
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px inset"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "view": "star",
+      "chipKey": null,
+      "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px inset"
+    }
+  ],
+  "reached_star_row_via_keyboard": true,
+  "focus_on_back_after_keyboard_enter": {
+    "tag": "BUTTON",
+    "cls": "detail-back",
+    "view": null,
+    "chipKey": null,
+    "boxShadow": "rgb(26, 111, 212) 0px 0px 0px 1px inset"
+  },
+  "chip1_focus_after_keyboard_tab": {
+    "tag": "BUTTON",
+    "cls": "chip",
+    "view": null,
+    "chipKey": "blackthorn",
+    "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px inset"
+  },
+  "chip2_focus_after_keyboard_tab": {
+    "tag": "BUTTON",
+    "cls": "chip",
+    "view": null,
+    "chipKey": "barker",
+    "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px inset"
+  },
+  "title_after_keyboard_chip_switch": "Barker & Bloom",
+  "focus_after_keyboard_chip_switch": {
+    "tag": "BUTTON",
+    "cls": "chip",
+    "view": null,
+    "chipKey": "star",
+    "boxShadow": "rgb(26, 111, 212) 0px 0px 0px 1px inset"
+  },
+  "focus_after_escape_keyboard_only": {
+    "tag": "BUTTON",
+    "cls": "row",
+    "view": "barker",
+    "chipKey": null,
+    "boxShadow": "rgb(26, 111, 212) 0px 0px 0px 1px inset"
+  }
+}

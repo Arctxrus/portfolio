@@ -1,0 +1,68 @@
+{
+  "inline_styles_after_enter_settle": {
+    ".detail-title": [
+      ""
+    ],
+    ".chip": [
+      "",
+      ""
+    ],
+    ".detail": [
+      ""
+    ],
+    ".conversion": [
+      ""
+    ],
+    ".section-card": [
+      "",
+      "",
+      ""
+    ]
+  },
+  "inline_styles_after_switch_settle": {
+    ".detail-title": [
+      ""
+    ],
+    ".chip": [
+      null,
+      ""
+    ],
+    ".detail-copy": [
+      "",
+      null
+    ]
+  },
+  "inline_styles_after_exit_settle": {
+    ".index": "--fade-delay: 180ms;",
+    ".how": "--fade-delay: 240ms;",
+    ".proof": "--fade-delay: 320ms;",
+    ".detail": "",
+    ".conversion": "",
+    ".row-name (all)": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "clones_at_rest_final": 0,
+  "dark_chip_rest_and_hover_bg": {
+    "background": "rgb(36, 36, 40)",
+    "color": "rgb(240, 240, 242)",
+    "borderColor": "rgb(51, 51, 58)"
+  },
+  "dark_chip_focus_via_tab": {
+    "cls": "chip",
+    "boxShadow": "rgb(78, 149, 232) 0px 0px 0px 1px inset"
+  },
+  "reduced_motion_enter_instant": {
+    "elapsed_ms_approx": 106.19999999925494,
+    "detail_visible_after_50ms": true
+  },
+  "reduced_motion_switch_title_after_50ms": "Blackthorn & Co.",
+  "reduced_motion_exit_hidden_after_50ms": true,
+  "reduced_motion_clone_spawns_total": 0,
+  "console_errors_more": []
+}
