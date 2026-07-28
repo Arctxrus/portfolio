@@ -1,0 +1,16 @@
+{
+  "first_load_bytes_approx": 239332,
+  "first_load_KB_approx": 233.7,
+  "cta_rest_box": {
+    "x": 76,
+    "y": 410.1875,
+    "width": 460,
+    "height": 47
+  },
+  "form_opened_from_index_cta": true,
+  "chip_count": 2,
+  "focus_after_exit_class": "row",
+  "focus_after_exit_data_view": "barker",
+  "em_dash_in_rendered_text": false,
+  "console_errors": []
+}

@@ -1,0 +1,17 @@
+{
+  "exit_from_blackthorn": {
+    "count": 41,
+    "max_delta": 20.9,
+    "deltas_over_33": []
+  },
+  "exit_from_barker": {
+    "count": 29,
+    "max_delta": 27.8,
+    "deltas_over_33": []
+  },
+  "exit_from_star": {
+    "count": 39,
+    "max_delta": 27.8,
+    "deltas_over_33": []
+  }
+}

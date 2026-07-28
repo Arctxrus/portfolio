@@ -33,7 +33,7 @@
   font-weight: 400 600;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/archivo-latin-var.woff2?v=16') format('woff2');
+  src: url('../fonts/archivo-latin-var.woff2?v=17') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -43,7 +43,7 @@
   font-weight: 300 500;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/martian-mono-latin-var.woff2?v=16') format('woff2');
+  src: url('../fonts/martian-mono-latin-var.woff2?v=17') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -363,7 +363,7 @@ a {
   font-weight: 400;
   line-height: 1.6;
   color: var(--ink-body);
-  margin-top: var(--sp-22);
+  margin-top: var(--sp-16);
   max-width: 34ch;
 }
 
@@ -377,7 +377,102 @@ a {
 }
 
 /* --------------------------------------------------------------------------
-   Index (rows 01 to 06)
+   About expander (Client feedback round 8). About folds into the masthead under
+   the positioning line: a quiet mono "More" disclosure that reveals the approved
+   About prose in place. Collapsed by default on every breakpoint. The reveal is
+   a grid-template-rows 0fr -> 1fr height animation plus an opacity fade over
+   ~180ms; under prefers-reduced-motion the global guard zeroes both, so it is
+   instant. All tokens, so both themes work with no new values.
+   -------------------------------------------------------------------------- */
+
+/* Height-budget compaction (Client feedback round 8, measured): removing the two
+   index rows freed space, but the always-on pricing block plus the About expander
+   net-add more than that, so the left-column section rhythm is tightened from the
+   existing scale so the collapsed masthead + 4-row index + pricing + how-it-works
+   + proof + footer all fit at the 860 min-height with the proof pinned and no
+   scroll (measured docScrollH 860, footer gap ~23px). Tokens only. */
+.about {
+  margin-top: var(--sp-10);
+}
+
+/* Quiet mono disclosure button (10px UPPER, --grey-label), matching the masthead
+   kicker type; the chevron is the one consistent glyph treatment (inline SVG,
+   same stroke family as the theme-toggle icons). */
+.about-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-6);
+  padding: var(--sp-4) 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  line-height: normal;
+  text-transform: uppercase;
+  color: var(--grey-label);
+  transition: color 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .about-toggle:hover {
+    color: var(--ink);
+  }
+}
+
+.about-toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-field-focus);
+  border-radius: var(--radius-surface);
+}
+
+.about-toggle-glyph {
+  display: block;
+  width: 12px;
+  height: 12px;
+  transition: transform 180ms ease;
+}
+
+/* Chevron flips up when the disclosure is open. */
+.about-toggle[aria-expanded="true"] .about-toggle-glyph {
+  transform: rotate(180deg);
+}
+
+/* The reveal: a grid track that animates from 0fr (collapsed) to 1fr (open), so
+   the prose height eases in without measuring it in JS. The inner wrapper clips
+   the content while collapsed and fades with the height. */
+.about-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 180ms ease;
+}
+
+.about-panel.is-open {
+  grid-template-rows: 1fr;
+}
+
+.about-panel-inner {
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.about-panel.is-open .about-panel-inner {
+  opacity: 1;
+}
+
+/* About prose - Archivo 14px (section 6). Small top gap sits inside the animated
+   track so it collapses with the panel. */
+.about-prose {
+  padding-top: var(--sp-12);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--ink-body);
+  max-width: 46ch;
+}
+
+/* --------------------------------------------------------------------------
+   Index (rows 01 to 04)
    -------------------------------------------------------------------------- */
 
 /* Type: INDEX / HOW IT WORKS labels - Mono 10px / 400 / normal / normal / UPPER */
@@ -391,17 +486,17 @@ a {
 }
 
 .index {
-  margin-top: var(--sp-48);
+  margin-top: var(--sp-26);
 }
 
 /* Client feedback round 1 (2026-07-27): the hairline separators are retired in
    favour of clear space between rows (change 4). The list is a flex column with
    a gap from the spacing scale. */
 .index-list {
-  margin-top: var(--sp-16);
+  margin-top: var(--sp-12);
   display: flex;
   flex-direction: column;
-  gap: var(--sp-6);
+  gap: var(--sp-4);
 }
 
 /* A single index row (R1 rest state).
@@ -837,18 +932,70 @@ a {
 }
 
 /* --------------------------------------------------------------------------
+   Pricing static block (Client feedback round 8). Always visible on every
+   breakpoint, between the index and HOW IT WORKS. The "PRICING" label matches the
+   INDEX / HOW IT WORKS section labels; each line is a compact mono head (with the
+   accent figure) plus an Archivo description matching the how-it-works type. The
+   optional honest-floors note is omitted to keep the collapsed left column inside
+   the 860 min-height (see the height-budget compaction note above). All tokens,
+   so both themes work unchanged.
+   -------------------------------------------------------------------------- */
+
+.pricing {
+  margin-top: var(--sp-26);
+}
+
+.pricing-list {
+  margin-top: var(--sp-12);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+}
+
+.pricing-line {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+/* Mono head - 10.5px UPPER, the "£" figure in accent. */
+.pricing-head {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: normal;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.pricing-head .amt {
+  color: var(--accent);
+}
+
+/* Description - Archivo 13.5px, matching the how-it-works text. */
+.pricing-desc {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 400;
+  line-height: normal;
+  color: var(--ink-body);
+}
+
+/* --------------------------------------------------------------------------
    How it works
    -------------------------------------------------------------------------- */
 
 .how {
-  margin-top: var(--sp-48);
+  margin-top: var(--sp-26);
 }
 
 .how-list {
-  margin-top: var(--sp-16);
+  margin-top: var(--sp-12);
   display: flex;
   flex-direction: column;
-  gap: var(--sp-12);
+  gap: var(--sp-6);
 }
 
 .how-item {
@@ -882,7 +1029,7 @@ a {
 /* Type: Proof strip - Mono 10.5px / 400 / normal / 1.7 / UPPER */
 .proof {
   margin-top: auto;
-  padding-top: var(--sp-32);
+  padding-top: var(--sp-22);
   font-family: var(--font-mono);
   font-size: 10.5px;
   font-weight: 400;
@@ -896,7 +1043,7 @@ a {
    -------------------------------------------------------------------------- */
 
 .footer {
-  margin-top: var(--sp-16);
+  margin-top: var(--sp-12);
 }
 
 /* Type: Footer email line - Archivo 13px / 400 / normal / normal / sentence */
@@ -922,6 +1069,34 @@ a {
 .footer-email a:focus-visible {
   outline: none;
   box-shadow: var(--shadow-field-focus);
+}
+
+/* Copy email button (Client feedback round 8). A small quiet mono control beside
+   the mailto: clicking copies the address and flips the label to "Copied" for
+   ~1.5s (handled in main.js; instant flip, no animation loop). Works in both
+   themes via tokens; the label change is announced through aria-live. */
+.copy-email {
+  padding: 0 var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: normal;
+  text-transform: uppercase;
+  color: var(--grey-label);
+  transition: color 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .copy-email:hover {
+    color: var(--ink);
+  }
+}
+
+.copy-email:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-field-focus);
+  border-radius: var(--radius-surface);
 }
 
 .footer-copy {
@@ -1192,64 +1367,6 @@ a {
 .visit-pill:focus-visible {
   outline: none;
   box-shadow: var(--shadow-field-focus);
-}
-
-/* ---- V3 About / Pricing views ---------------------------------------- */
-
-.view--text {
-  justify-content: center;
-  gap: var(--sp-22);
-}
-
-/* About prose - Archivo 14px per section 6 */
-.about-prose {
-  font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.6;
-  color: var(--ink-body);
-  max-width: 46ch;
-}
-
-.price-line {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-6);
-}
-
-/* Mono-labelled pricing line (no table, no cards) */
-.price-label {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  line-height: normal;
-  text-transform: uppercase;
-  color: var(--ink);
-}
-
-.price-label .amt {
-  color: var(--accent);
-}
-
-.price-desc {
-  font-family: var(--font-sans);
-  font-size: 13.5px;
-  font-weight: 400;
-  line-height: 1.5;
-  color: var(--ink-body);
-  max-width: 44ch;
-}
-
-.price-note {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  line-height: 1.5;
-  text-transform: uppercase;
-  color: var(--grey-label);
-  max-width: 44ch;
 }
 
 /* ---- V4 contact form view -------------------------------------------- */
@@ -1686,31 +1803,16 @@ a {
   padding-top: var(--sp-32);
 }
 
-/* The whole pricing line is a quiet button: mono 10.5px lower case, --ink-mid,
-   no fill or border at rest. Opens the Pricing view (exits the detail state with
-   row 05 active). */
+/* The pricing line is a quiet static line: mono 10.5px lower case, --ink-mid
+   (Client feedback round 8: no longer a button, since there is no Pricing view;
+   pricing is the always-on block in the left column). Same mono line as before. */
 .conversion-price {
-  align-self: flex-start;
-  text-align: left;
   font-family: var(--font-mono);
   font-size: 10.5px;
   font-weight: 400;
   line-height: 1.6;
   text-transform: lowercase;
   color: var(--ink-mid);
-  transition: color 150ms ease;
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .conversion-price:hover {
-    color: var(--ink);
-  }
-}
-
-.conversion-price:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-field-focus);
-  border-radius: var(--radius-surface);
 }
 
 /* --------------------------------------------------------------------------
@@ -1841,22 +1943,26 @@ a {
     display: contents;
   }
 
-  /* Section-8 single-column order. Every flattened child is ordered. In the
-     detail state (round 6) the index / how / proof are hidden by main.js, and
+  /* Section-8 single-column order (Client feedback round 8 order: name block,
+     positioning + About expander, INDEX (4 rows), panel, PRICING block, HOW IT
+     WORKS, proof, footer). Every flattened child is ordered (an unordered flex
+     item defaults to order 0 and would jump to the top). In the detail state
+     (round 6) the index / pricing / how / proof are hidden by main.js, and
      .detail (the project header) takes the index's slot while .conversion takes
-     the proof's slot, so the single-column order reads: name, positioning, detail
-     header, panel (section cards), conversion cluster, footer. The orders on the
-     hidden-at-rest .detail / .conversion are inert until the detail state opens. */
+     the proof's slot, so the detail-state order reads: name, positioning, About,
+     detail header, panel (section cards), conversion cluster, footer. */
   .name-block  { order: 1; }
   .positioning { order: 2; }
-  .index       { order: 3; }
-  .detail      { order: 3; }    /* takes the index slot in the detail state */
-  .testimonials { order: 4; }   /* hidden; kept under INDEX for later */
-  .panel       { order: 5; }
-  .how         { order: 6; }
-  .proof       { order: 7; }
-  .conversion  { order: 7; }    /* takes the proof slot in the detail state */
-  .footer      { order: 8; }
+  .about       { order: 3; }    /* masthead expander, always visible */
+  .index       { order: 4; }
+  .detail      { order: 4; }    /* takes the index slot in the detail state */
+  .testimonials { order: 5; }   /* hidden; kept under INDEX for later */
+  .panel       { order: 6; }
+  .pricing     { order: 7; }    /* between the panel and HOW IT WORKS */
+  .how         { order: 8; }
+  .proof       { order: 9; }
+  .conversion  { order: 9; }    /* takes the proof slot in the detail state */
+  .footer      { order: 10; }
 
   /* Detail header spacing steps down on mobile (no 48px gap needed above it in
      the flowing single column). */
@@ -1965,6 +2071,15 @@ a {
   .proof,
   .footer-copy,
   .panel-head-label {
+    color: var(--ink-mid);
+  }
+
+  /* Same mobile-at-rest remediation for the two new interactive mono controls
+     (round 8): the About "More" toggle and the footer "Copy" button both rest at
+     --grey-label (sub-AA on --ground). Darken their rest colour to --ink-mid on
+     mobile; the focus-visible ring is unaffected. */
+  .about-toggle,
+  .copy-email {
     color: var(--ink-mid);
   }
 

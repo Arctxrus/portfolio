@@ -150,6 +150,45 @@ const FORMSPREE_ENDPOINT = 'https://formspree.io/f/REPLACE_FORM_ID';
    the copyright year (CONCEPT.md section 9).
    -------------------------------------------------------------------------- */
 
+/* Copy the address to the clipboard (Client feedback round 8). navigator.clipboard
+   first, an execCommand textarea fallback second; on either path the label flips
+   to "Copied" for ~1.5s then back, with no animation loop (an instant text swap).
+   The address is always SITE_EMAIL (the single constant). */
+let copyResetTimer = 0;
+
+function copyEmailFallback() {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = SITE_EMAIL;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'absolute';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  } catch (e) { /* ignore: the address is still visible as a mailto link */ }
+}
+
+function copyEmail(btn) {
+  function flip() {
+    btn.textContent = 'Copied';
+    window.clearTimeout(copyResetTimer);
+    copyResetTimer = window.setTimeout(function () {
+      btn.textContent = 'Copy';
+    }, 1500);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(SITE_EMAIL).then(flip, function () {
+      copyEmailFallback();
+      flip();
+    });
+  } else {
+    copyEmailFallback();
+    flip();
+  }
+}
+
 function wireFooter() {
   const emailLine = document.querySelector('[data-email-line]');
   if (emailLine) {
@@ -157,8 +196,21 @@ function wireFooter() {
     link.href = 'mailto:' + SITE_EMAIL;
     link.textContent = SITE_EMAIL;
 
+    /* Quiet "Copy" button beside the address (round 8). aria-live announces the
+       label change politely; the accessible name comes from the textContent. */
+    const copyBtn = document.createElement('button');
+    copyBtn.type = 'button';
+    copyBtn.className = 'copy-email';
+    copyBtn.textContent = 'Copy';
+    copyBtn.setAttribute('aria-live', 'polite');
+    copyBtn.addEventListener('click', function () {
+      copyEmail(copyBtn);
+    });
+
     emailLine.textContent = '';
     emailLine.appendChild(link);
+    emailLine.appendChild(document.createTextNode(' '));
+    emailLine.appendChild(copyBtn);
     emailLine.appendChild(document.createTextNode(' · typically reply same day'));
   }
 
@@ -166,6 +218,34 @@ function wireFooter() {
   if (year) {
     year.textContent = String(new Date().getFullYear());
   }
+}
+
+/* --------------------------------------------------------------------------
+   About expander (Client feedback round 8). A masthead disclosure: the button
+   toggles the approved About prose in place. aria-expanded reflects state,
+   aria-hidden gates the collapsed prose from assistive tech, and the label flips
+   More <-> Less. Focus stays on the button. The reveal itself is the CSS grid /
+   opacity transition (instant under reduced motion via the global guard); this
+   handler binds no motion listeners and spawns no nodes.
+   -------------------------------------------------------------------------- */
+
+function initAboutToggle() {
+  const toggle = document.querySelector('.about-toggle');
+  const panel = document.getElementById('about-panel');
+  if (!toggle || !panel) {
+    return;
+  }
+  const label = toggle.querySelector('.about-toggle-label');
+  toggle.addEventListener('click', function () {
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+    const next = !open;
+    toggle.setAttribute('aria-expanded', next ? 'true' : 'false');
+    panel.classList.toggle('is-open', next);
+    panel.setAttribute('aria-hidden', next ? 'false' : 'true');
+    if (label) {
+      label.textContent = next ? 'Less' : 'More';
+    }
+  });
 }
 
 /* --------------------------------------------------------------------------
@@ -453,8 +533,8 @@ function initFadeIn() {
 /* --------------------------------------------------------------------------
    Panel controller (CONCEPT.md 3.4 V2 to V5, sections 5, 6, 10)
 
-   Rows 01 to 05 swap the panel to their V2 project or V3 section view; the CTA
-   row 06 swaps to the V4 form (C4). Index rows carry the single-selection
+   Rows 01 to 03 open a project detail state; the CTA row 04 swaps the panel to
+   the V4 form (C4). Index rows carry the single-selection
    active state (R3) and aria-pressed; the CTA never keeps a selected style
    (C5), and selecting it clears any active index row so the two stay in sync.
 
@@ -468,8 +548,10 @@ function initFadeIn() {
 const SWAP_HALF = 130;   /* ms: out phase; the in phase mirrors it (260 total) */
 
 /* Client feedback round 6: rows 01 to 03 are projects and open the DETAIL state
-   (left column morphs, panel shows a scrollable stack of section cards). Rows 04
-   About and 05 Pricing and 06 the CTA keep the normal index model. */
+   (left column morphs, panel shows a scrollable stack of section cards). The CTA
+   row 04 keeps the normal index model (the only non-project row after round 8,
+   which removed the About and Pricing rows: About folds into the masthead and
+   Pricing is the always-on left-column block). */
 const PROJECT_KEYS = ['blackthorn', 'barker', 'star'];
 
 /* Detail-state choreography timing (Client feedback round 7). The flat two-phase
@@ -529,6 +611,7 @@ function initPanel() {
   /* Detail-state elements (round 6). */
   const indexList = document.querySelector('.index-list');
   const indexSection = document.querySelector('.index');
+  const pricingSection = document.querySelector('.pricing');
   const howSection = document.querySelector('.how');
   const proofEl = document.querySelector('.proof');
   const detailEl = document.querySelector('.detail');
@@ -536,7 +619,6 @@ function initPanel() {
   const detailBack = document.querySelector('[data-detail-back]');
   const detailChipsSlot = document.querySelector('[data-detail-chips]');
   const conversionEl = document.querySelector('.conversion');
-  const conversionPrice = document.querySelector('.conversion-price');
 
   if (!panelBody || !rows.length) {
     return;
@@ -579,7 +661,7 @@ function initPanel() {
   /* The leaving / entering sets for the detail-state choreography. On entering
      detail the leaving set fades out and the entering set flies/fades in; on exit
      the roles reverse. */
-  const leavingEls = [indexSection, howSection, proofEl];
+  const leavingEls = [indexSection, pricingSection, howSection, proofEl];
   const enteringEls = [detailEl, conversionEl];
 
   let currentView = null;      /* V1 welcome is showing; no view key yet. */
@@ -872,7 +954,7 @@ function initPanel() {
        (round 6): the detail state morphs in place and its header sits in the left
        column, so a project selection must not scroll the panel over that header.
        The welcome restore stays at the top so the restored index is visible. */
-    if (viewKey === 'about' || viewKey === 'pricing' || viewKey === 'form') {
+    if (viewKey === 'form') {
       scrollPanelIntoView();
     }
   }
@@ -929,7 +1011,7 @@ function initPanel() {
     }
   }
 
-  /* The Get in touch CTA is ONE element. In the normal model it is row 06 in the
+  /* The Get in touch CTA is ONE element. In the normal model it is row 04 in the
      index list; in the detail state it is relocated into the conversion cluster
      (its click, drift, rim, mist and bloom listeners travel with the node). The
      relocation itself is not a FLIP: on entering, the CTA fades in with the
@@ -1106,10 +1188,10 @@ function initPanel() {
   /* Fly a text clone from a First rect to a Last rect, scaling by width so it
      resolves to the destination type. The clone is an overlay (no layout effect)
      borrowing the destination class for its type; it is removed on finish (and the
-     real destination is revealed by onDone). fadeOutEnd dissolves the clone into an
-     already-visible destination (used on exit, where the rows are shown). The
-     clone's left/top are viewport coordinates, which map directly into the
-     viewport-anchored flip layer. Never called under reduced motion. */
+     real destination is revealed by onDone). The clone's left/top are viewport
+     coordinates, which map directly into the viewport-anchored flip layer. Used by
+     the enter and chip-switch flights only (the round-8 exit does not travel);
+     never called under reduced motion. */
   function flyText(text, cls, first, last, opts) {
     opts = opts || {};
     if (!first || !last) { if (opts.onDone) { opts.onDone(); } return null; }
@@ -1131,11 +1213,7 @@ function initPanel() {
     const scale = (first.width && last.width) ? (first.width / last.width) : 1;
     const startT = 'translate(' + dx + 'px,' + dy + 'px) scale(' + scale + ')';
     const endT = 'translate(0px,0px) scale(1)';
-    const frames = opts.fadeOutEnd
-      ? [{ transform: startT, opacity: 1 },
-         { transform: endT, opacity: 1, offset: 0.7 },
-         { transform: endT, opacity: 0 }]
-      : [{ transform: startT }, { transform: endT }];
+    const frames = [{ transform: startT }, { transform: endT }];
     const anim = clone.animate(frames, {
       duration: FLIP_MS, easing: FLIP_EASE, fill: 'both'
     });
@@ -1349,14 +1427,17 @@ function initPanel() {
     focusAfterFlip(chipByKey(oldKey));
   }
 
-  /* Exit the detail state back to the welcome (back / Escape / browser back). The
-     title travels back into its row, the chips grow back into their rows, the
-     hidden group fades/slides back in, and the panel cards fade out first. */
+  /* Exit the detail state back to the welcome (back / Escape / browser back).
+     Asymmetric exit (Client feedback round 8): unlike the enter and chip-switch
+     flights, the exit does NOT travel anything. The detail header and conversion
+     cluster fade out with a slight downward drift (GROUP_SHIFT, in the 6 to 10px
+     band) while the index group (index, pricing, how, proof) fades back in
+     beneath; the panel card stack fades out via the welcome swap. Nothing is
+     cloned, so the exit is frame-trace friendly by construction. Focus returns to
+     the originating project row. Reduced motion is instant. */
   function exitDetail() {
     if (!inDetail) { return; }
     const origin = detailOriginRow;
-    const key = detailKey;
-    const others = PROJECT_KEYS.filter(function (k) { return k !== key; });
 
     /* Cancel any pending stack mount / video start immediately (no zombie mount if
        the user exits within the travel window). */
@@ -1377,38 +1458,17 @@ function initPanel() {
       return;
     }
 
+    /* Pin the detail header + conversion where they sit so they fade out in place
+       while the column reflows the index group back in beneath them. */
     const pageRect = page.getBoundingClientRect();
-    const titleEl = detailTitleEl();
-    const titleFirst = titleEl ? titleEl.getBoundingClientRect() : null;
-    const chipFirst = others.map(function (k) {
-      const c = chipByKey(k);
-      return c ? c.getBoundingClientRect() : null;
-    });
-
-    moveCtaToIndex();                       /* CTA rejoins the index, fades in */
+    moveCtaToIndex();                       /* CTA rejoins the index */
     enteringEls.forEach(function (el) { pinAbsolute(el, pageRect); });
     page.classList.remove('is-detail');
     leavingEls.forEach(showEl);
     clearAllSelection();
 
-    const titleLast = rowNameEl(key) ? rowNameEl(key).getBoundingClientRect() : null;
-    const chipLast = others.map(function (k) {
-      const n = rowNameEl(k);
-      return n ? n.getBoundingClientRect() : null;
-    });
-
-    playSetOut(enteringEls);                /* detail + conversion fade out */
-    fadeSetIn(leavingEls);                  /* index / how / proof fade in */
-
-    /* Clones dissolve into the rows (which are already fading in). */
-    flyText(PROJECT_NAMES[key], 'detail-title', titleFirst, titleLast, {
-      wrap: true, fadeOutEnd: true
-    });
-    others.forEach(function (k, i) {
-      flyText(PROJECT_NAMES[k], 'chip', chipFirst[i], chipLast[i], {
-        fadeOutEnd: true
-      });
-    });
+    playSetOut(enteringEls);                /* detail + conversion drift down + fade */
+    fadeSetIn(leavingEls);                  /* index / pricing / how / proof fade in */
 
     inDetail = false;
     detailKey = null;
@@ -1441,8 +1501,8 @@ function initPanel() {
     consumeDetailHistory();
   }
 
-  /* Rows 04 About, 05 Pricing, 06 CTA: the normal index model. If the detail
-     state is open, exit it onto the chosen view first. */
+  /* The CTA row 04 (form): the normal index model (the only non-project row after
+     round 8). If the detail state is open, exit it onto the form first. */
   function selectNormal(row, key) {
     const cameFromDetail = inDetail;
     if (!cameFromDetail && key === currentView) {
@@ -1478,11 +1538,6 @@ function initPanel() {
     }
   }
 
-  function selectByKey(key) {
-    const row = rowByKey[key];
-    if (row) { select(row); }
-  }
-
   /* The back control and Escape route through the history entry when one was
      pushed, so browser back, the button and the key all land in the same place. */
   function closeDetail() {
@@ -1507,12 +1562,6 @@ function initPanel() {
       if (chip && inDetail) {
         switchProject(chip.dataset.chipKey);
       }
-    });
-  }
-
-  if (conversionPrice) {
-    conversionPrice.addEventListener('click', function () {
-      selectByKey('pricing');
     });
   }
 
@@ -1904,6 +1953,7 @@ function init() {
   initDotGrid();
   initDecode();
   initFadeIn();
+  initAboutToggle();
   initPanel();
   initContactForm();
   initRowTrails();

@@ -1,0 +1,48 @@
+{
+  "exit_trial1_analysis": {
+    "count": 25,
+    "max_delta": 83.40000000000009,
+    "deltas_over_33": [
+      34.7,
+      34.7,
+      34.7,
+      83.4,
+      41.6,
+      48.7
+    ]
+  },
+  "exit_trial1_cloneMax": 0,
+  "exit_trial1_cloneCountEnd": 0,
+  "exit_trial2_analysis": {
+    "count": 34,
+    "max_delta": 41.69999999999982,
+    "deltas_over_33": [
+      41.7
+    ]
+  },
+  "exit_trial2_cloneMax": 0,
+  "exit_trial2_cloneCountEnd": 0,
+  "exit_trial3_analysis": {
+    "count": 40,
+    "max_delta": 21.09999999999991,
+    "deltas_over_33": []
+  },
+  "exit_trial3_cloneMax": 0,
+  "exit_trial3_cloneCountEnd": 0,
+  "enter_flight_analysis": {
+    "count": 54,
+    "max_delta": 27.799999999999955,
+    "deltas_over_33": []
+  },
+  "enter_flight_cloneMax": 3,
+  "chip_switch_flight_analysis": {
+    "count": 41,
+    "max_delta": 97.20000000000027,
+    "deltas_over_33": [
+      48.6,
+      34.8,
+      97.2
+    ]
+  },
+  "chip_switch_flight_cloneMax": 2
+}

@@ -1,0 +1,86 @@
+{
+  "row_count": 4,
+  "rows": [
+    [
+      "01",
+      "Blackthorn & Co."
+    ],
+    [
+      "02",
+      "Barker & Bloom"
+    ],
+    [
+      "03",
+      "Until the Last Star"
+    ],
+    [
+      "04",
+      "Get in touch"
+    ]
+  ],
+  "stale_refs_in_dom": [],
+  "cta_bg_has_gradient": true,
+  "about_aria_expanded_initial": "false",
+  "about_panel_aria_hidden_initial": "true",
+  "about_label_initial": "MORE",
+  "about_aria_expanded_after": "true",
+  "about_panel_aria_hidden_after": "false",
+  "about_label_after": "LESS",
+  "about_prose_text": "I'm Zayn, an astrophysics graduate who shipped a game played by more than three million people. These days I build fast, polished websites for local businesses, the kind of shop or salon that deserves better than the usual off-the-peg site. I work quickly and directly: no agencies, no templates, no jargon.",
+  "about_prose_byte_identical": true,
+  "about_panel_transition": {
+    "gridTemplateRows": "146.344px",
+    "transition": "0.18s",
+    "transitionProp": "grid-template-rows"
+  },
+  "about_chevron_transform_open": "matrix(-1, 0, 0, -1, 0, 0)",
+  "about_aria_expanded_recollapsed": "false",
+  "about_kbd_enter_expanded": "true",
+  "about_focus_outline": "none rgb(20, 20, 22)",
+  "pricing_label_text": "PRICING",
+  "pricing_label_style": {
+    "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+    "fontSize": "10px",
+    "fontWeight": "400",
+    "letterSpacing": "normal",
+    "textTransform": "uppercase"
+  },
+  "index_label_style": {
+    "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+    "fontSize": "10px",
+    "fontWeight": "400",
+    "letterSpacing": "normal",
+    "textTransform": "uppercase"
+  },
+  "pricing_label_matches_index_label": true,
+  "pricing_lines": [
+    [
+      "WEBSITES FROM \u00a3300",
+      "A single page, written and built for your business."
+    ],
+    [
+      "CARE PLAN FROM \u00a325/MONTH",
+      "Hosting, edits, and keeping it fast."
+    ],
+    [
+      "FREE HOMEPAGE MOCKUP",
+      "Reply to the email and see it before you pay."
+    ]
+  ],
+  "pricing_head_style": {
+    "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+    "fontSize": "10.5px"
+  },
+  "pricing_desc_style": {
+    "fontFamily": "Archivo, system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+    "fontSize": "13.5px"
+  },
+  "honest_floors_note_present": true,
+  "height_1440x860_collapsed_scrollHeight": 860,
+  "height_1440x860_collapsed_innerHeight": 860,
+  "height_1440x860_collapsed_has_scroll": false,
+  "height_1440x860_about_open_scrollHeight": 983,
+  "height_1440x900_collapsed_scrollHeight": 900,
+  "height_1440x900_collapsed_has_scroll": false,
+  "console_errors_load": []
+}

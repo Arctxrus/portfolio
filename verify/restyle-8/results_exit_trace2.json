@@ -1,0 +1,27 @@
+{
+  "exit_warm_trial1": {
+    "count": 39,
+    "max_delta": 27.8,
+    "deltas_over_33": []
+  },
+  "exit_warm_trial2": {
+    "count": 33,
+    "max_delta": 27.8,
+    "deltas_over_33": []
+  },
+  "exit_warm_trial3": {
+    "count": 41,
+    "max_delta": 21,
+    "deltas_over_33": []
+  },
+  "exit_warm_trial4": {
+    "count": 38,
+    "max_delta": 20.9,
+    "deltas_over_33": []
+  },
+  "exit_warm_trial5": {
+    "count": 34,
+    "max_delta": 27.8,
+    "deltas_over_33": []
+  }
+}

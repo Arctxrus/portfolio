@@ -42,7 +42,7 @@
   <meta property="og:url" content="https://arctxrus.github.io/portfolio/">
   <meta property="og:title" content="Zayn · Web design for local businesses">
   <meta property="og:description" content="I build fast, polished websites for local businesses. From £300.">
-  <meta property="og:image" content="https://arctxrus.github.io/portfolio/og-image.png?v=16">
+  <meta property="og:image" content="https://arctxrus.github.io/portfolio/og-image.png?v=17">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -52,17 +52,17 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Zayn · Web design for local businesses">
   <meta name="twitter:description" content="I build fast, polished websites for local businesses. From £300.">
-  <meta name="twitter:image" content="https://arctxrus.github.io/portfolio/og-image.png?v=16">
+  <meta name="twitter:image" content="https://arctxrus.github.io/portfolio/og-image.png?v=17">
   <meta name="twitter:image:alt" content="Zayn. I build fast, polished websites for local businesses. From £300.">
 
   <!-- Favicon: hand-authored "Z" mark, ink on transparent. SVG first, PNG
        fallback for browsers without SVG icon support, apple-touch-icon for iOS.
        These rel=icon links stop Chromium requesting a default /favicon.ico. -->
-  <link rel="icon" href="favicon.svg?v=16" type="image/svg+xml">
-  <link rel="icon" href="favicon-32.png?v=16" sizes="32x32" type="image/png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=16">
+  <link rel="icon" href="favicon.svg?v=17" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png?v=17" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=17">
 
-  <link rel="stylesheet" href="css/styles.css?v=16">
+  <link rel="stylesheet" href="css/styles.css?v=17">
 
   <!-- No-JS reveal (approval round). The load-in blocks start at opacity 0 and
        are only shown by JS adding .is-in (or by the reduced-motion override). So
@@ -93,6 +93,30 @@
 
       <!-- Positioning line -->
       <p class="positioning fade-block" style="--fade-delay: 120ms;">I build fast, polished websites for local businesses. From <span class="price">£300</span>.</p>
+
+      <!-- About expander (Client feedback round 8). About is no longer an index
+           row or a panel view: it folds into the masthead, directly under the
+           positioning line, behind a quiet mono "More" disclosure. Collapsed by
+           default on every breakpoint; clicking reveals the approved About prose
+           in place with a short height/opacity reveal (instant under reduced
+           motion), flipping the label to "Less" and rotating the chevron.
+           aria-expanded / aria-controls wire the disclosure and focus stays on
+           the button. One consistent glyph treatment: an inline chevron SVG (same
+           stroke family as the theme-toggle icons) that rotates 180 degrees when
+           open. -->
+      <div class="about fade-block" style="--fade-delay: 150ms;">
+        <button type="button" class="about-toggle" aria-expanded="false" aria-controls="about-panel">
+          <span class="about-toggle-label">More</span>
+          <svg class="about-toggle-glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 6l4 4 4-4"/>
+          </svg>
+        </button>
+        <div class="about-panel" id="about-panel" aria-hidden="true">
+          <div class="about-panel-inner">
+            <p class="about-prose">I'm Zayn, an astrophysics graduate who shipped a game played by more than three million people. These days I build fast, polished websites for local businesses, the kind of shop or salon that deserves better than the usual off-the-peg site. I work quickly and directly: no agencies, no templates, no jargon.</p>
+          </div>
+        </div>
+      </div>
 
       <!-- Index -->
       <section class="index fade-block" style="--fade-delay: 180ms;" aria-labelledby="index-label">
@@ -126,24 +150,8 @@
             </span>
           </button>
 
-          <button type="button" class="row" data-view="about">
-            <span class="row-index">04</span>
-            <span class="row-name">About</span>
-            <span class="row-end">
-              <span class="row-glyph" aria-hidden="true">↗</span>
-            </span>
-          </button>
-
-          <button type="button" class="row" data-view="pricing">
-            <span class="row-index">05</span>
-            <span class="row-name">Pricing</span>
-            <span class="row-end">
-              <span class="row-glyph" aria-hidden="true">↗</span>
-            </span>
-          </button>
-
           <button type="button" class="row row--cta" data-view="form">
-            <span class="row-index">06</span>
+            <span class="row-index">04</span>
             <span class="row-name">Get in touch</span>
             <span class="row-end">
               <span class="row-tag">Same Day Reply</span>
@@ -152,6 +160,33 @@
           </button>
 
         </div>
+      </section>
+
+      <!-- Pricing (Client feedback round 8). A small static block, always visible
+           on every breakpoint (zero clicks). Pricing is no longer an index row or
+           a panel view: the "PRICING" section label matches INDEX / HOW IT WORKS,
+           and the three approved lines are compact (mono head plus an Archivo
+           description matching how-it-works type). The optional honest-floors note
+           is omitted so the collapsed left column fits the 860 min-height with the
+           proof pinned and no scroll (height-budget measurement in PROGRESS round
+           8). Part of the normal index model, so it fades out with the index group
+           while a project detail is open. -->
+      <section class="pricing fade-block" style="--fade-delay: 200ms;" aria-labelledby="pricing-label">
+        <h2 class="section-label" id="pricing-label" data-scramble>Pricing</h2>
+        <ul class="pricing-list">
+          <li class="pricing-line">
+            <span class="pricing-head">Websites from <span class="amt">£300</span></span>
+            <span class="pricing-desc">A single page, written and built for your business.</span>
+          </li>
+          <li class="pricing-line">
+            <span class="pricing-head">Care plan from <span class="amt">£25/month</span></span>
+            <span class="pricing-desc">Hosting, edits, and keeping it fast.</span>
+          </li>
+          <li class="pricing-line">
+            <span class="pricing-head">Free homepage mockup</span>
+            <span class="pricing-desc">Reply to the email and see it before you pay.</span>
+          </li>
+        </ul>
       </section>
 
       <!-- Project detail header (Client feedback round 6). Hidden in the normal
@@ -208,17 +243,19 @@
       <!-- Proof strip, pinned to the bottom -->
       <p class="proof fade-block" style="--fade-delay: 320ms;">Shipped a game with 3,000,000+ players · BSc Astrophysics · 3 live builds</p>
 
-      <!-- Conversion cluster (Client feedback round 6). Hidden in the normal
-           index model; pinned to the bottom of the left column (margin-top auto,
-           where the proof strip pins) in the detail state. A quiet mono pricing
-           line that is itself a button (opens the Pricing view, which exits the
-           detail state with row 05 active), and directly beneath it the Get in
-           touch CTA row 06, which main.js relocates here from the index list on
-           entering detail (single CTA element, so its drift / rim / mist / bloom
-           and behaviour are unchanged) and moves back on exit. -->
+      <!-- Conversion cluster (Client feedback round 6, amended round 8). Hidden in
+           the normal index model; pinned to the bottom of the left column
+           (margin-top auto, where the proof strip pins) in the detail state. A
+           quiet mono pricing line and, directly beneath it, the Get in touch CTA
+           row 04, which main.js relocates here from the index list on entering
+           detail (single CTA element, so its drift / rim / mist / bloom and
+           behaviour are unchanged) and moves back on exit.
+           Round 8: the pricing line is now static text, not a button (there is no
+           Pricing view any more: pricing is the always-on block above). It keeps
+           the same mono line. -->
       <div class="conversion" hidden>
-        <button type="button" class="conversion-price" data-view="pricing">websites from £300 · care plan from £25/month · free mockup</button>
-        <!-- CTA row 06 is moved in here by main.js while the detail state is open. -->
+        <p class="conversion-price">websites from £300 · care plan from £25/month · free mockup</p>
+        <!-- CTA row 04 is moved in here by main.js while the detail state is open. -->
       </div>
 
       <!-- Footer: email line, theme toggle and copyright. Email and copyright
@@ -292,8 +329,9 @@
        Cloned by main.js on selection. For a project (01 to 03) the template
        carries BOTH halves of the detail state: a .detail-copy block (cloned into
        the left column's detail header) and a .section-stack block (cloned into
-       the panel body). For About / Pricing / form the template is a single view
-       cloned into the panel body, exactly as before.
+       the panel body). For the form (04) the template is a single view cloned
+       into the panel body, exactly as before. (Round 8: About and Pricing views
+       are gone; they now live in the left column, not the panel.)
 
        Media is naturally lazy: a template only enters the DOM when its project is
        chosen, so no section media loads until the detail state opens. Section
@@ -322,31 +360,31 @@
     <div class="section-stack" tabindex="0" role="region" aria-label="Blackthorn and Co. previews">
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/blackthorn-cover.jpg?v=16" alt="Blackthorn &amp; Co. cover: the shop name over a Heywood barbershop, with a book your chair button and a 4.9 star rating." loading="lazy" decoding="async" width="1280" height="720">
+          <img class="section-img" src="media/blackthorn-cover.jpg?v=17" alt="Blackthorn &amp; Co. cover: the shop name over a Heywood barbershop, with a book your chair button and a 4.9 star rating." loading="lazy" decoding="async" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The cover</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/blackthorn-prices.jpg?v=16" alt="The price menu, listing cuts, beard and shave services with prices from a 12 pound kids' cut to the 52 pound full works." loading="lazy" decoding="async" width="1280" height="720">
+          <img class="section-img" src="media/blackthorn-prices.jpg?v=17" alt="The price menu, listing cuts, beard and shave services with prices from a 12 pound kids' cut to the 52 pound full works." loading="lazy" decoding="async" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The price menu</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/blackthorn-barbers.jpg?v=16" alt="The barbers section, with a profile and specialisms for each of the four named barbers." loading="lazy" decoding="async" width="1280" height="720">
+          <img class="section-img" src="media/blackthorn-barbers.jpg?v=17" alt="The barbers section, with a profile and specialisms for each of the four named barbers." loading="lazy" decoding="async" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The barbers</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/blackthorn-reviews.jpg?v=16" alt="A five-star Google review of the barbershop, one of a rotating set." loading="lazy" decoding="async" width="1600" height="900">
+          <img class="section-img" src="media/blackthorn-reviews.jpg?v=17" alt="A five-star Google review of the barbershop, one of a rotating set." loading="lazy" decoding="async" width="1600" height="900">
         </div>
         <figcaption class="section-caption">In their words</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/blackthorn-booking.jpg?v=16" alt="The booking form, capturing a name, mobile, service, preferred date and time, and a chosen barber." loading="lazy" decoding="async" width="1280" height="720">
+          <img class="section-img" src="media/blackthorn-booking.jpg?v=17" alt="The booking form, capturing a name, mobile, service, preferred date and time, and a chosen barber." loading="lazy" decoding="async" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The booking form</figcaption>
       </figure>
@@ -364,28 +402,28 @@
     <div class="section-stack" tabindex="0" role="region" aria-label="Barker and Bloom previews">
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/barker-hero.jpg?v=16" alt="The Barker &amp; Bloom welcome: a calm dog grooming salon with a book a groom button." loading="lazy" decoding="async" width="1600" height="900">
+          <img class="section-img" src="media/barker-hero.jpg?v=17" alt="The Barker &amp; Bloom welcome: a calm dog grooming salon with a book a groom button." loading="lazy" decoding="async" width="1600" height="900">
         </div>
         <figcaption class="section-caption">The welcome</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/barker-prices.jpg?v=16" alt="The price menu, with full groom and bath and brush priced by small, medium and large dog, plus little extras." loading="lazy" decoding="async" width="1280" height="720">
+          <img class="section-img" src="media/barker-prices.jpg?v=17" alt="The price menu, with full groom and bath and brush priced by small, medium and large dog, plus little extras." loading="lazy" decoding="async" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The price menu</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <video class="section-video" poster="media/barker-beforeafter-poster.jpg?v=16"
+          <video class="section-video" poster="media/barker-beforeafter-poster.jpg?v=17"
                  autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-            <source src="media/barker-beforeafter.webm?v=16" type="video/webm">
+            <source src="media/barker-beforeafter.webm?v=17" type="video/webm">
           </video>
         </div>
         <figcaption class="section-caption">Before and after</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/barker-booking.jpg?v=16" alt="The two-step booking form, choosing a dog size on the first step." loading="lazy" decoding="async" width="1280" height="720">
+          <img class="section-img" src="media/barker-booking.jpg?v=17" alt="The two-step booking form, choosing a dog size on the first step." loading="lazy" decoding="async" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The booking form</figcaption>
       </figure>
@@ -403,27 +441,27 @@
     <div class="section-stack" tabindex="0" role="region" aria-label="Until the Last Star previews">
       <figure class="section-card">
         <div class="section-media">
-          <video class="section-video" poster="media/star-first-poster.jpg?v=16"
+          <video class="section-video" poster="media/star-first-poster.jpg?v=17"
                  autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-            <source src="media/star-first.webm?v=16" type="video/webm">
+            <source src="media/star-first.webm?v=17" type="video/webm">
           </video>
         </div>
         <figcaption class="section-caption">The first star</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <video class="section-video" poster="media/star-web-poster.jpg?v=16"
+          <video class="section-video" poster="media/star-web-poster.jpg?v=17"
                  autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-            <source src="media/star-web.webm?v=16" type="video/webm">
+            <source src="media/star-web.webm?v=17" type="video/webm">
           </video>
         </div>
         <figcaption class="section-caption">The cosmic web</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <video class="section-video" poster="media/star-last-poster.jpg?v=16"
+          <video class="section-video" poster="media/star-last-poster.jpg?v=17"
                  autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-            <source src="media/star-last.webm?v=16" type="video/webm">
+            <source src="media/star-last.webm?v=17" type="video/webm">
           </video>
         </div>
         <figcaption class="section-caption">The last star</figcaption>
@@ -431,35 +469,12 @@
     </div>
   </template>
 
-  <!-- V3 - 04 About -->
-  <template id="view-about">
-    <div class="view view--text">
-      <p class="about-prose">I'm Zayn, an astrophysics graduate who shipped a game played by more than three million people. These days I build fast, polished websites for local businesses, the kind of shop or salon that deserves better than the usual off-the-peg site. I work quickly and directly: no agencies, no templates, no jargon.</p>
-    </div>
-  </template>
-
-  <!-- V3 - 05 Pricing -->
-  <template id="view-pricing">
-    <div class="view view--text view--pricing">
-      <div class="price-line">
-        <span class="price-label">Websites from <span class="amt">£300</span></span>
-        <p class="price-desc">A single page, written and built for your business.</p>
-      </div>
-      <div class="price-line">
-        <span class="price-label">Care plan from <span class="amt">£25/month</span></span>
-        <p class="price-desc">Hosting, edits, and keeping it fast.</p>
-      </div>
-      <div class="price-line">
-        <span class="price-label">Free homepage mockup</span>
-        <p class="price-desc">Reply to the email and see it before you pay.</p>
-      </div>
-      <p class="price-note">"From" prices are honest floors: a bigger job is quoted higher.</p>
-    </div>
-  </template>
-
-  <!-- V4 - 06 Contact form. POST skeleton only; JS wiring (fetch, success and
+  <!-- V4 - 04 Contact form. POST skeleton only; JS wiring (fetch, success and
        failure states, honeypot handling) is added at stage 4. The submit stub
-       in main.js prevents default so nothing navigates. -->
+       in main.js prevents default so nothing navigates. Round 8: About and
+       Pricing are no longer panel views (About folds into the masthead, Pricing
+       is the always-on block in the left column), so this is the only cloned
+       non-project view. -->
   <template id="view-form">
     <div class="view view--form">
       <!-- Plain HTML POST form, enhanced by main.js (section 7). The action is
@@ -488,6 +503,6 @@
     </div>
   </template>
 
-  <script src="js/main.js?v=16"></script>
+  <script src="js/main.js?v=17"></script>
 </body>
 </html>

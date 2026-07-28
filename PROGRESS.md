@@ -3009,3 +3009,170 @@ log). No index.html / css changes this round.
   travel. Evidence: verify/restyle-7/results-postfix3-frametrace.json.
 - First-card mount lands ~70 to 85ms after the 345ms target (406 to 427ms
   observed): noted, not chased; the beat spacing itself holds at ~60ms.
+
+## Client feedback round 8 (owner approved the research-backed package, 2026-07-28)
+
+Owner-approved restructure on top of the round-7 detail state. Four parts: an
+asymmetric (no-travel) detail exit, a static About/Pricing restructure (the
+index drops to four rows), a footer copy-email button, and hygiene/renumbering.
+Files changed: index.html, css/styles.css, js/main.js, PROGRESS.md. All shipped
+refs bumped ?v=16 to ?v=17 (a push follows): 23 in index.html, 2 in
+css/styles.css (two @font-face src), 0 in js/main.js; 0 remaining ?v=16. No BOM,
+no mojibake, no em dashes. `node --check js/main.js` passes; zero console errors.
+
+- Status: BUILT, awaiting verification. Behaviour verified programmatically over
+  a local http server in the Browser pane (the pane stays document.hidden, so
+  rAF and CSS-transition/WAAPI timelines are frozen: visual opacity/animation is
+  the verifier's, but layout, state, focus, aria and DOM logic were all exercised
+  directly). Height budget measured with fonts loaded at 1280x860.
+
+### CONCEPT SUPERSESSIONS (recorded precisely, owner-directed)
+
+- SUPERSEDES CONCEPT section 4's index list. The index is now four rows:
+  01 Blackthorn & Co., 02 Barker & Bloom, 03 Until the Last Star, 04 Get in touch
+  (zero-padded). The old 04 About and 05 Pricing rows are removed; the CTA
+  renumbers 06 to 04 and keeps its full pastel-drift/rim/mist/bloom treatment.
+- SUPERSEDES the V3 About and Pricing panel views entirely (already superseded in
+  part by round 6's detail state; now removed outright). About folds into the
+  masthead as an inline disclosure; Pricing becomes an always-on static block in
+  the left column. The `view-about` and `view-pricing` templates and all their
+  wiring are deleted. The only cloned non-project view is now `view-form` (04).
+- SUPERSEDES the round-7 EXIT choreography (the reverse FLIP). Enter and
+  chip-switch flights are unchanged; the exit no longer travels anything.
+
+### Part 1 - Asymmetric exit (no travel)
+
+- exitDetail rewritten. The detail header (.detail) and conversion cluster
+  (.conversion) are pinned in place and fade out with a downward drift
+  (GROUP_SHIFT 8px, inside the 6 to 10px band) via the existing playSetOut, while
+  the index group (index, PRICING, how, proof) fades back in beneath via the
+  existing fadeSetIn; the panel card stack fades out via the existing welcome
+  swap. Nothing is cloned, so the exit is frame-trace friendly by construction.
+  Focus returns to the originating project row (focusAfterFlip). Escape and
+  browser-back are identical (both route through exitDetail via history.back ->
+  popstate; the back control too). Reduced motion is the unchanged instant branch.
+- DEAD EXIT-FLIGHT CODE REMOVED: the exit's First/Last rect measurement and its
+  two flyText calls are gone, and flyText's now-unused `fadeOutEnd` branch (only
+  the exit used it) is removed. flyText and flipMove remain (enter / chip-switch).
+- DURATION JUDGEMENT CALL (reported): the brief asked for ~200ms on the detail
+  fade-out and "existing group fade timing" on the index fade-in. Rather than add
+  a fourth duration constant, the exit reuses the existing GROUP_FADE_MS (260ms)
+  group-fade primitives (playSetOut / fadeSetIn) for BOTH sides. This keeps the
+  enter flight byte-identical (it shares playSetOut/fadeSetIn), keeps the drift in
+  the sanctioned 6 to 10px band, and the ~200/260 difference is within the brief's
+  "~" tolerance. If a distinct 200ms fade-out is wanted, it is a one-line constant.
+- Motion table (supersedes the round-7 exit rows):
+  | Name | Property | Duration | Delay | Easing | Trigger | Reduced motion |
+  | Detail title/chip travel | transform (translate+scale) on a fixed clone | 340ms | 0 | ease | enter / chip switch ONLY | instant, no clone |
+  | Detail group fade (exit) | opacity 1..0 + translateY 8px on detail/conversion; opacity 0..1 on index/pricing/how/proof | 260ms | 0 | ease | exit detail | instant |
+
+### Part 2 - Static About and Pricing (restructure)
+
+- ABOUT (masthead disclosure). Under the positioning line: a quiet mono button
+  (Archivo-column kicker type: mono 10px UPPER, --grey-label) labelled "More",
+  with an inline chevron SVG. GLYPH TREATMENT (reported): one inline chevron SVG
+  (stroke-width 1.4, currentColor, same stroke family as the theme-toggle icons)
+  that rotates 180deg when open, giving the single consistent treatment the brief
+  asked for. Clicking reveals the approved About prose (byte-identical to the
+  APPROVED COPY block, the astrophysics version) via a grid-template-rows 0fr->1fr
+  + opacity reveal over 180ms (inside 150 to 200ms); aria-expanded and
+  aria-controls are wired, aria-hidden gates the collapsed prose from AT, the
+  label flips More <-> Less, and focus stays on the button. Collapsed by default
+  on every breakpoint. Under reduced motion the global guard zeroes the transition
+  (instant); the click handler binds no motion listeners and spawns no nodes.
+  Verified: aria-expanded/hidden/is-open/label all toggle, focus stays on toggle.
+- PRICING (static block). Always visible on every breakpoint between the index and
+  HOW IT WORKS (desktop) / between the panel and HOW IT WORKS (mobile). A "PRICING"
+  section label matching INDEX/HOW IT WORKS, then three approved lines, each a mono
+  head (10.5px UPPER, "£" figure in accent) plus an Archivo 13.5px description
+  matching the how-it-works type. Verbatim approved copy.
+- NOTE DROPPED (judgement call, reported prominently). The optional honest-floors
+  note ("From prices are honest floors: ...") is OMITTED. The brief made it
+  conditional ("if it fits"); it does not fit. See the height budget below: the
+  pre-round-8 left column already sat at the 860 bottom edge (near-zero slack), so
+  the always-on pricing block (~184px with the note) plus the About expander
+  net-add ~156px over the ~106px freed by removing two rows. Keeping the note
+  forced a ~1px safety buffer even with aggressive compaction; dropping it plus a
+  coherent compaction gives a comfortable buffer. If the owner wants the note, the
+  cleanest options are raising the 860 min-height or accepting a short-viewport
+  scroll; flagged for the orchestrator.
+- CONVERSION PRICING LINE now static (reported). The detail-state conversion
+  cluster's pricing line was a button that opened the Pricing view; with no
+  Pricing view it is now a plain <p> with the same mono line. Its click handler,
+  hover and focus-visible rules are removed; no dangling data-view or aria.
+- HEIGHT BUDGET (measured at 1280x860, fonts loaded). Baseline after the
+  restructure (before compaction): docScrollH 1011, overflow 151px. Root cause:
+  the round-7 left column already filled 860 with near-zero bottom slack, so the
+  net +156px addition overflowed. Compaction applied, tokens only, from the
+  existing scale: positioning margin-top 22->16; about margin-top 14->10; the
+  three section margins (index/pricing/how) 48->26; the three list margin-tops
+  16->12; index-list gap 6->4; pricing-list and how-list gap 12->6; proof
+  padding-top 32->22; footer margin-top 16->12; honest-floors note dropped. RESULT
+  (About collapsed): docScrollH 860, no scroll, footer bottom 843, proof pinned
+  with a ~17 to 23px bottom buffer. The extra space on taller viewports pools in
+  the proof's margin-top:auto exactly as before, so the tighter rhythm is
+  consistent, not top-heavy. With the About expander OPEN the natural content is
+  ~983px: it needs a ~983px-tall viewport to fit and scrolls below that (the brief
+  sanctions this on short viewports); the collapsed default always fits at 860. In
+  the DETAIL state at 860 the page never scrolls even with the expander open
+  (fewer left-column blocks; the card stack scrolls internally).
+- MOBILE. Order re-measured at 390x844: name block, positioning, About expander,
+  INDEX (4 rows), panel, PRICING block, HOW IT WORKS, proof, footer (verified,
+  0 horizontal scroll). Detail-state order verified: name, positioning, About,
+  detail header, panel, conversion, footer (pricing/how/proof/index hidden). Every
+  flattened child carries an explicit `order` (about=3, pricing=7 added; the rest
+  renumbered). The panel keeps its 60vh reserve. scrollPanelIntoView now triggers
+  only for the form view (about/pricing are no longer views); the top-edge
+  threshold logic is unchanged and, with the shorter index, still scrolls the
+  panel up on a form tap and does not re-scroll when already placed (no regression
+  in the band logic).
+- ABOUT-IN-DETAIL (judgement call, reported): the About expander is part of the
+  persistent masthead (like the name and positioning lines), so it stays visible
+  in the detail state and is not collapsed on enter. If a project is opened while
+  About is expanded, the prose shows above the detail header; acceptable and it
+  still fits at 860. Not coupled to the detail choreography by design.
+
+### Part 3 - Copy email
+
+- A quiet mono "Copy" button (10px UPPER, --grey-label, focus-visible accent ring)
+  sits beside the mailto in the footer, both built by wireFooter from the single
+  SITE_EMAIL constant (the address is never scattered). Click copies via
+  navigator.clipboard.writeText with an execCommand textarea fallback (and the
+  fallback also runs if the promise rejects), then flips the label to "Copied" for
+  1.5s and back, an instant text swap with no animation loop. aria-live="polite"
+  on the button announces the change; the accessible name is the textContent
+  ("Copy"/"Copied"), CSS only uppercases it. Both themes via tokens (the dark
+  --grey-label / --ink hover). Verified: click flips to "Copied" then resets.
+
+### Part 4 - Hygiene
+
+- Every ?v=16 bumped to ?v=17 (byte-safe sed): 23 in index.html, 2 in
+  css/styles.css, 0 in js/main.js; 0 ?v=16 remain.
+- Renumbering: row indices are 01 to 04 zero-padded (CTA 06 -> 04). No functional
+  reference to the old 04/05/06 numbering remains; the load-bearing structural
+  comments in index.html/css/js were updated, and the dead `selectByKey` helper
+  (only the removed conversion-price button called it) was deleted. Historical
+  PROGRESS references are left as-is.
+- Contrast (section 10): the two new sub-AA mono controls (.about-toggle,
+  .copy-email at --grey-label) and the mobile labels get the established
+  mobile-at-rest --ink-mid remediation (verified with transitions disabled:
+  #54545C light / #A6A6AE dark, both AA). The new pricing block uses --ink /
+  --accent / --ink-body (all AA). Both themes verified on the new elements (a
+  transition-freeze artifact in the hidden pane briefly showed mid-values; with
+  transitions off all resolve to the correct token).
+- Reduced-motion: the About reveal and chevron rotation are CSS transitions the
+  global guard zeroes; the exit reduced branch is the unchanged instant path.
+
+### Round 8 - deviations / judgement calls (summary)
+
+1. Honest-floors pricing note DROPPED to fit the 860 height budget (brief allowed
+   "if it fits"; it does not). Flagged for the orchestrator/owner.
+2. Exit fade reuses the existing 260ms group-fade primitives for both sides rather
+   than adding a distinct ~200ms constant (keeps the enter flight identical).
+3. About expander glyph is a single inline chevron SVG (theme-toggle stroke
+   family) rotating 180deg; reported as the one consistent treatment.
+4. About expander persists (and can be open) in the detail state, as part of the
+   masthead; not collapsed on enter.
+5. Left-column section rhythm compacted globally from 48px to 26px (and other
+   scale-token trims) to fit the always-on pricing block at the 860 minimum;
+   consistent everywhere, extra space pools above the pinned proof as before.
