@@ -1,0 +1,353 @@
+{
+  "row_hover_style": {
+    "bg": "rgb(255, 255, 255)",
+    "borderColor": "rgb(232, 232, 236)",
+    "boxShadow": "rgba(20, 20, 22, 0.06) 0px 1px 3px 0px"
+  },
+  "row_hover_focus_style": "rgb(26, 111, 212) 0px 0px 0px 1px inset, rgba(20, 20, 22, 0.06) 0px 1px 3px 0px",
+  "detail_blackthorn_state": {
+    "isDetail": true,
+    "detailHidden": false,
+    "convHidden": false,
+    "idxHidden": true,
+    "howHidden": true,
+    "proofHidden": true,
+    "idxDisplay": "none",
+    "title": "Blackthorn & Co.",
+    "sub": "single page \u00b7 price menu \u00b7 booking form \u00b7 arctxrus.github.io/blackthorn-demo",
+    "blurb": "A single fast page for a Heywood barbershop. The whole price list is on view, from a \u00a312 kids' cut to the \u00a352 full works, next to a profile for each barber and a booking form that captures the date, time and chair a client wants.",
+    "liveHref": "https://arctxrus.github.io/blackthorn-demo/",
+    "liveRel": "noopener",
+    "liveTarget": "_blank",
+    "ctaInConversion": true,
+    "footerVisible": true,
+    "nameBlockVisible": true,
+    "positioningVisible": true,
+    "activeIsBack": true,
+    "titleFont": {
+      "size": "34px",
+      "weight": "600",
+      "ls": "-0.51px",
+      "family": "Archivo, system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif"
+    },
+    "liveRegionText": "Preview / Blackthorn & Co."
+  },
+  "detail_blackthorn_media_prefetch": [
+    "http://localhost:8790/media/blackthorn-cover.jpg?v=14",
+    "http://localhost:8790/media/blackthorn-prices.jpg?v=14",
+    "http://localhost:8790/media/blackthorn-barbers.jpg?v=14",
+    "http://localhost:8790/media/blackthorn-reviews.jpg?v=14",
+    "http://localhost:8790/media/blackthorn-booking.jpg?v=14"
+  ],
+  "detail_blackthorn_stack_geo": {
+    "scrollHeight": 1727,
+    "clientHeight": 716
+  },
+  "detail_blackthorn_exit_via_back": {
+    "isDetail": false,
+    "activeIsRow": true,
+    "welcomeShown": true
+  },
+  "detail_barker_state": {
+    "isDetail": true,
+    "detailHidden": false,
+    "convHidden": false,
+    "idxHidden": true,
+    "howHidden": true,
+    "proofHidden": true,
+    "idxDisplay": "none",
+    "title": "Barker & Bloom",
+    "sub": "single page \u00b7 prices by dog size \u00b7 booking form \u00b7 arctxrus.github.io/barker-bloom-demo",
+    "blurb": "One clear page for a dog grooming salon. Prices are set out by dog size, from an \u00a318 puppy's first groom upwards, with add-ons like nail trims listed plainly and a two-step form that requests a slot by size, day and time.",
+    "liveHref": "https://arctxrus.github.io/barker-bloom-demo/",
+    "liveRel": "noopener",
+    "liveTarget": "_blank",
+    "ctaInConversion": true,
+    "footerVisible": true,
+    "nameBlockVisible": true,
+    "positioningVisible": true,
+    "activeIsBack": true,
+    "titleFont": {
+      "size": "34px",
+      "weight": "600",
+      "ls": "-0.51px",
+      "family": "Archivo, system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif"
+    },
+    "liveRegionText": "Preview / Barker & Bloom"
+  },
+  "detail_barker_media_prefetch": [
+    "http://localhost:8790/media/barker-beforeafter.webm?v=14",
+    "http://localhost:8790/media/barker-hero.jpg?v=14",
+    "http://localhost:8790/media/barker-prices.jpg?v=14",
+    "http://localhost:8790/media/barker-booking.jpg?v=14"
+  ],
+  "detail_barker_stack_geo": {
+    "scrollHeight": 1388,
+    "clientHeight": 716
+  },
+  "detail_barker_exit_via_back": {
+    "isDetail": false,
+    "activeIsRow": true,
+    "welcomeShown": true
+  },
+  "detail_star_state": {
+    "isDetail": true,
+    "detailHidden": false,
+    "convHidden": false,
+    "idxHidden": true,
+    "howHidden": true,
+    "proofHidden": true,
+    "idxDisplay": "none",
+    "title": "Until the Last Star",
+    "sub": "webgl \u00b7 scroll-driven timeline of the universe \u00b7 arctxrus.github.io/cosmic-dawn",
+    "blurb": "A technical piece, not a client site. The whole history of the universe runs on one scroll, drawn live in the browser with WebGL. The finale bends starlight around a black hole using real gravitational lensing, computed every frame rather than faked with a picture.",
+    "liveHref": "https://arctxrus.github.io/cosmic-dawn/",
+    "liveRel": "noopener",
+    "liveTarget": "_blank",
+    "ctaInConversion": true,
+    "footerVisible": true,
+    "nameBlockVisible": true,
+    "positioningVisible": true,
+    "activeIsBack": true,
+    "titleFont": {
+      "size": "34px",
+      "weight": "600",
+      "ls": "-0.51px",
+      "family": "Archivo, system-ui, -apple-system, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif"
+    },
+    "liveRegionText": "Preview / Until the Last Star"
+  },
+  "detail_star_media_prefetch": [
+    "http://localhost:8790/media/star-first.webm?v=14",
+    "http://localhost:8790/media/star-web.webm?v=14",
+    "http://localhost:8790/media/star-last.webm?v=14"
+  ],
+  "detail_star_stack_geo": {
+    "scrollHeight": 1048,
+    "clientHeight": 716
+  },
+  "detail_star_exit_via_back": {
+    "isDetail": false,
+    "activeIsRow": true,
+    "welcomeShown": true
+  },
+  "detail_enter_key_activation": true,
+  "detail_escape_exit": {
+    "isDetail": false,
+    "activeTag": "BUTTON"
+  },
+  "detail_browser_back_exit": false,
+  "conversion_price_click": {
+    "isDetail": false,
+    "row05Active": true,
+    "row05Pressed": "true",
+    "panelShowsPricing": true
+  },
+  "cta_from_detail": {
+    "isDetail": false,
+    "panelShowsForm": true,
+    "ctaBackInIndex": true
+  },
+  "aria_live_on_project_select": "Preview / Barker & Bloom",
+  "section_cards_blackthorn": [
+    {
+      "caption": "The cover",
+      "isVideo": false,
+      "isImg": true,
+      "borderRadius": "16px",
+      "borderWidth": "1px",
+      "aspect": "1.778",
+      "width": 542
+    },
+    {
+      "caption": "The price menu",
+      "isVideo": false,
+      "isImg": true,
+      "borderRadius": "16px",
+      "borderWidth": "1px",
+      "aspect": "1.778",
+      "width": 542
+    },
+    {
+      "caption": "The barbers",
+      "isVideo": false,
+      "isImg": true,
+      "borderRadius": "16px",
+      "borderWidth": "1px",
+      "aspect": "1.778",
+      "width": 542
+    },
+    {
+      "caption": "In their words",
+      "isVideo": false,
+      "isImg": true,
+      "borderRadius": "16px",
+      "borderWidth": "1px",
+      "aspect": "1.778",
+      "width": 542
+    },
+    {
+      "caption": "The booking form",
+      "isVideo": false,
+      "isImg": true,
+      "borderRadius": "16px",
+      "borderWidth": "1px",
+      "aspect": "1.778",
+      "width": 542
+    }
+  ],
+  "section_cards_barker": [
+    {
+      "caption": "The welcome",
+      "isVideo": false,
+      "isImg": true,
+      "borderRadius": "16px",
+      "borderWidth": "1px",
+      "aspect": "1.778",
+      "width": 542
+    },
+    {
+      "caption": "The price menu",
+      "isVideo": false,
+      "isImg": true,
+      "borderRadius": "16px",
+      "borderWidth": "1px",
+      "aspect": "1.778",
+      "width": 542
+    },
+    {
+      "caption": "Before and after",
+      "isVideo": true,
+      "isImg": false,
+      "borderRadius": "16px",
+      "borderWidth": "1px",
+      "aspect": "1.778",
+      "width": 542
+    },
+    {
+      "caption": "The booking form",
+      "isVideo": false,
+      "isImg": true,
+      "borderRadius": "16px",
+      "borderWidth": "1px",
+      "aspect": "1.778",
+      "width": 542
+    }
+  ],
+  "section_cards_star": [
+    {
+      "caption": "The first star",
+      "isVideo": true,
+      "isImg": false,
+      "borderRadius": "16px",
+      "borderWidth": "1px",
+      "aspect": "1.778",
+      "width": 542
+    },
+    {
+      "caption": "The cosmic web",
+      "isVideo": true,
+      "isImg": false,
+      "borderRadius": "16px",
+      "borderWidth": "1px",
+      "aspect": "1.778",
+      "width": 542
+    },
+    {
+      "caption": "The last star",
+      "isVideo": true,
+      "isImg": false,
+      "borderRadius": "16px",
+      "borderWidth": "1px",
+      "aspect": "1.778",
+      "width": 542
+    }
+  ],
+  "media_requests_before_any_selection": [],
+  "star_card_luminance": [
+    {
+      "avgLuminance": 19.04606093750048,
+      "poster": "http://localhost:8790/media/star-first-poster.jpg?v=14",
+      "error": null
+    },
+    {
+      "avgLuminance": 17.19236927083314,
+      "poster": "http://localhost:8790/media/star-web-poster.jpg?v=14",
+      "error": null
+    },
+    {
+      "avgLuminance": 26.974590277778063,
+      "poster": "http://localhost:8790/media/star-last-poster.jpg?v=14",
+      "error": null
+    }
+  ],
+  "about_flow": {
+    "idxHidden": false,
+    "panelHasAbout": true
+  },
+  "cta_grow": {
+    "before": "15px 19px",
+    "after": "19px",
+    "boxShadowOpen": "rgba(255, 255, 255, 0.62) 0px 0px 0px 1px inset, rgba(255, 255, 255, 0.85) 0px 1px 0px 0px inset, rgba(20, 20, 22, 0.06) 0px 1px 3px 0px"
+  },
+  "form_shortcircuit_fail": {
+    "shown": true,
+    "text": "Something broke. Email me directly at hello@placeholder.invalid.Try again"
+  },
+  "console_errors_main_pass": [],
+  "mobile_360_panel_heights": {
+    "V1": 468,
+    "about": 468,
+    "pricing": 468,
+    "form": 468
+  },
+  "mobile_360_hscroll": false,
+  "mobile_360_detail_geo": {
+    "pageScrollHeight": 1789,
+    "stackOverflow": "visible",
+    "backRect": 161.1875,
+    "convRect": 1575.265625,
+    "footerRect": 1715.859375,
+    "hscroll": false
+  },
+  "mobile_390_panel_heights": {
+    "V1": 506.390625,
+    "about": 506.390625,
+    "pricing": 506.390625,
+    "form": 506.390625
+  },
+  "mobile_390_hscroll": false,
+  "mobile_390_detail_geo": {
+    "pageScrollHeight": 1873,
+    "stackOverflow": "visible",
+    "backRect": 161.1875,
+    "convRect": 1659.640625,
+    "footerRect": 1800.234375,
+    "hscroll": false
+  },
+  "mobile_768_panel_heights": {
+    "V1": 614.390625,
+    "about": 614.390625,
+    "pricing": 614.390625,
+    "form": 614.390625
+  },
+  "mobile_768_hscroll": false,
+  "mobile_768_detail_geo": {
+    "pageScrollHeight": 2812,
+    "stackOverflow": "visible",
+    "backRect": 187.1875,
+    "convRect": 2589.515625,
+    "footerRect": 2713.3125,
+    "hscroll": false
+  },
+  "dark_theme_tokens": {
+    "ground": "#141416",
+    "border": "#33333A",
+    "surfacePreview": "#1B1B1E",
+    "titleColor": "rgb(240, 240, 242)",
+    "mediaBorderColor": "rgb(51, 51, 58)",
+    "mediaBg": "rgb(27, 27, 30)",
+    "backColor": "rgb(166, 166, 174)"
+  },
+  "theme_persist_at_commit": "dark"
+}

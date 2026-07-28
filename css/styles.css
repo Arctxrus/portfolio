@@ -33,7 +33,7 @@
   font-weight: 400 600;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/archivo-latin-var.woff2?v=13') format('woff2');
+  src: url('../fonts/archivo-latin-var.woff2?v=14') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -43,7 +43,7 @@
   font-weight: 300 500;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/martian-mono-latin-var.woff2?v=13') format('woff2');
+  src: url('../fonts/martian-mono-latin-var.woff2?v=14') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -508,25 +508,27 @@ a {
   color: var(--ink-mid);
 }
 
-/* R2 hover (index rows 01 to 05). Motion: 160ms ease.
-   Client feedback round 1 (change 2): the accent hover treatment is retired.
-   The fill --accent-fill-hover and the accent inset shadow --shadow-row-hover
-   are both dropped in favour of a neutral, calm hover: a soft light-grey wash
-   from --surface-preview (an existing surface token), clearly distinct from the
-   raised white active card. Index still goes to accent and the name to --ink,
-   the tag fades out and the glyph fades in (indices/tags "unchanged", change 3).
-   Recorded in PROGRESS.md as a supersession of the 3.3 "Row hover" fill and
-   inset-shadow and the 3.4 R2 --accent-fill-hover.
+/* R2 hover (index rows 01 to 05). Motion: 160ms colour / 200ms shadow ease.
+   Client feedback round 6 (owner-directed): the grey-wash hover is RETIRED. On
+   hover a row now takes the same raised white card treatment as the active row
+   (background --surface-white, a 1px --border rim via border-color, the single
+   quiet --shadow-row-active), index to accent, name to --ink, tag faded out and
+   glyph faded in. The one difference from the active row is the selection grow
+   (padding --sp-14 to --sp-18): hover raises but does NOT grow, so hovering a
+   row never pushes its neighbours, while the selected row is both raised AND
+   grown. Recorded in PROGRESS.md as a supersession of round-1 change-2's neutral
+   grey wash and of CONCEPT 3.3 "Row hover" / 3.4 R2.
 
-   The whole hover reveal/hide block is gated behind (hover: hover) and
-   (pointer: fine) so it never applies on touch. Without this, a tap leaves a
-   sticky :hover on the tapped row and the tag-hide rule (specificity 0,4,0)
-   would beat the mobile "tag stays visible" rule (0,3,0), hiding the niche tag
-   on the active row (CONCEPT section 8: tags stay visible on touch). This
-   mirrors the JS isTouchDevice guard. */
+   The whole hover block is gated behind (hover: hover) and (pointer: fine) so it
+   never applies on touch. Without this, a tap leaves a sticky :hover on the
+   tapped row and the tag-hide rule would beat the mobile "tag stays visible"
+   rule, hiding the niche tag on the active row (CONCEPT section 8: tags stay
+   visible on touch). This mirrors the JS isTouchDevice guard. */
 @media (hover: hover) and (pointer: fine) {
   .row:not(.row--cta):hover {
-    background: var(--surface-preview);
+    background: var(--surface-white);
+    border-color: var(--border);
+    box-shadow: var(--shadow-row-active);
   }
 
   .row:not(.row--cta):hover .row-index {
@@ -544,6 +546,13 @@ a {
   .row:not(.row--cta):hover .row-glyph {
     opacity: 1;
     transform: translateX(0);
+  }
+
+  /* Hovered AND keyboard-focused: layer the accent ring over the card elevation
+     (the hover box-shadow, specificity 0,3,0, would otherwise clobber the
+     .row:focus-visible ring at 0,2,0). Mirrors .row.is-active:focus-visible. */
+  .row:not(.row--cta):hover:focus-visible {
+    box-shadow: var(--shadow-field-focus), var(--shadow-row-active);
   }
 }
 
@@ -1153,145 +1162,6 @@ a {
   gap: var(--sp-18);
 }
 
-/* ---- V2 project view -------------------------------------------------- */
-
-/* Client feedback round 1 (change 6): the media preview must be the dominant
-   element. The base .view caps at 560px (right for prose and the form card),
-   which left the preview at ~496px in a ~748px panel. The project view drops
-   that cap so the whole V2 block uses the panel generously: at desktop the view
-   fills the panel body (~746px inner) and, less its --sp-32 side padding, the
-   preview lands at ~91% of the panel body inner width. The title, sub, caption
-   and visit pill sit below at the same full width. On mobile the base .view is
-   already 100% (see the max-width:900px block), so this is a no-op there. */
-.view--project {
-  max-width: none;
-}
-
-/* Client feedback round 2 (item 5, owner-directed V2 rethink). On some screen
-   heights the "Visit live site" button ended up below the panel's bottom edge
-   with no way to reach it (the panel is overflow:hidden). The project view is
-   now a vertically scrollable column INSIDE the panel: a large preview sits at
-   the top (it may take most of the visible height; the whole capture frame need
-   not be seen at once), with a bottom fade cue signalling more content, and
-   scrolling reveals the title, sub line, caption bar and the visit button. The
-   button is therefore reachable at every viewport height. Wheel/trackpad scroll
-   is native (no hijack, no video scrubbing). The scrollbar is HIDDEN
-   (scrollbar-width: none) because the bottom fade replaces it as the "more
-   below" cue (reported choice). This SUPERSEDES the round-1 change-6 centred
-   full-width V2; recorded in PROGRESS.md. Mobile keeps the compact stacked
-   layout (overridden in the max-width:900px block below). */
-.view--project {
-  height: 100%;
-  justify-content: flex-start;
-  overflow-y: auto;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-  scrollbar-width: none;       /* Firefox: hidden, the fade cue replaces it */
-  -ms-overflow-style: none;    /* legacy Edge */
-}
-
-.view--project::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  display: none;               /* WebKit/Blink: hidden */
-}
-
-/* Preview area on --surface-preview, framed by the single 1px border so the
-   placeholder surface reads as an intentional media frame, not a broken box.
-   The real webm/poster arrive at stage 6; until then the surface is shown. */
-.preview {
-  display: block;
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: var(--surface-preview);
-  border: var(--border-width) solid var(--border);
-  border-radius: var(--radius-surface);
-  overflow: hidden;
-}
-
-/* Item 5: inside the scrollable project view the preview is LARGE and its own
-   height governs (aspect-ratio is dropped so height wins), reserving the box
-   independent of the media so there is zero poster-to-video layout shift. A
-   luminance mask fades the preview's bottom edge to transparent: the panel
-   surface behind it is the same --surface-preview colour, so the preview
-   dissolves into the panel ("fade to the panel surface colour" via mask-image,
-   no hard-coded colour: the mask uses opaque/transparent sentinels only). */
-.view--project .preview {
-  flex: 0 0 auto;
-  /* Client feedback round 4 (owner-directed): the round-3 scroll-scrub is retired,
-     but this round-2 V2 layout stays. The preview fills the visible panel
-     (height 100% of the view content box) so at rest only the muted autoplay loop
-     shows and the copy below (title, sub, blurb, caption, visit) sits under the
-     fold. Scrolling reveals that copy but no longer touches the video, which just
-     loops seamlessly on its own. Using 100% (not a fixed px) keeps the copy under
-     the fold on tall desktops too. The bottom fade stays as the "more below" cue. */
-  height: 100%;
-  aspect-ratio: auto;
-  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 72px), transparent 100%);
-  mask-image: linear-gradient(to bottom, #000 calc(100% - 72px), transparent 100%);
-}
-
-.preview:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-field-focus);
-}
-
-.preview-video {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  background: var(--surface-preview);
-}
-
-/* Type: Panel project title - Archivo 34px / 600 / -0.015em / as typed */
-.project-title {
-  font-family: var(--font-sans);
-  font-size: 34px;
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  line-height: normal;
-  color: var(--ink);
-}
-
-/* Type: Panel sub line - Mono 10.5px / 400 / normal / lower */
-.project-sub {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 400;
-  line-height: normal;
-  text-transform: lowercase;
-  color: var(--ink-mid);
-}
-
-/* Client feedback round 3 (item 3): a short factual paragraph per project,
-   between the preview fade and the caption/visit button. Plain body prose in
-   the site's Archivo 14px at --ink-body (matches the About prose), max ~50
-   words, capped for a readable measure. Sits in the scroll-revealed lower half
-   of the desktop project view (item 2) and in normal flow on mobile. */
-.project-blurb {
-  font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.6;
-  color: var(--ink-body);
-  max-width: 46ch;
-}
-
-/* Type: Caption bar - Mono 10.5px / 400 / 0.04em / UPPER, with a 1px top rule */
-.project-caption {
-  padding-top: var(--sp-14);
-  border-top: var(--border-width) solid var(--border);
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 400;
-  letter-spacing: 0.04em;
-  line-height: 1.5;
-  text-transform: uppercase;
-  color: var(--grey-label);
-}
-
 /* Quiet secondary pill (ink outline), NOT the CTA treatment. */
 .visit-pill {
   align-self: flex-start;
@@ -1604,6 +1474,241 @@ a {
 }
 
 /* --------------------------------------------------------------------------
+   Project detail state (Client feedback round 6). Owner-directed structural
+   redesign of the project viewing pattern, adapted from the Moritz Petersen
+   detail-state pattern but NOT a copy: we keep the two-column structure, dot
+   grid, light ground, tokens, type and motion language.
+
+   When a project row (01 to 03) is chosen, the left column morphs: the index,
+   HOW IT WORKS and the proof strip fade out and collapse, a project header block
+   (.detail) fades in near the top where the index was, and a conversion cluster
+   (.conversion) pins to the bottom. The panel (right) shows a scrollable stack
+   of section cards (.section-stack). The state hook is .page.is-detail so it can
+   drive BOTH columns (they are display: contents on mobile). About / Pricing /
+   form (04 to 06) keep the normal index model unchanged. This SUPERSEDES the V2
+   single-video project layout and parts of CONCEPT 3.4's state inventory
+   (recorded precisely in PROGRESS.md).
+
+   Motion: the crossfade is driven by main.js (leaving set fades to 0, then the
+   entering set fades from 0 to 1), ~200ms ease each phase via inline styles so it
+   never conflicts with the load-in .fade-block transition. Under reduced motion
+   main.js toggles visibility instantly (no inline transition set).
+   -------------------------------------------------------------------------- */
+
+/* The detail header and conversion cluster are hidden in the normal model. They
+   use the `hidden` attribute (display: none) at rest; main.js removes it to show
+   them. Kept out of flow entirely when hidden so the normal index layout, and
+   its measured min-height 860 fit, are untouched. */
+.detail[hidden],
+.conversion[hidden] {
+  display: none;
+}
+
+/* Detail header block: sits where the index was (same top margin), flex column. */
+.detail {
+  margin-top: var(--sp-48);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-16);
+}
+
+/* Back control: a quiet mono button with a left-pointing arrow, same glyph
+   treatment family as the row expand glyph. UPPER via text-transform to match
+   the other mono labels. Aligned to the start; a self-start width so only the
+   text is the hit target, not the whole column. */
+.detail-back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-6);
+  padding: var(--sp-4) 0;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: normal;
+  text-transform: uppercase;
+  color: var(--ink-mid);
+  transition: color 150ms ease;
+}
+
+.detail-back-glyph {
+  font-family: var(--font-system);
+  font-size: 13px;
+  line-height: 1;
+  color: var(--accent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .detail-back:hover {
+    color: var(--ink);
+  }
+}
+
+.detail-back:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-field-focus);
+  border-radius: var(--radius-surface);
+}
+
+/* Per-project copy, cloned in from the project template. */
+.detail-copy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-12);
+}
+
+/* Type: project title - Archivo 34px / 600 / -0.015em / as typed (as the panel
+   project title was). */
+.detail-title {
+  font-family: var(--font-sans);
+  font-size: 34px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: normal;
+  color: var(--ink);
+}
+
+/* Type: sub line - Mono 10.5px / 400 / lower (as the panel sub line was). */
+.detail-sub {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  line-height: normal;
+  text-transform: lowercase;
+  color: var(--ink-mid);
+}
+
+/* Approved blurb paragraph - Archivo 14px / --ink-body. */
+.detail-blurb {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--ink-body);
+  max-width: 42ch;
+}
+
+/* "See it live" reuses the quiet secondary .visit-pill styling; a small top gap
+   separates it from the blurb. */
+.detail-live {
+  margin-top: var(--sp-4);
+}
+
+/* Conversion cluster: pinned to the bottom of the left column (margin-top auto,
+   where the proof strip pins in the normal model). Holds the quiet pricing line
+   (a button that opens the Pricing view) and, directly beneath it, the Get in
+   touch CTA row 06 (moved here by main.js). */
+.conversion {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-12);
+  padding-top: var(--sp-32);
+}
+
+/* The whole pricing line is a quiet button: mono 10.5px lower case, --ink-mid,
+   no fill or border at rest. Opens the Pricing view (exits the detail state with
+   row 05 active). */
+.conversion-price {
+  align-self: flex-start;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  line-height: 1.6;
+  text-transform: lowercase;
+  color: var(--ink-mid);
+  transition: color 150ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .conversion-price:hover {
+    color: var(--ink);
+  }
+}
+
+.conversion-price:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-field-focus);
+  border-radius: var(--radius-surface);
+}
+
+/* --------------------------------------------------------------------------
+   Panel in the detail state: a scrollable stack of section cards (round 6).
+   Replaces the single tour video. The stack fills the panel body (overriding the
+   grid place-items: center for this child) and scrolls internally on desktop; a
+   card peeking below the fold is its own "more below" cue, so the old bottom fade
+   is retired. The scrollbar is left native (a thin scrollbar is an honest scroll
+   affordance; reported in PROGRESS.md).
+   -------------------------------------------------------------------------- */
+
+.section-stack {
+  align-self: stretch;
+  justify-self: stretch;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-16);
+  padding: var(--sp-22);
+}
+
+/* Keyboard-focusable scroll region (verifier round-6 FAIL 2): the stack is a Tab
+   stop (tabindex 0, role region, per-project aria-label) so keyboard users can
+   focus it and scroll with PageDown / arrows. Focus-visible shows the house
+   accent inset ring, hugging the panel edge (same --shadow-field-focus treatment
+   as fields and rows). The ring is inset so it is not clipped by the panel's
+   overflow and stays put while the content scrolls. */
+.section-stack:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-field-focus);
+}
+
+/* One section card: a full content-width media block at a fixed 16:9 aspect,
+   16px radius, 1px border, with a small mono caption underneath. */
+.section-card {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-6);
+  margin: 0;
+}
+
+.section-media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-surface);
+  overflow: hidden;
+  background: var(--surface-preview);
+}
+
+.section-img,
+.section-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--surface-preview);
+}
+
+/* Type: Caption bar - Mono 10.5px / 400 / 0.04em / UPPER (CONCEPT 3.2). */
+.section-caption {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  line-height: normal;
+  text-transform: uppercase;
+  color: var(--grey-label);
+}
+
+/* --------------------------------------------------------------------------
    Row pointer trails (CONCEPT.md 3.3 "Row pointer trail")
    12px dot, blur 12px, colours --trail-a / --trail-b. The opacity timeline
    (0 to 0.32 with a 20ms delay, hold, then 0.32 to 0) is driven in main.js
@@ -1657,15 +1762,43 @@ a {
     display: contents;
   }
 
-  /* Section-8 single-column order. Every flattened child is ordered. */
+  /* Section-8 single-column order. Every flattened child is ordered. In the
+     detail state (round 6) the index / how / proof are hidden by main.js, and
+     .detail (the project header) takes the index's slot while .conversion takes
+     the proof's slot, so the single-column order reads: name, positioning, detail
+     header, panel (section cards), conversion cluster, footer. The orders on the
+     hidden-at-rest .detail / .conversion are inert until the detail state opens. */
   .name-block  { order: 1; }
   .positioning { order: 2; }
   .index       { order: 3; }
+  .detail      { order: 3; }    /* takes the index slot in the detail state */
   .testimonials { order: 4; }   /* hidden; kept under INDEX for later */
   .panel       { order: 5; }
   .how         { order: 6; }
   .proof       { order: 7; }
+  .conversion  { order: 7; }    /* takes the proof slot in the detail state */
   .footer      { order: 8; }
+
+  /* Detail header spacing steps down on mobile (no 48px gap needed above it in
+     the flowing single column). */
+  .detail {
+    margin-top: var(--sp-32);
+  }
+
+  /* Mobile amendment for the detail state ONLY (round 6, recorded in PROGRESS.md
+     as a deliberate supersession of the no-reflow / fixed 60vh constraint FOR THE
+     DETAIL STATE): the section cards flow as page content and the page scrolls,
+     so the panel is allowed to grow past 60vh. The 60vh budget still governs the
+     normal index-model views (V1 welcome, About, Pricing, form). */
+  .page.is-detail .panel {
+    min-height: 0;
+  }
+  .page.is-detail .section-stack {
+    height: auto;
+    overflow: visible;
+    overscroll-behavior: auto;
+    padding: 0;
+  }
 
   /* Proof strip is no longer pinned with margin-top auto (a desktop flex
      behaviour); in single column it just flows. */
@@ -1716,46 +1849,6 @@ a {
     gap: var(--sp-14);   /* tighter vertical rhythm so V2 fits the 60vh budget */
   }
 
-  /* Panel min-height is about 60vh so V1 to V4 do not reflow the page as they
-     swap (CONCEPT section 8). The only view that overran the budget was V2: its
-     16/9 preview grows with the panel width and alone is about 330px at 768px.
-     Shrink the mobile V2 footprint (preferred over internal scrolling, which
-     would look poor) so every view fits within the min-height and the panel
-     height, and therefore the HOW IT WORKS block below, stays put:
-     - a shorter 2/1 preview on mobile (still a reserved ratio, so posters cause
-       no shift; the video cover-crops the small extra height);
-     - trimmed form-card padding so V4 also fits. */
-  .preview {
-    aspect-ratio: 2 / 1;
-  }
-
-  /* Client feedback round 2 (item 5): the desktop scrollable large-preview V2
-     is undone on mobile, which keeps the current compact stacked layout (it
-     fits the 60vh budget, measured; the brief keeps mobile compact unless it
-     clips). The scroll, the 70% preview height and the bottom fade are all
-     removed here, and the 2/1 reserved ratio is restored at a specificity that
-     beats the desktop .view--project .preview rule. */
-  .view--project {
-    overflow: visible;
-    justify-content: center;
-  }
-  .view--project .preview {
-    height: auto;
-    aspect-ratio: 2 / 1;
-    -webkit-mask-image: none;
-    mask-image: none;
-  }
-
-  /* Client feedback round 3 (item 3, verifier FAIL fix): the .project-blurb is
-     desktop scroll-track content. On mobile there is no internal scroll, so the
-     extra paragraph grew V2 past the 60vh budget and reflowed the page (360x780:
-     468 to ~594 to 616px). It is hidden here so mobile V2 matches V1/V3/V4
-     exactly again; mobile keeps the sub line, caption bar and visit button.
-     VETOABLE: the owner may instead let mobile V2 grow to show the copy on
-     phones (remove this rule); flagged in PROGRESS.md. */
-  .project-blurb {
-    display: none;
-  }
   .form-fields {
     padding: var(--sp-22);
   }

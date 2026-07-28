@@ -1,0 +1,276 @@
+{
+  "first_load_total_bytes": 197730,
+  "first_load_breakdown": [
+    {
+      "url": "http://localhost:8790/",
+      "bytes": 26267
+    },
+    {
+      "url": "http://localhost:8790/css/styles.css?v=14",
+      "bytes": 66502
+    },
+    {
+      "url": "http://localhost:8790/js/main.js?v=14",
+      "bytes": 46477
+    },
+    {
+      "url": "http://localhost:8790/fonts/archivo-latin-var.woff2?v=14",
+      "bytes": 34928
+    },
+    {
+      "url": "http://localhost:8790/fonts/martian-mono-latin-var.woff2?v=14",
+      "bytes": 23556
+    }
+  ],
+  "first_load_media_dir_hits": [],
+  "tab_trace_before_detail": [
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "text": "01\n            Blackthorn & Co.\n        ",
+      "href": null
+    },
+    {
+      "tag": "A",
+      "cls": "visit-pill detail-live",
+      "text": "See it live \u2197",
+      "href": "https://arctxrus.github.io/blackthorn-demo/"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "conversion-price",
+      "text": "websites from \u00a3300 \u00b7 care plan from \u00a325/",
+      "href": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta",
+      "text": "06\n            Get in touch\n            ",
+      "href": null
+    },
+    {
+      "tag": "A",
+      "cls": "",
+      "text": "hello@placeholder.invalid",
+      "href": "mailto:hello@placeholder.invalid"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "text": "",
+      "href": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "text": "",
+      "href": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "text": "",
+      "href": null
+    },
+    {
+      "tag": "BODY",
+      "cls": "",
+      "text": "Zayn\n        Freelance / Web\n      \n\n   ",
+      "href": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "detail-back",
+      "text": "\u2190\n          Back to index",
+      "href": null
+    },
+    {
+      "tag": "A",
+      "cls": "visit-pill detail-live",
+      "text": "See it live \u2197",
+      "href": "https://arctxrus.github.io/blackthorn-demo/"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "conversion-price",
+      "text": "websites from \u00a3300 \u00b7 care plan from \u00a325/",
+      "href": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta",
+      "text": "06\n            Get in touch\n            ",
+      "href": null
+    },
+    {
+      "tag": "A",
+      "cls": "",
+      "text": "hello@placeholder.invalid",
+      "href": "mailto:hello@placeholder.invalid"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "text": "",
+      "href": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "text": "",
+      "href": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "text": "",
+      "href": null
+    },
+    {
+      "tag": "BODY",
+      "cls": "",
+      "text": "Zayn\n        Freelance / Web\n      \n\n   ",
+      "href": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "detail-back",
+      "text": "\u2190\n          Back to index",
+      "href": null
+    },
+    {
+      "tag": "A",
+      "cls": "visit-pill detail-live",
+      "text": "See it live \u2197",
+      "href": "https://arctxrus.github.io/blackthorn-demo/"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "conversion-price",
+      "text": "websites from \u00a3300 \u00b7 care plan from \u00a325/",
+      "href": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta",
+      "text": "06\n            Get in touch\n            ",
+      "href": null
+    },
+    {
+      "tag": "A",
+      "cls": "",
+      "text": "hello@placeholder.invalid",
+      "href": "mailto:hello@placeholder.invalid"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "text": "",
+      "href": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "text": "",
+      "href": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "text": "",
+      "href": null
+    },
+    {
+      "tag": "BODY",
+      "cls": "",
+      "text": "Zayn\n        Freelance / Web\n      \n\n   ",
+      "href": null
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "detail-back",
+      "text": "\u2190\n          Back to index",
+      "href": null
+    },
+    {
+      "tag": "A",
+      "cls": "visit-pill detail-live",
+      "text": "See it live \u2197",
+      "href": "https://arctxrus.github.io/blackthorn-demo/"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "conversion-price",
+      "text": "websites from \u00a3300 \u00b7 care plan from \u00a325/",
+      "href": null
+    }
+  ],
+  "detail_tab_trace": [
+    {
+      "tag": "BUTTON",
+      "cls": "detail-back",
+      "text": "\u2190\n          Back to index"
+    },
+    {
+      "tag": "A",
+      "cls": "visit-pill detail-live",
+      "text": "See it live \u2197"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "conversion-price",
+      "text": "websites from \u00a3300 \u00b7 care plan from \u00a325/"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta",
+      "text": "06\n            Get in touch\n            "
+    },
+    {
+      "tag": "A",
+      "cls": "",
+      "text": "hello@placeholder.invalid"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "text": ""
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "text": ""
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "text": ""
+    }
+  ],
+  "section_video_keyboard_aria": {
+    "stackTabindex": "-1",
+    "videos": []
+  },
+  "keyboard_journey_exit": {
+    "isDetail": false,
+    "activeTag": "BUTTON",
+    "activeText": "01\n            Blackthorn & Co.\n        "
+  },
+  "rm_scramble_immediate_text": "Freelance / Web",
+  "rm_fade_block_opacity": "1",
+  "rm_trail_dot_count": 0,
+  "rm_cta_mist_count": 0,
+  "rm_cta_bloom_count": 0,
+  "rm_cta_animation_name": "none",
+  "rm_detail_morph_instant_50ms": {
+    "isDetail": true,
+    "detailHidden": false,
+    "idxHidden": true,
+    "inlineOpacityLeft": false
+  },
+  "rm_section_video_autoplay": {
+    "paused": false,
+    "currentTime": 0.583182
+  },
+  "rm_console_errors": []
+}

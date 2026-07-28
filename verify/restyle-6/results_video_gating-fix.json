@@ -1,0 +1,292 @@
+{
+  "star_scroll_top_snapshot": [
+    {
+      "idx": 0,
+      "src": "star-first.webm?v=14",
+      "paused": false,
+      "currentTime": 1.384908,
+      "error": null,
+      "dropped": 0,
+      "total": 45,
+      "visibleFrac": 1,
+      "top": 150,
+      "bottom": 447.25
+    },
+    {
+      "idx": 1,
+      "src": "star-web.webm?v=14",
+      "paused": false,
+      "currentTime": 1.403419,
+      "error": null,
+      "dropped": 0,
+      "total": 46,
+      "visibleFrac": 1,
+      "top": 484.25,
+      "bottom": 781.5
+    },
+    {
+      "idx": 2,
+      "src": "star-last.webm?v=14",
+      "paused": true,
+      "currentTime": 0,
+      "error": null,
+      "dropped": 0,
+      "total": 4,
+      "visibleFrac": 0.08242220353238015,
+      "top": 818.5,
+      "bottom": 1115.75
+    }
+  ],
+  "star_scroll_card2_snapshot": [
+    {
+      "idx": 0,
+      "src": "star-first.webm?v=14",
+      "paused": true,
+      "currentTime": 1.561584,
+      "error": null,
+      "dropped": 0,
+      "total": 51,
+      "visibleFrac": 0.017661900756938603,
+      "top": -165,
+      "bottom": 132.25
+    },
+    {
+      "idx": 1,
+      "src": "star-web.webm?v=14",
+      "paused": false,
+      "currentTime": 2.381983,
+      "error": null,
+      "dropped": 0,
+      "total": 75,
+      "visibleFrac": 1,
+      "top": 169.25,
+      "bottom": 466.5
+    },
+    {
+      "idx": 2,
+      "src": "star-last.webm?v=14",
+      "paused": false,
+      "currentTime": 0.801821,
+      "error": null,
+      "dropped": 0,
+      "total": 27,
+      "visibleFrac": 1,
+      "top": 503.5,
+      "bottom": 800.75
+    }
+  ],
+  "star_scroll_card3_snapshot": [
+    {
+      "idx": 0,
+      "src": "star-first.webm?v=14",
+      "paused": true,
+      "currentTime": 1.561584,
+      "error": null,
+      "dropped": 0,
+      "total": 51,
+      "visibleFrac": 0.017661900756938603,
+      "top": -165,
+      "bottom": 132.25
+    },
+    {
+      "idx": 1,
+      "src": "star-web.webm?v=14",
+      "paused": false,
+      "currentTime": 3.311955,
+      "error": null,
+      "dropped": 0,
+      "total": 103,
+      "visibleFrac": 1,
+      "top": 169.25,
+      "bottom": 466.5
+    },
+    {
+      "idx": 2,
+      "src": "star-last.webm?v=14",
+      "paused": false,
+      "currentTime": 1.731828,
+      "error": null,
+      "dropped": 0,
+      "total": 55,
+      "visibleFrac": 1,
+      "top": 503.5,
+      "bottom": 800.75
+    }
+  ],
+  "star_card3_after_5s": [
+    {
+      "idx": 0,
+      "src": "star-first.webm?v=14",
+      "paused": true,
+      "currentTime": 1.561584,
+      "error": null,
+      "dropped": 0,
+      "total": 51,
+      "visibleFrac": 0.017661900756938603,
+      "top": -165,
+      "bottom": 132.25
+    },
+    {
+      "idx": 1,
+      "src": "star-web.webm?v=14",
+      "paused": false,
+      "currentTime": 2.830584,
+      "error": null,
+      "dropped": 0,
+      "total": 242,
+      "visibleFrac": 1,
+      "top": 169.25,
+      "bottom": 466.5
+    },
+    {
+      "idx": 2,
+      "src": "star-last.webm?v=14",
+      "paused": false,
+      "currentTime": 1.381795,
+      "error": null,
+      "dropped": 0,
+      "total": 195,
+      "visibleFrac": 1,
+      "top": 503.5,
+      "bottom": 800.75
+    }
+  ],
+  "star_card1_after_5s": [
+    {
+      "idx": 0,
+      "src": "star-first.webm?v=14",
+      "paused": false,
+      "currentTime": 1.022038,
+      "error": null,
+      "dropped": 0,
+      "total": 201,
+      "visibleFrac": 1,
+      "top": 150,
+      "bottom": 447.25
+    },
+    {
+      "idx": 1,
+      "src": "star-web.webm?v=14",
+      "paused": false,
+      "currentTime": 2.742392,
+      "error": null,
+      "dropped": 0,
+      "total": 393,
+      "visibleFrac": 1,
+      "top": 484.25,
+      "bottom": 781.5
+    },
+    {
+      "idx": 2,
+      "src": "star-last.webm?v=14",
+      "paused": true,
+      "currentTime": 1.393967,
+      "error": null,
+      "dropped": 0,
+      "total": 195,
+      "visibleFrac": 0.08242220353238015,
+      "top": 818.5,
+      "bottom": 1115.75
+    }
+  ],
+  "star_card2_after_5s": [
+    {
+      "idx": 0,
+      "src": "star-first.webm?v=14",
+      "paused": true,
+      "currentTime": 1.034574,
+      "error": null,
+      "dropped": 0,
+      "total": 202,
+      "visibleFrac": 0.017661900756938603,
+      "top": -165,
+      "bottom": 132.25
+    },
+    {
+      "idx": 1,
+      "src": "star-web.webm?v=14",
+      "paused": false,
+      "currentTime": 2.652228,
+      "error": null,
+      "dropped": 0,
+      "total": 543,
+      "visibleFrac": 1,
+      "top": 169.25,
+      "bottom": 466.5
+    },
+    {
+      "idx": 2,
+      "src": "star-last.webm?v=14",
+      "paused": false,
+      "currentTime": 1.424338,
+      "error": null,
+      "dropped": 0,
+      "total": 345,
+      "visibleFrac": 1,
+      "top": 503.5,
+      "bottom": 800.75
+    }
+  ],
+  "barker_beforeafter_after_5s": [
+    {
+      "idx": 0,
+      "src": "barker-beforeafter.webm?v=14",
+      "paused": false,
+      "currentTime": 0.399681,
+      "error": null,
+      "dropped": 0,
+      "total": 154,
+      "visibleFrac": 1,
+      "top": 169.5,
+      "bottom": 466.75
+    }
+  ],
+  "teardown_star_to_pricing": {
+    "vidsBefore": 3,
+    "sectionVideosInDom": 0,
+    "isDetail": false
+  },
+  "teardown_star_to_welcome_via_back": {
+    "sectionVideosInDom": 0,
+    "isDetail": false
+  },
+  "star_regate_after_reentry": [
+    {
+      "idx": 0,
+      "src": "star-first.webm?v=14",
+      "paused": false,
+      "currentTime": 1.062894,
+      "error": null,
+      "dropped": 0,
+      "total": 36,
+      "visibleFrac": 1,
+      "top": 150,
+      "bottom": 447.25
+    },
+    {
+      "idx": 1,
+      "src": "star-web.webm?v=14",
+      "paused": false,
+      "currentTime": 1.058244,
+      "error": null,
+      "dropped": 0,
+      "total": 35,
+      "visibleFrac": 1,
+      "top": 484.25,
+      "bottom": 781.5
+    },
+    {
+      "idx": 2,
+      "src": "star-last.webm?v=14",
+      "paused": true,
+      "currentTime": 0,
+      "error": null,
+      "dropped": 0,
+      "total": 4,
+      "visibleFrac": 0.08242220353238015,
+      "top": 818.5,
+      "bottom": 1115.75
+    }
+  ],
+  "console_messages": []
+}

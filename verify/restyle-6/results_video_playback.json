@@ -1,0 +1,90 @@
+{
+  "gpu_status_lines": [],
+  "blackthorn_videos_t0": [],
+  "blackthorn_videos_t3500": [],
+  "barker_videos_t0": [
+    {
+      "src": "http://localhost:8790/media/barker-beforeafter.webm?v=14",
+      "paused": false,
+      "readyState": 4,
+      "networkState": 1,
+      "currentTime": 1.263928,
+      "videoWidth": 1280,
+      "videoHeight": 720,
+      "error": null,
+      "droppedFrames": 1,
+      "totalFrames": 41
+    }
+  ],
+  "barker_videos_t3500": [
+    {
+      "paused": false,
+      "currentTime": 4.278962,
+      "error": null,
+      "droppedFrames": 3,
+      "totalFrames": 132
+    }
+  ],
+  "star_videos_t0": [
+    {
+      "src": "http://localhost:8790/media/star-first.webm?v=14",
+      "paused": false,
+      "readyState": 2,
+      "networkState": 1,
+      "currentTime": 0.993223,
+      "videoWidth": 1280,
+      "videoHeight": 720,
+      "error": null,
+      "droppedFrames": 7,
+      "totalFrames": 35
+    },
+    {
+      "src": "http://localhost:8790/media/star-web.webm?v=14",
+      "paused": false,
+      "readyState": 2,
+      "networkState": 1,
+      "currentTime": 0.934017,
+      "videoWidth": 1280,
+      "videoHeight": 720,
+      "error": null,
+      "droppedFrames": 10,
+      "totalFrames": 34
+    },
+    {
+      "src": "http://localhost:8790/media/star-last.webm?v=14",
+      "paused": false,
+      "readyState": 4,
+      "networkState": 1,
+      "currentTime": 1.008241,
+      "videoWidth": 1280,
+      "videoHeight": 720,
+      "error": null,
+      "droppedFrames": 5,
+      "totalFrames": 33
+    }
+  ],
+  "star_videos_t3500": [
+    {
+      "paused": false,
+      "currentTime": 2.911467,
+      "error": null,
+      "droppedFrames": 20,
+      "totalFrames": 88
+    },
+    {
+      "paused": false,
+      "currentTime": 2.583925,
+      "error": null,
+      "droppedFrames": 22,
+      "totalFrames": 85
+    },
+    {
+      "paused": false,
+      "currentTime": 2.672221,
+      "error": null,
+      "droppedFrames": 14,
+      "totalFrames": 88
+    }
+  ],
+  "console_messages_headed_pass": []
+}

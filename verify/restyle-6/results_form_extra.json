@@ -1,0 +1,15 @@
+{
+  "honeypot_test": {
+    "shown": true,
+    "text": "Sent. I will reply the same working day."
+  },
+  "honeypot_network_calls": [],
+  "empty_validation_test": {
+    "statusShown": false,
+    "nameValid": false
+  },
+  "whitespace_validation_test": {
+    "statusShown": false,
+    "nameValue": ""
+  }
+}

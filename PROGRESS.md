@@ -2366,3 +2366,283 @@ from the colour-corrected webm). Star luminance still bright: poster 68.8, clip 
 measured jpg luminance down ~3 points from 72; the displayed brightness is preserved
 by the bt709/tv tags and it is decisively not a "black page"). No working dirs left in
 media/ (temp output kept in the scratchpad).
+
+## Client feedback round 6 (owner-directed structural redesign, 2026-07-28)
+
+A structural redesign of the project viewing pattern, adapted from the Moritz
+Petersen detail-state pattern but deliberately NOT a copy: we keep the two-column
+structure, dot grid, light ground, tokens, type and motion language. Files changed:
+index.html, css/styles.css, js/main.js, tools/capture.py, tools/README.md,
+media/* (12 new section files, 6 old tour files removed), PROGRESS.md.
+
+- Status: BUILT, awaiting verification. All shipped refs bumped ?v=13 to ?v=14
+  (a push follows): 23 in index.html (css, js, 16 media refs, og:image,
+  twitter:image, favicon.svg, favicon-32.png, apple-touch-icon.png), 2 in
+  css/styles.css (two @font-face src), 0 in js/main.js. No BOM, no mojibake, no em
+  dashes; 0 remaining ?v=13. Verified behaviourally in real headed Chromium
+  (desktop light/dark, desktop scrolled, mobile 390, hover, reduced-motion) and
+  programmatically over a local http server; zero console errors. Screenshots in
+  verify/round-6/.
+
+### CONCEPT SUPERSESSIONS (recorded precisely, per the brief)
+
+- SUPERSEDES the V2 single-video project layout in FULL (CONCEPT 3.4 V2, section 5,
+  and every round-1 to round-5 amendment to it: the scrollable large-preview, the
+  bottom fade, the .project-blurb-under-the-fade, the single autoplay tour webm).
+  Project rows 01 to 03 no longer swap the panel to one video; they open a DETAIL
+  STATE. The single tour webms and their posters are removed from media/ (nothing
+  referenced them after the change; grep-checked). The crossfade + screencast
+  plumbing stays in tools/capture.py, repurposed for section media (the old tour
+  functions are gone; the shared encode helpers are kept).
+- SUPERSEDES parts of CONCEPT 3.4's state inventory. The panel PREVIEW states are
+  now: V1 welcome (unchanged, restorable), a SECTION-STACK state for projects
+  (replaces V2), V3 About/Pricing (unchanged), V4 form (unchanged), V5 mid-swap
+  (unchanged). Row states: R1 rest unchanged; R2 hover is now the raised white
+  card (was the round-1 grey wash, itself a supersession of the 3.4 R2 accent
+  fill); R3 active (index rows, About/Pricing) unchanged; project rows do not show
+  a raised card (they open the detail state, where the index is hidden).
+- SUPERSEDES the mobile no-reflow / fixed-60vh constraint FOR THE DETAIL STATE
+  ONLY (CONCEPT section 8): in the detail state the section cards flow as page
+  content and the page scrolls (the panel grows past 60vh). The 60vh budget still
+  governs the normal index-model views (welcome, About, Pricing, form).
+
+### The new model
+
+1. HOVER (all breakpoints, mouse): index rows on hover take the active card
+   treatment (--surface-white fill, --border border-color, --shadow-row-active,
+   index to accent, name to --ink, tag faded out, glyph in). Hover raises but does
+   NOT grow (no --sp-18 padding), so hovering never pushes neighbours; the selected
+   row is raised AND grown. The grey-wash hover is retired. focus-visible unchanged
+   (accent inset ring; a hover:focus-visible rule layers the ring over the card
+   elevation, mirroring the active-row pattern).
+
+2. PROJECT DETAIL STATE (rows 01 to 03). The state hook is .page.is-detail (drives
+   both columns; they are display:contents on mobile). Left column morphs: index,
+   HOW IT WORKS and the proof strip fade out and collapse; a .detail header block
+   fades in where the index was (back control "BACK TO INDEX" with a left arrow in
+   the row-glyph family, project title Archivo 34px/600/-0.015em, mono sub line
+   10.5px lower, the approved blurb Archivo 14px/--ink-body, and a "See it live"
+   button reusing the .visit-pill styling). Pinned to the bottom (margin-top auto,
+   where the proof pinned): a .conversion cluster: one quiet mono line "websites
+   from £300 · care plan from £25/month · free mockup" (10.5px mono lower case
+   --ink-mid, the whole line a button that opens Pricing), and beneath it the Get
+   in touch CTA row 06 (full drift/rim/mist/bloom, unchanged behaviour). The name
+   block, positioning line and footer (email, toggle, copyright) stay visible. The
+   CTA is ONE element: main.js relocates it from the index list into .conversion on
+   entering detail and back on exit, so its listeners travel with the node.
+
+3. PANEL in the detail state: a scrollable stack of SECTION CARDS
+   (.section-stack > figure.section-card > .section-media + figcaption). Each media
+   block is full content-width at a fixed 16:9, 16px radius, 1px border; the mono
+   caption (10.5px UPPER 0.04em) sits underneath. Media is lazy (templates enter the
+   DOM only on detail open; imgs loading="lazy", videos preload="none" autoplay
+   muted loop playsinline). Panel header shows "PREVIEW / <name>"; aria-live
+   announces. The old bottom fade is retired (a card peeking below the fold is the
+   scroll cue); the scrollbar is left NATIVE and thin (scrollbar-width: thin), an
+   honest scroll affordance (reported choice).
+
+4. Rows 04 About and 05 Pricing keep the normal index model exactly (index stays,
+   panel swaps, row active). CTA row 06 unchanged. Selecting About/Pricing/form
+   from within a detail state exits it first (index restored), then shows the view.
+
+### Section list chosen per project (after inspecting the live sites)
+
+Loop vs static follows the brief's rule: LOOP only where a section genuinely cycles
+at rest (inspected: the Blackthorn reviews carousel is manual, the Barker paw-trail
+hero has no running/infinite animation at rest; both are STATIC accordingly). This
+gives 4 genuine loops (the Barker compare slider + 3 continuously-animating WebGL
+epochs) and 8 static screenshots. Captions in brackets.
+
+- Blackthorn & Co. (5, all STATIC): cover ("The cover"), price menu
+  ("The price menu"), barbers ("The barbers"), reviews ("In their words"), booking
+  form ("The booking form"). Sections #cover / #services / #team / #reviews /
+  #booking.
+- Barker & Bloom (4): hero ("The welcome", STATIC), price menu ("The price menu",
+  STATIC), before/after ("Before and after", LOOP: the .ba__ compare slider driven
+  to sweep via a sine on the clip-path inset + handle left, BA_SWEEP_JS), booking
+  form ("The booking form", STATIC). Sections #home / #services / #gallery / #book.
+- Until the Last Star (3, all LOOP, WebGL continuous, 10s load wait, NVIDIA
+  renderer re-confirmed): the first star ("The first star", t 0.40 "A star is lit"),
+  the cosmic web ("The cosmic web", t 0.52 "Structure, everywhere"), the last star
+  ("The last star", t 0.88 the lensed black hole finale, "The black hole bends the
+  last starlight"). The black-hole shot is now one card among bright ones, per the
+  brief.
+
+### Media inventory (media/, all ?v=14 refs; sizes and loop points)
+
+STATIC jpgs (1600x900, DPR-2 capture downscaled, all well under 300KB):
+- blackthorn-cover 204KB, -prices 122KB, -barbers 110KB, -reviews 148KB,
+  -booking 113KB; barker-hero 195KB, -prices 144KB, -booking 97KB.
+
+LOOP webms (1280x720, VP9 Profile 0 / yuv420p / 30fps / SAR 1:1 / tv-bt709;
+tail->head 0.8s crossfade; poster = frame 0, 1280 wide):
+- barker-beforeafter.webm 499KB, loop 4.60s, seam 0.78; poster 94KB.
+- star-first.webm 221KB, loop 3.03s, seam 0.43; poster 54KB (bright star).
+- star-web.webm 167KB, loop 3.10s, seam 0.70; poster 63KB (galaxy field).
+- star-last.webm 230KB, loop 3.03s, seam 0.87; poster 59KB (lensed black hole).
+All webm SAR/profile/colour re-verified by ffprobe (hardware-decodable, matching the
+round-5 hardening). All lazy-loaded, so the first-load budget is untouched. Old tour
+media removed: blackthorn/barker-bloom/until-the-last-star -preview.webm and their
+posters (6 files), unreferenced after the change.
+
+### Morph implementation approach
+
+A two-phase JS crossfade (crossfade(outEls, inEls, onMid)) using INLINE styles only,
+so it never conflicts with the load-in .fade-block transition: the leaving set fades
+to opacity 0 over MORPH_MS (200ms), then at the midpoint onMid runs (moves the CTA),
+the leaving set is set hidden (the layout collapse happens while invisible, so no
+visible jank), and the entering set is revealed at opacity 0 and faded to 1 over
+MORPH_MS. The panel content swaps in parallel via the existing V5 swap. Reduced
+motion: crossfade early-returns with instant hide/show and the panel commits
+directly (verified: at 120ms under forced reduced-motion the state is fully settled,
+no inline opacity left, no bound listeners or spawned nodes). Measured desktop
+geometry (1280x820, Blackthorn detail): two-column, detail header at the top,
+conversion pinned to the bottom (footer bottom flush at the column bottom), section
+stack scrollable inside the fixed-height panel (scrollHeight 1657 > client 676), no
+horizontal scroll.
+
+### Focus / keyboard flow
+
+- Entering detail: focus lands on the back control (focusAfterMorph fires after the
+  crossfade reveals it; immediate under reduced motion). Verified.
+- Back control, Escape, and browser back all exit to the welcome and return focus to
+  the ORIGINATING project row. History: entering detail pushes one history entry;
+  the back control and Escape call history.back() so browser back, the button and
+  the key all land in the same place (popstate -> exitToWelcome). Leaving detail to
+  Pricing/form (via the conversion cluster) consumes the entry with replaceState.
+  All verified (back, Escape, popstate, project->project switch, About/Pricing/form
+  exits) with correct aria-pressed (one of the six rows pressed, or none at the
+  welcome).
+- Exit target choice (REPORTED): back/Escape/browser-back restore the WELCOME (V1),
+  not the last non-project view. The brief allowed either; welcome is the cleanest
+  "cleared" state and matches the reference clearing everything.
+
+### Mobile amendment (measured)
+
+Below 900px the morph happens in the single column: index/how/proof hidden, .detail
+takes the index's order slot (3), .conversion takes the proof's slot (7), so the
+order reads name, positioning, detail header, panel (section cards), conversion,
+footer. In the detail state .page.is-detail releases the panel (min-height 0) and
+the section stack flows (height auto, overflow visible), so the cards stack as page
+content and the page scrolls. Measured at 433x911 (Blackthorn detail): panel grew to
+1257px tall with the 5 cards flowing, page scrolls, media 16:9 (1.780), NO horizontal
+scroll, conversion + footer at the bottom, back control reachable at the top. The
+60vh budget still holds for the normal views. Full-page mobile screenshot at 390x844
+(Barker) confirms the stack, conversion and footer (verify/round-6/).
+
+### Dark theme
+
+Everything works in both themes with no new tokens: the detail header, conversion,
+section-card media boxes (--surface-preview + --border) and captions (--grey-label)
+all use existing tokens, which already carry dark variants. Verified in headed dark
+Chromium: dark ground, light ink, the light section media reads as intentionally
+framed cards on the dark panel (verify/round-6/detail-barker-dark.png). Computed
+tokens confirmed (ground #141416, media surface #1B1B1E, border #33333A, title
+#F0F0F2, caption #74747C).
+
+### Round 6 - deviations / judgement calls
+
+- LOOP vs STATIC: the Blackthorn cover/reviews and the Barker hero were made STATIC
+  after inspecting the live sites (no rest-cycle: the reviews carousel is manual,
+  the paw-trail hero reported zero running/infinite animations). The brief phrased
+  these as "loop if animated" / "hero with paw trail (loop)"; static is the correct
+  honest choice per "STATIC images for non-animated sections". Reported so the owner
+  can request scripted-rotation loops if wanted.
+- SCROLLBAR (reported): the panel stack keeps a NATIVE thin scrollbar
+  (scrollbar-width: thin) rather than hiding it; the peeking card plus a real
+  scrollbar are honest cues (the old hidden-scrollbar + bottom fade is retired).
+- STAR "last star" card uses the t 0.88 "THE LONG NIGHT" lensed-black-hole frame
+  (the iconic gravitational-lens shot) rather than the later dim "THE LAST STAR"
+  epoch; the card caption "The last star" fits the end-of-universe theme.
+- DEAD CSS removed: the V2 project-view rules (.view--project, .preview*,
+  .project-title/sub/blurb/caption, desktop and mobile) are gone (no elements match
+  after the redesign). .visit-pill is kept (reused by "See it live"). Two-radii,
+  one border width and inset-only-plus-the-single-active-shadow discipline unchanged.
+- MOTION TABLE ADDITIONS (recorded as required):
+  | Name | Property | Duration | Delay | Easing | Trigger | Reduced motion |
+  | Detail morph out | opacity 1 to 0 (index/how/proof or detail/conversion) | 200ms | 0 | ease | enter/exit detail | instant |
+  | Detail morph in | opacity 0 to 1 (entering set) | 200ms | 200ms | ease | enter/exit detail | instant |
+- Encoding clean (Edit + byte-safe sed only): no BOM, no mojibake, no em dashes; the
+  £ x2 and · in the conversion line and the ← back glyph (&#8592;) and ↗ (See it
+  live) intact.
+
+### Round 6 - open items / notes for the orchestrator
+
+- tools/capture.py was substantially rewritten (SECTIONS mode; the tour PROJECTS and
+  its helpers removed; the CDP screencast, crossfade, choose_head_ss, vp9_args,
+  poster and seam plumbing kept). tools/README.md rewritten to match.
+- The stage-3 no-JS caveat is unchanged (the panel and its templates need JS; the
+  <noscript> contact fallback still hard-codes the placeholder email, kept in sync
+  with SITE_EMAIL). The two OPEN BLOCKERs (real email, Formspree ID) are untouched.
+- Screenshot/visual sign-off across every project, both themes, and a forced
+  reduced-motion + 360px run remain the verifier's.
+
+### Round 6 - verifier FAIL fixes (2026-07-28)
+
+Verifier round-6 returned STAGE FAIL with 2 items; both fixed. ?v=14 kept (no push
+since the bump). Files changed: index.html, css/styles.css, js/main.js,
+tools/capture.py, media/star-*.webm + star-*-poster.jpg (re-processed from the
+existing raws, no re-record), PROGRESS.md. Encoding clean (no BOM/mojibake/em
+dashes). Verified in a headed window with occlusion detection disabled so playback
+and IntersectionObserver run; zero console errors.
+
+- FAIL 1 (section videos start simultaneously and drop 15 to 29% of frames; the
+  three star clips at once, star-first 6.6% solo on a very short 3.03s loop). Fixed
+  as the verifier suggested, in two parts:
+  1. IntersectionObserver gating (js/main.js, initPanel). New setupSectionVideos()
+     replaces playSectionVideos(): on render every .section-video is PAUSED first
+     (cancelling the autoplay start so all three never decode at once), then an
+     IntersectionObserver (threshold 0.5, root the viewport = null) plays a clip
+     only while it is >= 50% in view and pauses it otherwise. root null works on
+     BOTH breakpoints: the panel overflow:hidden and the stack overflow-y:auto clip
+     off-screen cards, so their ratio is ~0. The autoplay attribute stays in the
+     markup for the no-observer / mobile fallback (a no-IntersectionObserver branch
+     plays them). teardownSectionObserver() runs at the TOP of renderView (before
+     the old nodes leave the DOM) so the observer never leaks or fights the
+     About/Pricing/form/welcome swaps; a muted preview under reduced motion was
+     already accepted, so the observer only manages play/pause by visibility (binds
+     no transition, spawns no node). VERIFIED headed: entering the star detail, at
+     most the one or two cards actually in view play and the off-screen third is
+     paused (never all three); scrolling the stack pauses the card that leaves and
+     plays the card that enters; swapping to About leaves 0 section videos (torn
+     down). SECTION_PLAY_RATIO 0.5 keeps at most ~2 concurrent in the tall desktop
+     panel (down from 3), and the verifier's "scroll to each card in turn" centres
+     one card, so a single clip plays.
+  2. Star loops lengthened (tools/capture.py). The first cut produced ~3.0 to 3.1s
+     loops that restarted often. New per-section `loop_min_s` (5.0) caps the
+     head-anchor start (choose_head_ss gains an `ss_max` bound; process_loop derives
+     it: ss_max = raw_dur - TAIL_MARGIN_S - CROSSFADE_S - loop_min_s) so the loop is
+     at least ~5s from the SAME existing raw (no re-record). Re-measured lengths:
+     star-first 3.03 -> 5.53s (364KB, seam 0.53), star-web 3.10 -> 5.10s (254KB,
+     seam 0.68), star-last 3.03 -> 4.97s (356KB, seam 0.93). Posters are frame 0 at
+     the new head; same fixed scroll position, so the same bright epochs (first
+     star, cosmic web, lensed black hole), re-verified. All still VP9 Profile 0 /
+     yuv420p / SAR 1:1 / tv-bt709 / 30fps.
+  MEASUREMENT NOTE: the exact in-browser drop-% could not be reproduced here (the
+  local headed window is render-throttled, same limitation logged in round 5); the
+  substantive evidence is that only the visible clip(s) decode (never 3) plus the
+  ~1.7x longer loops. The verifier should re-run its headed-GPU harness (t4b) to
+  confirm the playing card is under 5% dropped.
+
+- FAIL 2 (section stack not keyboard-scrollable: tabindex -1, nothing focusable
+  inside, PageDown/arrows did nothing). Fixed: the .section-stack in all three
+  project templates is now `tabindex="0" role="region"` with a per-project
+  aria-label ("Blackthorn and Co. previews" / "Barker and Bloom previews" / "Until
+  the Last Star previews"), so it is a Tab stop and keyboard-scrollable. CSS
+  .section-stack:focus-visible now shows the house accent inset ring
+  (--shadow-field-focus), inset so the panel overflow does not clip it and it stays
+  put as the content scrolls (reported choice: same treatment as fields and rows).
+  VERIFIED headed: focusing the stack, ArrowDown scrolls it (0 -> 40 -> 80px),
+  PageDown scrolls it (0 -> 329px); the stack is in the tab order.
+  TAB-ORDER PLACEMENT (reported deviation from the suggestion's wording): the stack
+  is reached AFTER the left-column controls, not literally "between See it live and
+  the conversion cluster". Observed order from the back control: back -> See it live
+  -> conversion price -> Get in touch CTA -> footer email -> theme toggles -> the
+  stack. This is the natural DOM/reading order of the two-column layout the brief
+  mandates keeping: the panel (and its stack) is the RIGHT column, which follows the
+  entire left column in the DOM. Placing the stack literally between See it live and
+  the conversion cluster would require a positive tabindex (a WCAG 2.4.3
+  focus-order anti-pattern) or moving the panel into the left column (breaking the
+  two-column structure). The stack IS focusable, keyboard-scrollable and in the tab
+  order, which is the substance of the FAIL; flagged so the orchestrator can rule if
+  the exact position is required.

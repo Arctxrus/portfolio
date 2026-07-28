@@ -1,47 +1,41 @@
 #!/usr/bin/env python3
-"""Capture pipeline for the three project preview clips (CONCEPT.md section 5).
+"""Capture pipeline for the project SECTION CARDS (Client feedback round 6).
 
-Build-time tool only. This script ships nothing to the page: it records the
-three live demo sites with headed, GPU-backed Chromium, then post-processes each
-raw take with ffmpeg into the muted, looping VP9 webm plus poster jpg that
-index.html already references from media/.
+Build-time tool only. This script ships nothing to the page: it records / screenshots
+the three live demo sites with headed, GPU-backed Chromium, then post-processes each
+take into the media that index.html references from media/.
 
-Client feedback round 5 (owner-directed, 2026-07-27). Two capture-level defects
-were fixed here:
+ROUND 6 (owner-directed structural redesign). The single per-project "tour" webm is
+retired. Each project now shows a scrollable stack of SECTION CARDS, so this script
+captures 3 to 5 sections per project as either:
 
-  1. CROP + BLUR. Since round 3 the desktop preview box is near-square (measured
-     682x652 at 1440x900, ratio ~1.046; ranges ~0.85 at 1280w to ~1.40 at 1920w),
-     but the clips were 16:9 (1.778). object-fit: cover then cropped the sides
-     ~41% ("cropped in") and upscaled the 720 rows ~1.8x at DPR 2 ("blurry"). Fix:
-     record at a SQUARE-ISH viewport (1000x1040, ratio 0.962, the compromise
-     across the 1440/1280 anchors) so almost nothing is cropped, at deviceScaleFactor
-     2 so the source is sharp, and encode at 1500x1560 (1500 wide: the 1440 box is
-     682 CSS = 1364 device px at DPR 2, so 1500 gives native-or-better pixels).
+  - STATIC images (non-animated sections): a DPR-2 screenshot of a 16:9 window over
+    the section, downscaled to ~1600 wide, jpg quality tuned well under 300KB.
+  - SHORT LOOPS (animated sections): a fixed-position CDP-screencast recording with
+    a natural or scripted cycle, post-processed into a seamless VP9 loop (the same
+    hardened encode as round 5: VP9 Profile 0 / yuv420p, 30fps, SAR 1:1, tv/bt709,
+    tail->head crossfade) plus a poster jpg from frame 0.
 
-  2. FRAME RATE. The old clips ran ~15.6 to 24.8 UNIQUE fps (Playwright recordVideo
-     is ~25fps nominal and drops/duplicates under load), which juddered on slow
-     pans. Fix: capture via CDP Page.startScreencast (measured 75 to 91 fps on this
-     RTX 3060) and rebuild a true 60fps CFR raw from the frame timestamps, so the
-     scrolling motion carries ~60 unique fps.
+Section plan (chosen after inspecting each live site; see PROGRESS.md round 6):
+  Blackthorn: cover, price menu, barbers, in-their-words, booking form (all STATIC:
+    none of these sections cycles at rest; the reviews carousel is manual).
+  Barker & Bloom: the welcome (STATIC: the paw trail draws once, no rest cycle),
+    price menu (STATIC), before-and-after (LOOP: the compare slider is scripted to
+    sweep), booking form (STATIC).
+  Until the Last Star: the first star, the cosmic web, the last star (all LOOP: the
+    WebGL scene animates continuously; parked at three bright epochs, black-hole
+    finale included as one card among bright ones).
 
-Everything else follows the round-4c content plan: one continuous even slow scroll
-that returns to its start, demo heros warmed to their settled base, the star a
-bright afterglow span (t 0.13 to 0.17) after a 10s preload wait, all closed with a
-tail->head crossfade so the loop is seamless.
+Shared plumbing kept from the round-5 tour pipeline (they share the encode path):
+  assemble_raw, vfilter, vp9_args, encode_crossfade, choose_head_ss,
+  seam_first_last_diff, make_poster, the CDP screencast capture and the GPU launch.
 
-Two stages, either of which can run alone:
-  1. capture  - scripted, headed CDP-screencast recording of each site to
-                tools/_raw/ (screencast JPEG frames reassembled to a 60fps CFR
-                intermediate via their arrival timestamps)
-  2. process  - ffmpeg into a SEAMLESS LOOP via a tail->head xfade crossfade,
-                scaled to 1500x1560, audio stripped, VP9 CRF, a 1500-wide poster
-                jpg from frame 0, and a printed loop-seam pixel-diff verification
-
-Usage (run from anywhere, paths are resolved from this file):
-  python tools/capture.py                 # capture then process, all three
-  python tools/capture.py --only star     # just Until the Last Star
-  python tools/capture.py --skip-capture  # re-encode from existing raw takes
-  python tools/capture.py --skip-process  # record raw takes only
+Usage (run from anywhere; paths resolve from this file):
+  python tools/capture.py                       # everything
+  python tools/capture.py --only star           # one project's sections
+  python tools/capture.py --section star-last    # a single section
+  python tools/capture.py --skip-capture        # re-process loops from raws
+  python tools/capture.py --skip-process        # record raws only
 
 House rules: UK English, no em dashes. Vanilla toolchain, no runtime deps.
 """
@@ -53,44 +47,26 @@ import subprocess
 import tempfile
 import time
 
-# Resolve repo paths from this file so the script is location independent.
 TOOLS_DIR = os.path.dirname(os.path.abspath(__file__))
 REPO_ROOT = os.path.dirname(TOOLS_DIR)
 MEDIA_DIR = os.path.join(REPO_ROOT, "media")
 RAW_DIR = os.path.join(TOOLS_DIR, "_raw")
 
-# Recorded viewport. Client feedback round 5 (crop fix): a SQUARE-ISH viewport so
-# the near-square preview box (682x652 at 1440x900) crops almost nothing under
-# object-fit: cover. 1000x1040 (ratio 0.962) is the compromise across the box
-# ratios at the two anchor widths the owner named (1440x900 = 1.046, 1280x720 =
-# 0.853; average ~0.95). The demo sites are responsive and render legitimately at
-# 1000px wide, so nothing is cropped out of the page itself.
-REC_W, REC_H = 1000, 1040
-
-# Device scale factor for the recording context. Client feedback round 5 (blur
-# fix): capture at DPR 2 so the raw surface is 2000x2080 device px, then downscale
-# to the 1500-wide output. That is a downscale (crisp), not the old upscale.
+# 16:9 recording viewport (the section card box is a fixed 16:9). CDP screencast
+# returns CSS-pixel frames, so the raw is REC_W wide; page.screenshot (statics) does
+# honour deviceScaleFactor, so statics come out at DPR-2 and downscale crisply.
+REC_W, REC_H = 1280, 720
 DPR = 2
 
-# Output resolution. Round 5 first shipped 1500x1560, but that non-standard frame
-# at 60fps forced SOFTWARE VP9 decode in-browser and dropped 31 to 34% of frames
-# (verifier; reproduced). Playback-smoothness fix (2026-07-28): MOD-16 dimensions
-# (macroblock-aligned: 1280 = 80*16, 1344 = 84*16) decode far more efficiently,
-# keeping the ~0.952 aspect so the box fit is essentially unchanged. 1280 wide is
-# a 6% upscale of the 1364 device-px box at DPR 2 (imperceptible; kept high for
-# sharpness while stepping down from 1440x1504 for decode/composite margin). The
-# bigger decode win is the VP9 profile: see vp9_args (yuv420p, profile 0).
-OUT_W, OUT_H = 1280, 1344
-
-# Output frame rate. Round 5 first shipped a true 60fps CFR, but combined with the
-# large non-standard frame it overran the software decoder (see above). Halved to
-# 30fps CFR (2026-07-28): a slow ambient drift reads perfectly smooth at 30 and it
-# halves the per-second decode load. Measured in-browser after the change: dropped
-# frames fall under ~5% with no repeated 50ms+ presentation spikes.
+# Loop output. 16:9, mod-16 (1280 = 80*16, 720 = 45*16) so VP9 macroblocks align and
+# hardware decode is efficient. Same profile-0 / SAR / colour hardening as round 5.
+OUT_W, OUT_H = 1280, 720
 FPS = 30
 
-# ANGLE D3D11 on the discrete GPU, so the WebGL demo records its real visuals
-# rather than a software fallback. Confirmed renderer: ANGLE NVIDIA RTX 3060.
+# Static output. DPR-2 capture (2560x1440) downscaled to ~1600 wide, jpg under 300KB.
+STATIC_W, STATIC_H = 1600, 900
+STATIC_MAX_KB = 290
+
 GPU_ARGS = [
     "--use-angle=d3d11",
     "--enable-gpu-rasterization",
@@ -99,121 +75,112 @@ GPU_ARGS = [
     "--disable-features=CalculateNativeWinOcclusion",
 ]
 
-# Screencast frame quality (JPEG). High so the intermediate is close to lossless;
-# the max dims cap the returned frame to the full DPR-2 surface (no downscale in
-# the browser; the downscale to 1500 wide happens in the final ffmpeg encode).
 SCREENCAST_QUALITY = 90
 SCREENCAST_MAX_W, SCREENCAST_MAX_H = REC_W * DPR, REC_H * DPR
 
-# Size budget. Client feedback round 2 (item 3) retired the 300 to 500KB per-clip
-# budget: quality wins, each clip is VP9 CRF quality mode and lazy-loaded so the
-# first-load budget is untouched. Round 5 raises resolution and frame rate, so the
-# files grow again (reported). POSTER_MAX_KB is under the owner's ~100KB poster aim.
 POSTER_MAX_KB = 98
-
-# VP9 constant-quality (CRF). Lower is crisper and larger. 34 is the established
-# "crisp" value; at the higher round-5 resolution crispness comes mostly from the
-# resolution, so 34 is kept. cpu-used 2 (was 1) roughly halves the encode time at
-# 60fps with negligible quality cost (CRF, not cpu-used, governs crispness).
-DEFAULT_CRF = 34
+DEFAULT_CRF = 32          # 1280x720 is small, so 32 stays crisp and light
 VP9_CPU_USED = 2
+KEYFRAME_INTERVAL = 60    # a keyframe every 2s at 30fps
+CROSSFADE_S = 0.8         # seamless-loop tail->head dissolve
+TAIL_MARGIN_S = 0.10
 
-# GOP: a keyframe every 2s. At 30fps that is -g 60 (2026-07-28 playback fix).
-KEYFRAME_INTERVAL = 60
-
-# Each clip is a one-way slow scroll that returns to its start, so a hard loop cut
-# would jump. Each is post-processed into a seamless loop by dissolving its tail
-# (the closing hold) into its head (the opening hold) with an xfade of this length;
-# the shipped clip then runs (base clip length minus CROSSFADE_S). Both endpoints
-# are the same opening composition, so the dissolve is clean (see choose_head_ss).
-CROSSFADE_S = 0.8
-
-# Scrollbar suppression. The owner dislikes the demo sites' scrollbar in the
-# captures. Injected into each page BEFORE the keeper so no recorded frame shows it.
 NO_SCROLLBAR_CSS = (
     "html { scrollbar-width: none !important; -ms-overflow-style: none !important; }"
     "::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }"
 )
 
-# The base clip ends a small margin before the very tail so any single frozen final
-# frame is dropped.
-TAIL_MARGIN_S = 0.10
+BT_URL = "https://arctxrus.github.io/blackthorn-demo/"
+BK_URL = "https://arctxrus.github.io/barker-bloom-demo/"
+STAR_URL = "https://arctxrus.github.io/cosmic-dawn/?tier=2"
 
-# Per project capture plan (owner amendment, rounds 4/4c; unchanged in round 5
-# except the viewport). ALL THREE clips are a single continuous, even, SLOW scroll
-# down the page (no section glides, no anchor stops, no mid-tour holds), then a
-# brisk glide back to the start and a closing hold on the same opening composition,
-# crossfaded (0.8s) into the opening hold so the loop is seamless. "tour" is that
-# plan: open on `from`, drift slowly and evenly (near-linear) to `to` over
-# tour_dur_ms, glide back over return_dur_ms, hold. A `from`/`to` given as
-# {"t": frac} is a cosmic-dawn timeline fraction resolved to pixels at capture time;
-# a plain number is a pixel offset.
-PROJECTS = [
-    {
-        "name": "blackthorn",
-        "url": "https://arctxrus.github.io/blackthorn-demo/",
-        "out": "blackthorn-preview",
-        "poster_out": "blackthorn-poster",
-        "verify_nvidia": False,
-        # The hero runs scroll-reveal animations (the nav morphs pill -> bar, content
-        # slides up) that fire when the block enters the viewport. The closing frame
-        # is reached by scrolling the tour back to the top (a scroll-return state), so
-        # the opening must ALSO be a settled scroll-return state to match it, else the
-        # pristine-load opening differs from the scroll-return closing (~9/255). The
-        # warmup does a quick scroll excursion and back to put the hero in that state,
-        # then warmup_settle_ms lets the reveals fully settle before the keeper so the
-        # opening hold is static (the round-5 raw-assembly clamp fix keeps that hold
-        # from collapsing). Both ends are then scroll-return-settled and match.
-        "warmup": True,
-        "warmup_settle_ms": 2500,
-        "settle_ms": 4000,
-        "tour": {"from": 0, "to": 5200, "open_hold_ms": 1500,
-                 "tour_dur_ms": 13000, "return_dur_ms": 1700, "close_hold_ms": 1600},
-    },
-    {
-        "name": "barker",
-        "url": "https://arctxrus.github.io/barker-bloom-demo/",
-        "out": "barker-bloom-preview",
-        "poster_out": "barker-bloom-poster",
-        "verify_nvidia": False,
-        "warmup": True,               # same scroll-return matching as blackthorn
-        "warmup_settle_ms": 2500,
-        "settle_ms": 3500,            # let the hero load-in settle before the warmup
-        "tour": {"from": 0, "to": 1150, "open_hold_ms": 1500,
-                 "tour_dur_ms": 12000, "return_dur_ms": 1700, "close_hold_ms": 1600},
-    },
-    {
-        "name": "star",
-        # ?tier=2 forces the T2 quality tier so the real WebGL scene renders (not
-        # the sprite fallback). The star is a bright SCROLLING capture of THE
-        # AFTERGLOW ("the fog lifts", timeline t 0.13 to 0.17): a warm plasma nebula,
-        # the brightest sustainable region in the scene (probed mean luminance stays
-        # 69 -> 50, never below ~50, with visible plasma motion). It waits 10s after
-        # load so the heavy WebGL scene is fully initialised. Camera parallax is off
-        # (it fought the scroll; the crossfade carries the loop); no crop. Frame 0
-        # (the poster) is the bright nebula at t 0.13.
-        "url": "https://arctxrus.github.io/cosmic-dawn/?tier=2",
-        "out": "until-the-last-star-preview",
-        "poster_out": "until-the-last-star-poster",
-        "verify_nvidia": True,
-        "warmup": False,               # WebGL scene, no load-in intro to warm off
-        "extra_load_wait_ms": 10000,   # owner: 10s after load before the take
-        "settle_ms": 2500,             # the afterglow brightens to ~69 over ~1.5s
-        "tour": {"from": {"t": 0.13}, "to": {"t": 0.17}, "open_hold_ms": 1200,
-                 "tour_dur_ms": 13000, "return_dur_ms": 1700, "close_hold_ms": 1500},
-    },
+# Project-level session config (applied once after navigation).
+PROJECT_CFG = {
+    "blackthorn": {"url": BT_URL, "nvidia": False, "load_wait_ms": 0, "preloader": False},
+    "barker": {"url": BK_URL, "nvidia": False, "load_wait_ms": 0, "preloader": False},
+    # The WebGL scene needs the discrete GPU (tier 2) and ~10s to fully initialise.
+    "star": {"url": STAR_URL, "nvidia": True, "load_wait_ms": 10000, "preloader": True},
+}
+
+# Before/after compare slider: sweep the reveal smoothly (sine, so it is periodic and
+# the crossfade finds a matching phase). Drives every .ba__stage on the page: the
+# clip-path inset on .ba__before-wrap and the .ba__handle left, exactly as the site's
+# own drag does (verified live: both are settable inline).
+BA_SWEEP_JS = """
+() => {
+  const stages = Array.from(document.querySelectorAll('.ba__stage'));
+  if (!stages.length) return false;
+  const start = performance.now();
+  const period = 5200;              // ms per full sweep cycle
+  function frame(now) {
+    const P = 50 + 30 * Math.sin((now - start) / period * Math.PI * 2);  // 20..80
+    const right = (100 - P).toFixed(2);
+    const left = P.toFixed(2);
+    for (const st of stages) {
+      const wrap = st.querySelector('.ba__before-wrap');
+      const handle = st.querySelector('.ba__handle');
+      if (wrap) wrap.style.clipPath = 'inset(0px ' + right + '% 0px 0px)';
+      if (handle) handle.style.left = left + '%';
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  return true;
+}
+"""
+
+# Section plan. `pos` is either {"sel": "#id", "off": px} (scroll so the section top
+# sits `off` px below the viewport top) or {"t": frac} (a cosmic-dawn timeline
+# fraction). `kind` is 'static' or 'loop'. Loops carry `record_ms` and an optional
+# `script` run in-page during the recording. `settle_ms` waits after positioning so
+# scroll-reveal animations finish.
+SECTIONS = [
+    # ---- Blackthorn (all static) ----
+    {"p": "blackthorn", "out": "blackthorn-cover", "kind": "static",
+     "pos": {"sel": "#cover", "off": 0}, "settle_ms": 2200},
+    {"p": "blackthorn", "out": "blackthorn-prices", "kind": "static",
+     "pos": {"sel": "#services", "off": 0}, "settle_ms": 1800},
+    {"p": "blackthorn", "out": "blackthorn-barbers", "kind": "static",
+     "pos": {"sel": "#team", "off": 0}, "settle_ms": 1800},
+    {"p": "blackthorn", "out": "blackthorn-reviews", "kind": "static",
+     "pos": {"sel": "#reviews", "off": 0}, "settle_ms": 1800},
+    {"p": "blackthorn", "out": "blackthorn-booking", "kind": "static",
+     "pos": {"sel": "#booking", "off": 0}, "settle_ms": 1800},
+
+    # ---- Barker & Bloom ----
+    {"p": "barker", "out": "barker-hero", "kind": "static",
+     "pos": {"sel": "#home", "off": 0}, "settle_ms": 2200},
+    {"p": "barker", "out": "barker-prices", "kind": "static",
+     "pos": {"sel": "#services", "off": 0}, "settle_ms": 1800},
+    {"p": "barker", "out": "barker-beforeafter", "kind": "loop",
+     "pos": {"sel": "#gallery", "off": 60}, "settle_ms": 1500,
+     "record_ms": 6500, "script": BA_SWEEP_JS,
+     "poster_out": "barker-beforeafter-poster"},
+    {"p": "barker", "out": "barker-booking", "kind": "static",
+     "pos": {"sel": "#book", "off": 0}, "settle_ms": 2000},
+
+    # ---- Until the Last Star (all loops, WebGL continuous) ----
+    # loop_min_s (verifier round-6 FAIL 1): the first cut produced ~3s loops that
+    # restarted often and pushed dropped frames over 5% solo. A longer loop (>= 5s)
+    # restarts less; loop_min_s bounds the head-anchor scan so the loop is at least
+    # this long (the crossfade is a diffuse plasma dissolve either way).
+    {"p": "star", "out": "star-first", "kind": "loop",
+     "pos": {"t": 0.40}, "settle_ms": 2500, "record_ms": 6000, "loop_min_s": 5.0,
+     "poster_out": "star-first-poster"},
+    {"p": "star", "out": "star-web", "kind": "loop",
+     "pos": {"t": 0.52}, "settle_ms": 2500, "record_ms": 6000, "loop_min_s": 5.0,
+     "poster_out": "star-web-poster"},
+    {"p": "star", "out": "star-last", "kind": "loop",
+     "pos": {"t": 0.88}, "settle_ms": 3000, "record_ms": 6000, "loop_min_s": 5.0,
+     "poster_out": "star-last-poster"},
 ]
 
-# Scroll run inside the page via rAF (per-frame smooth, no manual driving, no
-# mouse). The slow tour is near-linear (even, constant-ish speed, linear=true);
-# the brisk return glide is easeInOutQuad so it does not jerk at the ends.
 EASE_SCROLL_JS = """
-async ({toY, duration, linear}) => {
+async ({toY, duration}) => {
   const startY = window.scrollY;
   const dist = toY - startY;
   const t0 = performance.now();
-  const easeInOut = t => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
-  const ease = linear ? (t => t) : easeInOut;
+  const ease = t => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
   return new Promise(resolve => {
     function frame(now) {
       const t = Math.min(1, (now - t0) / duration);
@@ -226,7 +193,6 @@ async ({toY, duration, linear}) => {
 }
 """
 
-# Read the unmasked WebGL renderer from inside the recording context.
 RENDERER_JS = """
 () => {
   const c = document.createElement('canvas');
@@ -237,8 +203,6 @@ RENDERER_JS = """
 }
 """
 
-# Defensive first-run overlay dismissal. Probing found no blocking overlays on any
-# of the three sites, so this is belt and braces.
 DISMISS_SELECTORS = [
     "button[aria-label*='close' i]",
     "button[aria-label*='dismiss' i]",
@@ -255,9 +219,29 @@ def log(msg):
     print(msg, flush=True)
 
 
+def run(cmd):
+    subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+
+def kb(path):
+    return os.path.getsize(path) / 1024.0
+
+
+def _b64(data):
+    import base64
+    return base64.b64decode(data)
+
+
+def probe_duration(path):
+    out = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "default=noprint_wrappers=1:nokey=1", path],
+        check=True, capture_output=True, text=True,
+    )
+    return float(out.stdout.strip())
+
+
 def inject_no_scrollbar(page):
-    """Hide the demo site's scrollbar before recording so the captured frames
-    carry none."""
     try:
         page.add_style_tag(content=NO_SCROLLBAR_CSS)
     except Exception as exc:
@@ -279,21 +263,56 @@ def dismiss_overlays(page):
             pass
 
 
-def assemble_raw(frames, raw_path):
-    """Build a 60fps CFR intermediate from the screencast frames.
+def scroll_to(page, pos):
+    """Position the section: {'sel','off'} scrolls the section top to `off` px below
+    the viewport top; {'t'} is a cosmic-dawn timeline fraction."""
+    if "t" in pos:
+        page.evaluate(
+            "t => window.scrollTo(0, t * (document.documentElement.scrollHeight - window.innerHeight))",
+            pos["t"],
+        )
+        return
+    page.evaluate(
+        """(a) => {
+             const el = document.querySelector(a.sel);
+             if (!el) { return; }
+             const y = el.getBoundingClientRect().top + window.scrollY - a.off;
+             window.scrollTo(0, Math.max(0, y));
+           }""",
+        {"sel": pos["sel"], "off": pos.get("off", 0)},
+    )
 
-    `frames` is a list of (arrival_monotonic_s, jpeg_bytes), in order, plus a
-    trailing (stop_monotonic_s, None) sentinel so the last real frame gets its
-    held duration. The per-frame duration is the gap to the next arrival, clamped
-    to a sane range so a stray outlier cannot stretch a frame; static holds (no
-    new compositor frame) are represented as a single frame held for its gap. An
-    ffmpeg concat demuxer with those durations, resampled to CFR 60, reproduces the
-    real timing: ~60 unique fps through motion, duplicated frames across holds.
-    The intermediate is H.264 CRF 12 (near-lossless, fast) so the final VP9 encode
-    is the only meaningful generational loss after the JPEG capture."""
+
+# ---- static screenshot ----------------------------------------------------------
+
+def capture_static(page, section):
+    os.makedirs(MEDIA_DIR, exist_ok=True)
+    scroll_to(page, section["pos"])
+    page.wait_for_timeout(section.get("settle_ms", 1500))
+    with tempfile.TemporaryDirectory() as td:
+        shot = os.path.join(td, "shot.png")
+        # Full 16:9 viewport at DPR 2 (2560x1440). No clip needed: the viewport is 16:9.
+        page.screenshot(path=shot, animations="disabled")
+        jpg = os.path.join(MEDIA_DIR, section["out"] + ".jpg")
+        chosen = None
+        for q in (3, 4, 5, 6, 8, 10, 12, 15):
+            run(["ffmpeg", "-y", "-i", shot, "-vf",
+                 f"scale={STATIC_W}:{STATIC_H}:flags=lanczos", "-q:v", str(q), jpg])
+            size = kb(jpg)
+            chosen = (q, size)
+            if size <= STATIC_MAX_KB:
+                break
+        log(f"[{section['out']}] static jpg q={chosen[0]}: {chosen[1]:.0f}KB "
+            f"({STATIC_W}x{STATIC_H})")
+
+
+# ---- loop recording -------------------------------------------------------------
+
+def assemble_raw(frames, raw_path):
+    """Build a CFR intermediate from the screencast frames (H.264 CRF 12, near
+    lossless), preserving static holds. Same technique as the round-5 tour pipeline."""
     if len(frames) < 2:
         raise RuntimeError("screencast produced too few frames")
-
     real = [f for f in frames if f[1] is not None]
     stop_ts = frames[-1][0]
     with tempfile.TemporaryDirectory() as td:
@@ -304,26 +323,17 @@ def assemble_raw(frames, raw_path):
             with open(name, "wb") as fh:
                 fh.write(data)
             names.append(name)
-
-        # Durations: gap to the next arrival (last real frame -> stop sentinel).
-        # Static holds legitimately produce ONE screencast frame held for the whole
-        # hold (screencast only sends frames on visual change), so the upper clamp
-        # must be well above the ~1.6s hold length or the opening/closing holds
-        # collapse and the crossfade loses its static window. 2.5s preserves real
-        # holds while still bounding a pathological stall.
         ts = [f[0] for f in real] + [stop_ts]
         lines = []
         for i, name in enumerate(names):
             dur = ts[i + 1] - ts[i]
-            dur = max(1.0 / 120.0, min(2.5, dur))   # preserve holds, bound outliers
+            dur = max(1.0 / 120.0, min(2.5, dur))
             safe = name.replace("\\", "/")
             lines.append(f"file '{safe}'")
             lines.append(f"duration {dur:.5f}")
-        # Concat demuxer needs the last file repeated for its duration to apply.
         lines.append(f"file '{names[-1].replace(chr(92), '/')}'")
         with open(list_path, "w") as fh:
             fh.write("\n".join(lines) + "\n")
-
         cmd = [
             "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", list_path,
             "-vsync", "cfr", "-r", str(FPS), "-pix_fmt", "yuv420p",
@@ -333,185 +343,64 @@ def assemble_raw(frames, raw_path):
         run(cmd)
 
 
-def capture_one(project):
-    """Record one scripted CDP-screencast take to tools/_raw/ and return its path."""
-    from playwright.sync_api import sync_playwright
-
+def capture_loop(page, context, section):
+    """Record a fixed-position screencast take of an animated section to tools/_raw/."""
     os.makedirs(RAW_DIR, exist_ok=True)
-    log(f"[{project['name']}] launching headed Chromium with GPU args (DPR {DPR})")
+    scroll_to(page, section["pos"])
+    page.wait_for_timeout(section.get("settle_ms", 1500))
 
-    frames = []   # list of (arrival_monotonic_s, jpeg_bytes or None sentinel)
+    # Start any in-page cycle script (e.g. the before/after sweep) before recording.
+    if section.get("script"):
+        ok = page.evaluate(section["script"])
+        if ok is False:
+            log(f"    warning: [{section['out']}] loop script found no targets")
 
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=False, args=GPU_ARGS)
-        context = browser.new_context(
-            viewport={"width": REC_W, "height": REC_H},
-            device_scale_factor=DPR,
-        )
-        page = context.new_page()
-        page.goto(project["url"], wait_until="networkidle", timeout=90000)
+    frames = []
 
-        # Wait for fonts and a settled network before touching anything.
+    client = context.new_cdp_session(page)
+
+    def on_frame(params):
+        frames.append((time.monotonic(), _b64(params["data"])))
         try:
-            page.evaluate("document.fonts && document.fonts.ready")
-            page.wait_for_function("document.fonts ? document.fonts.status === 'loaded' : true", timeout=15000)
-        except Exception:
-            pass
-        page.wait_for_load_state("networkidle", timeout=30000)
-
-        # Cosmic-dawn shows a preloader that must clear before the scene renders.
-        try:
-            page.wait_for_selector("#preloader", state="detached", timeout=20000)
+            client.send("Page.screencastFrameAck", {"sessionId": params["sessionId"]})
         except Exception:
             pass
 
-        dismiss_overlays(page)
-        inject_no_scrollbar(page)
+    client.on("Page.screencastFrame", on_frame)
+    client.send("Page.startScreencast", {
+        "format": "jpeg",
+        "quality": SCREENCAST_QUALITY,
+        "maxWidth": SCREENCAST_MAX_W,
+        "maxHeight": SCREENCAST_MAX_H,
+        "everyNthFrame": 1,
+    })
+    page.wait_for_timeout(section.get("record_ms", 6000))
+    client.send("Page.stopScreencast")
+    frames.append((time.monotonic(), None))
 
-        if project["verify_nvidia"]:
-            renderer = page.evaluate(RENDERER_JS)
-            log(f"[{project['name']}] renderer: {renderer}")
-            if "NVIDIA" not in renderer.upper():
-                context.close()
-                browser.close()
-                raise RuntimeError(
-                    f"[{project['name']}] renderer is not the NVIDIA GPU "
-                    f"({renderer!r}); refusing the take (software fallback)."
-                )
-
-        if project.get("extra_load_wait_ms"):
-            page.wait_for_timeout(project["extra_load_wait_ms"])
-
-        tour = project["tour"]
-
-        def to_px(v):
-            if isinstance(v, dict) and "t" in v:
-                return page.evaluate(
-                    "t => t * (document.documentElement.scrollHeight - window.innerHeight)",
-                    v["t"],
-                )
-            return v
-
-        from_y = to_px(tour["from"])
-        to_y = to_px(tour["to"])
-
-        # Open on the tour start and let it settle.
-        page.evaluate("y => window.scrollTo(0, y)", from_y)
-        page.wait_for_timeout(project["settle_ms"])
-
-        # Warm the hero into its settled base state with a quick excursion and back
-        # (a one-time load-in animation would otherwise still be running through the
-        # opening hold and not match the scroll-return closing composition). WebGL
-        # scenes have no such load-in, so they skip this.
-        if project.get("warmup"):
-            page.evaluate(EASE_SCROLL_JS, {"toY": from_y + 700, "duration": 500})
-            page.evaluate(EASE_SCROLL_JS, {"toY": from_y, "duration": 500})
-            page.wait_for_timeout(project.get("warmup_settle_ms", 2500))
-
-        # Start the CDP screencast just before the keeper so the raw contains ONLY
-        # keeper frames (the opening composition is at raw t ~ 0).
-        client = context.new_cdp_session(page)
-
-        def on_frame(params):
-            frames.append((time.monotonic(), _b64(params["data"])))
-            try:
-                client.send("Page.screencastFrameAck", {"sessionId": params["sessionId"]})
-            except Exception:
-                pass
-
-        client.on("Page.screencastFrame", on_frame)
-        client.send("Page.startScreencast", {
-            "format": "jpeg",
-            "quality": SCREENCAST_QUALITY,
-            "maxWidth": SCREENCAST_MAX_W,
-            "maxHeight": SCREENCAST_MAX_H,
-            "everyNthFrame": 1,
-        })
-
-        # Keeper: open hold, one slow even scroll down, brisk glide back, closing
-        # hold on the same opening composition (folded into the opening by xfade).
-        page.wait_for_timeout(tour["open_hold_ms"])
-        page.evaluate(EASE_SCROLL_JS,
-                      {"toY": to_y, "duration": tour["tour_dur_ms"], "linear": True})
-        page.evaluate(EASE_SCROLL_JS,
-                      {"toY": from_y, "duration": tour["return_dur_ms"]})
-        page.wait_for_timeout(tour["close_hold_ms"])
-
-        client.send("Page.stopScreencast")
-        frames.append((time.monotonic(), None))   # stop sentinel for the last hold
-
-        if frames and frames[0][1] is not None:
-            log(f"[{project['name']}] screencast: {len([f for f in frames if f[1]])} frames")
-        context.close()
-        browser.close()
-
-    named = os.path.join(RAW_DIR, project["name"] + "-raw.mp4")
-    if os.path.exists(named):
-        os.remove(named)
-    assemble_raw(frames, named)
-    dur = probe_duration(named)
+    raw = os.path.join(RAW_DIR, section["out"] + "-raw.mp4")
+    if os.path.exists(raw):
+        os.remove(raw)
+    assemble_raw(frames, raw)
+    dur = probe_duration(raw)
     nreal = len([f for f in frames if f[1] is not None])
-    log(f"[{project['name']}] raw take: {named}  ({kb(named):.0f}KB, {dur:.2f}s, "
-        f"{nreal} screencast frames -> {FPS}fps CFR)")
-    return named
+    log(f"[{section['out']}] raw: {kb(raw):.0f}KB, {dur:.2f}s, {nreal} frames -> {FPS}fps CFR")
+    return raw
 
 
-def _b64(data):
-    import base64
-    return base64.b64decode(data)
-
-
-def kb(path):
-    return os.path.getsize(path) / 1024.0
-
-
-def run(cmd):
-    subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-
-
-def probe_duration(path):
-    out = subprocess.run(
-        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
-         "-of", "default=noprint_wrappers=1:nokey=1", path],
-        check=True, capture_output=True, text=True,
-    )
-    return float(out.stdout.strip())
-
-
-def vfilter(project=None):
-    # The raw is the CDP screencast surface (1000x1040, yuvj420p full-range, tagged
-    # bt470bg). NOTE: CDP screencast returns CSS-pixel frames, so the deviceScaleFactor
-    # did NOT enlarge them; the raw is 1000 wide and the output is a mild upscale
-    # (accepted: the crop/blur was verified in round 5). Scale to OUT_W x OUT_H and,
-    # critically for HARDWARE VP9 decode (2026-07-28 fix):
-    #   (a) setsar=1:1 forces SQUARE pixels. Scaling 1000x1040 (DAR 25:26) to the
-    #       non-matching 1280x1344 otherwise leaves a fractional SAR (323:320, so
-    #       videoWidth reports 1292), which hardware VP9 rejects
-    #       (MediaError code 3 PIPELINE_ERROR_DECODE). The <1% aspect nudge is
-    #       invisible and cover-cropped by the panel anyway.
-    #   (b) convert full-range/bt470bg to the standard tv-range/bt709 that hardware
-    #       paths accept. The pixels are CONVERTED (in_range/out_range +
-    #       in/out_color_matrix), not just retagged, so pixels and tags agree.
-    # object-fit: cover in the panel handles the mobile 2/1 ratio.
+def vfilter():
+    # scale to 16:9 output, square pixels, convert full-range/bt601 -> tv/bt709 so the
+    # tags and pixels agree and hardware VP9 accepts it (round-5 hardening).
     return (f"scale={OUT_W}:{OUT_H}:flags=lanczos"
             f":in_range=full:out_range=tv:in_color_matrix=bt601:out_color_matrix=bt709"
             f",setsar=1:1")
 
 
 def vp9_args(crf):
-    """Shared VP9 constant-quality (CRF) output args. Audio stripped, 60fps CFR,
-    -b:v 0 selects true constant-quality VP9; alt-ref kept for compression."""
     return [
         "-an", "-r", str(FPS),
         "-c:v", "libvpx-vp9", "-crf", str(crf), "-b:v", "0",
-        # Force VP9 profile 0 (yuv420p): the xfade filter otherwise re-expands to
-        # yuv444p (profile 1), which forces SOFTWARE decode on virtually all devices
-        # and doubles the chroma data. 4:2:0 is hardware-decodable and halves chroma,
-        # the single biggest decode-cost win (playback-smoothness fix, 2026-07-28).
         "-pix_fmt", "yuv420p",
-        # Tag the encoded stream tv-range/bt709 to match the pixels the vfilter
-        # produced (2026-07-28 hardware-decode fix). The pc + bt470bg combo the
-        # earlier cut carried is an unusual pairing hardware VP9 paths reject.
         "-color_range", "tv", "-colorspace", "bt709",
         "-color_primaries", "bt709", "-color_trc", "bt709",
         "-deadline", "good", "-cpu-used", str(VP9_CPU_USED),
@@ -520,14 +409,9 @@ def vp9_args(crf):
     ]
 
 
-def encode_crossfade(raw, out, ss, base_dur, crf, cross, project=None):
-    """Make a mathematically seamless loop by dissolving the clip's tail into its
-    head. Standard xfade technique: split the base clip of length D into
-    hold=[0, D-C] and end=[D-C, D], then xfade `end` over `hold` at offset 0 for
-    duration C. Output length = D - C. The loop seam maps to two ADJACENT source
-    frames, so it is continuous; the first C seconds are the tail->head dissolve."""
+def encode_crossfade(raw, out, ss, base_dur, crf, cross):
     d, c = base_dur, cross
-    spatial = vfilter(project)
+    spatial = vfilter()
     fc = (
         f"[0:v]{spatial},fps={FPS},format=yuv420p,setpts=PTS-STARTPTS,split[a][b];"
         f"[a]trim=0:{d - c:.3f},setpts=PTS-STARTPTS[hold];"
@@ -546,9 +430,6 @@ def encode_crossfade(raw, out, ss, base_dur, crf, cross, project=None):
 
 
 def seam_first_last_diff(out):
-    """Mean absolute pixel diff (0..255 per channel) between the OUTPUT clip's
-    first and last frame. For a seamless loop these are near-adjacent, so a slow
-    clip reads close to zero; a large value means a visible jump at the loop."""
     import numpy as np
     from PIL import Image
     with tempfile.TemporaryDirectory() as td:
@@ -562,24 +443,26 @@ def seam_first_last_diff(out):
     return float(np.mean(np.abs(a - b)))
 
 
-def choose_head_ss(raw, spatial, raw_dur, open_hold_s):
-    """Pick the crossfade HEAD start: the CROSSFADE_S window inside the OPENING
-    HOLD that best matches the closing hold (the tail) and is calm. CONTENT-BASED.
-    The round-5 raw contains ONLY the keeper (screencast started at the keeper), so
-    the opening hold sits at t 0..open_hold_s at the tour START scroll position, the
-    same position the tour returns to for the closing hold. The scan is bounded to
-    that opening hold so the head is always the SAME scroll position as the tail:
-    for the static heros this locks onto the settled window; for the
-    continuously-animating star it locks onto the best plasma-phase frame at the
-    start position (a diffuse dissolve, the round-4c accepted seam) rather than
-    roaming to a mid-tour frame at a DIFFERENT scroll position (which would ghost)."""
+def choose_head_ss(raw, spatial, raw_dur, ss_max=None):
+    """Pick the crossfade HEAD start: the CROSSFADE_S window near the start that best
+    matches the tail and is calm. Content-based. For a fixed-position take the whole
+    clip is at one scroll position, so any early window shares the tail's framing; the
+    scan finds the best-matching phase (the round-4c accepted diffuse dissolve for the
+    continuously-animating WebGL scenes; a near-exact match for the periodic sweep).
+
+    ss_max (round-6 FAIL 1) caps the head start so the resulting loop meets a
+    minimum length: a later ss shortens the loop, so bounding it keeps the loop long
+    enough to restart rarely."""
     import numpy as np
     from PIL import Image
     win = int(round(CROSSFADE_S * FPS))
     s0 = 0.2
-    # Stay inside the opening hold (plus a small margin) so the head shares the
-    # tail's scroll position; never roam into the downward tour.
-    s1 = min(raw_dur * 0.45, max(open_hold_s + 0.4, s0 + CROSSFADE_S + 0.2))
+    s1 = min(raw_dur * 0.5, s0 + max(2.5, CROSSFADE_S + 0.2))
+    if ss_max is not None:
+        # Cap the head start at ss_max so the loop meets its minimum length. Keep a
+        # small non-empty scan window (>= s0 + 0.2s) so at least a few candidate
+        # head phases are compared for the seam.
+        s1 = min(s1, max(s0 + 0.2, ss_max))
     nreg = int(round((s1 - s0) * FPS)) + win + 2
     with tempfile.TemporaryDirectory() as td:
         patt = os.path.join(td, "h_%04d.png")
@@ -608,60 +491,132 @@ def choose_head_ss(raw, spatial, raw_dur, open_hold_s):
 
 
 def make_poster(webm, poster):
-    """Frame 0 of the processed clip as a jpg, 1500 wide, quality tuned under the
-    ~100KB budget."""
     chosen = None
     for q in (3, 4, 5, 6, 8, 10, 12, 15, 18, 22, 26):
-        run([
-            "ffmpeg", "-y", "-i", webm, "-frames:v", "1",
-            "-q:v", str(q), "-vf", f"scale={OUT_W}:{OUT_H}", poster,
-        ])
+        run(["ffmpeg", "-y", "-i", webm, "-frames:v", "1",
+             "-q:v", str(q), "-vf", f"scale={OUT_W}:{OUT_H}", poster])
         size = kb(poster)
         chosen = (q, size)
         if size <= POSTER_MAX_KB:
             break
     log(f"    poster q={chosen[0]}: {chosen[1]:.0f}KB ({OUT_W} wide)")
-    return chosen
 
 
-def process_one(project):
-    os.makedirs(MEDIA_DIR, exist_ok=True)
-    raw = os.path.join(RAW_DIR, project["name"] + "-raw.mp4")
+def process_loop(section):
+    raw = os.path.join(RAW_DIR, section["out"] + "-raw.mp4")
     if not os.path.exists(raw):
-        raise FileNotFoundError(f"[{project['name']}] no raw take at {raw}; run capture first")
-
+        raise FileNotFoundError(f"[{section['out']}] no raw at {raw}; run capture first")
     raw_dur = probe_duration(raw)
-    out = os.path.join(MEDIA_DIR, project["out"] + ".webm")
-    poster = os.path.join(MEDIA_DIR, project["poster_out"] + ".jpg")
-    crf = project.get("crf", DEFAULT_CRF)
-
-    open_hold_s = project["tour"].get("open_hold_ms", 1000) / 1000.0
-    ss = choose_head_ss(raw, vfilter(project), raw_dur, open_hold_s)
+    out = os.path.join(MEDIA_DIR, section["out"] + ".webm")
+    poster = os.path.join(MEDIA_DIR, section["poster_out"] + ".jpg")
+    crf = section.get("crf", DEFAULT_CRF)
+    # If a minimum loop length is asked for, cap the head start so the loop is at
+    # least that long (loop = raw_dur - ss - TAIL_MARGIN_S - CROSSFADE_S).
+    ss_max = None
+    if section.get("loop_min_s"):
+        ss_max = raw_dur - TAIL_MARGIN_S - CROSSFADE_S - section["loop_min_s"]
+    ss = choose_head_ss(raw, vfilter(), raw_dur, ss_max)
     base = raw_dur - ss - TAIL_MARGIN_S
-    log(f"[{project['name']}] crossfade loop (raw {raw_dur:.2f}s, ss={ss:.2f}s, "
-        f"base={base:.2f}s -> loop {base - CROSSFADE_S:.2f}s, "
-        f"cross={CROSSFADE_S:.2f}s, crf {crf})")
-    encode_crossfade(raw, out, ss, base, crf, CROSSFADE_S, project)
+    log(f"[{section['out']}] loop (raw {raw_dur:.2f}s, ss={ss:.2f}s, base={base:.2f}s "
+        f"-> {base - CROSSFADE_S:.2f}s, crf {crf})")
+    encode_crossfade(raw, out, ss, base, crf, CROSSFADE_S)
     seam = seam_first_last_diff(out)
     make_poster(out, poster)
-    log(f"[{project['name']}] done: {os.path.basename(out)} {kb(out):.0f}KB, "
-        f"{os.path.basename(poster)} {kb(poster):.0f}KB, "
-        f"crossfade seam first-vs-last {seam:.2f}")
+    log(f"[{section['out']}] done: {os.path.basename(out)} {kb(out):.0f}KB, "
+        f"{os.path.basename(poster)} {kb(poster):.0f}KB, seam first-vs-last {seam:.2f}")
+
+
+# ---- driver ---------------------------------------------------------------------
+
+def run_project(pname, sections, do_capture, do_process):
+    from playwright.sync_api import sync_playwright
+
+    cfg = PROJECT_CFG[pname]
+    loops = [s for s in sections if s["kind"] == "loop"]
+    statics = [s for s in sections if s["kind"] == "static"]
+
+    # Processing only (no browser needed for loops if raws exist; statics need capture).
+    if not do_capture:
+        if do_process:
+            for s in loops:
+                process_loop(s)
+        return
+
+    log(f"[{pname}] launching headed Chromium with GPU args (DPR {DPR})")
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=False, args=GPU_ARGS)
+        context = browser.new_context(
+            viewport={"width": REC_W, "height": REC_H},
+            device_scale_factor=DPR,
+        )
+        page = context.new_page()
+        page.goto(cfg["url"], wait_until="networkidle", timeout=90000)
+        try:
+            page.evaluate("document.fonts && document.fonts.ready")
+            page.wait_for_function(
+                "document.fonts ? document.fonts.status === 'loaded' : true", timeout=15000)
+        except Exception:
+            pass
+        page.wait_for_load_state("networkidle", timeout=30000)
+
+        if cfg.get("preloader"):
+            try:
+                page.wait_for_selector("#preloader", state="detached", timeout=20000)
+            except Exception:
+                pass
+
+        dismiss_overlays(page)
+        inject_no_scrollbar(page)
+
+        if cfg.get("nvidia"):
+            renderer = page.evaluate(RENDERER_JS)
+            log(f"[{pname}] renderer: {renderer}")
+            if "NVIDIA" not in renderer.upper():
+                context.close()
+                browser.close()
+                raise RuntimeError(
+                    f"[{pname}] renderer is not the NVIDIA GPU ({renderer!r}); "
+                    f"refusing (software fallback).")
+
+        if cfg.get("load_wait_ms"):
+            page.wait_for_timeout(cfg["load_wait_ms"])
+
+        for s in sections:
+            if s["kind"] == "static":
+                capture_static(page, s)
+            else:
+                capture_loop(page, context, s)
+
+        context.close()
+        browser.close()
+
+    if do_process:
+        for s in loops:
+            process_loop(s)
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Capture and process the project preview clips.")
-    ap.add_argument("--only", choices=[p["name"] for p in PROJECTS], help="single project")
-    ap.add_argument("--skip-capture", action="store_true", help="reuse existing raw takes")
-    ap.add_argument("--skip-process", action="store_true", help="record raw takes only")
+    ap = argparse.ArgumentParser(description="Capture and process the section-card media.")
+    ap.add_argument("--only", choices=list(PROJECT_CFG.keys()), help="one project")
+    ap.add_argument("--section", help="a single section out-name (e.g. star-last)")
+    ap.add_argument("--skip-capture", action="store_true", help="reuse existing raws")
+    ap.add_argument("--skip-process", action="store_true", help="record raws only")
     args = ap.parse_args()
 
-    projects = [p for p in PROJECTS if not args.only or p["name"] == args.only]
-    for project in projects:
-        if not args.skip_capture:
-            capture_one(project)
-        if not args.skip_process:
-            process_one(project)
+    sel = SECTIONS
+    if args.section:
+        sel = [s for s in SECTIONS if s["out"] == args.section]
+    elif args.only:
+        sel = [s for s in SECTIONS if s["p"] == args.only]
+
+    # Group by project, preserving order.
+    order = []
+    for s in sel:
+        if s["p"] not in order:
+            order.append(s["p"])
+    for pname in order:
+        run_project(pname, [s for s in sel if s["p"] == pname],
+                    not args.skip_capture, not args.skip_process)
 
     log("all done")
 

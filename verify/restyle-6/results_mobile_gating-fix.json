@@ -1,0 +1,81 @@
+{
+  "mobile360_at_top": [
+    {
+      "src": "star-first.webm?v=14",
+      "paused": false,
+      "currentTime": 1.055723,
+      "top": 555.53125,
+      "bottom": 730.15625,
+      "visibleInViewport": true
+    },
+    {
+      "src": "star-web.webm?v=14",
+      "paused": true,
+      "currentTime": 0,
+      "top": 767.15625,
+      "bottom": 941.78125,
+      "visibleInViewport": true
+    },
+    {
+      "src": "star-last.webm?v=14",
+      "paused": true,
+      "currentTime": 0,
+      "top": 978.78125,
+      "bottom": 1153.40625,
+      "visibleInViewport": false
+    }
+  ],
+  "mobile360_scrolled_mid": [
+    {
+      "src": "star-first.webm?v=14",
+      "paused": false,
+      "currentTime": 2.039804,
+      "top": -52.46875,
+      "bottom": 122.15625,
+      "visibleInViewport": true
+    },
+    {
+      "src": "star-web.webm?v=14",
+      "paused": false,
+      "currentTime": 0.892146,
+      "top": 159.15625,
+      "bottom": 333.78125,
+      "visibleInViewport": true
+    },
+    {
+      "src": "star-last.webm?v=14",
+      "paused": false,
+      "currentTime": 0.892072,
+      "top": 370.78125,
+      "bottom": 545.40625,
+      "visibleInViewport": true
+    }
+  ],
+  "mobile360_scrolled_bottom": [
+    {
+      "src": "star-first.webm?v=14",
+      "paused": false,
+      "currentTime": 3.001902,
+      "top": -52.46875,
+      "bottom": 122.15625,
+      "visibleInViewport": true
+    },
+    {
+      "src": "star-web.webm?v=14",
+      "paused": false,
+      "currentTime": 1.854189,
+      "top": 159.15625,
+      "bottom": 333.78125,
+      "visibleInViewport": true
+    },
+    {
+      "src": "star-last.webm?v=14",
+      "paused": false,
+      "currentTime": 1.85413,
+      "top": 370.78125,
+      "bottom": 545.40625,
+      "visibleInViewport": true
+    }
+  ],
+  "console_errors": []
+}

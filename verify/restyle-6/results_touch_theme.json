@@ -1,0 +1,18 @@
+{
+  "touch_row_rest_state": {
+    "tagOpacity": "1",
+    "tagDisplay": "block",
+    "glyphOpacity": "1"
+  },
+  "theme_click_dark": {
+    "attr": "dark",
+    "stored": "dark"
+  },
+  "theme_persist_after_reload": "dark",
+  "row_hover_dark": {
+    "bg": "rgb(36, 36, 40)",
+    "borderColor": "rgb(51, 51, 58)",
+    "boxShadow": "rgba(0, 0, 0, 0.45) 0px 1px 3px 0px"
+  },
+  "theme_click_light": "light"
+}

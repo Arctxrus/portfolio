@@ -9,6 +9,10 @@
             honeypot, native + trim validation, in-flight guard, aria).
    Round 4: project previews reverted to muted autoplay loop (the round-3
             scroll-scrub controller is retired by owner direction).
+   Round 6: project rows 01 to 03 open a DETAIL state (left column morphs to a
+            project header + conversion cluster; the panel shows a scrollable
+            stack of section cards). Back control, Escape and browser back exit
+            it; About / Pricing / form keep the normal index model.
    Vanilla JS only. UK English. No em dashes.
    ========================================================================== */
 
@@ -457,6 +461,17 @@ function initFadeIn() {
 
 const SWAP_HALF = 130;   /* ms: out phase; the in phase mirrors it (260 total) */
 
+/* Client feedback round 6: rows 01 to 03 are projects and open the DETAIL state
+   (left column morphs, panel shows a scrollable stack of section cards). Rows 04
+   About and 05 Pricing and 06 the CTA keep the normal index model. */
+const PROJECT_KEYS = ['blackthorn', 'barker', 'star'];
+
+/* Left-column morph timing (round 6). A two-phase crossfade: the leaving set
+   fades to 0 over MORPH_MS, then the entering set fades from 0 to 1 over MORPH_MS
+   (~200ms ease each, no bounce). Driven with inline styles so it never conflicts
+   with the load-in .fade-block transition; instant under reduced motion. */
+const MORPH_MS = 200;
+
 /* Panel-into-view scroll (CONCEPT.md section 8). After a selection on mobile the
    panel header must be on screen. The test is on the panel's top edge, measured
    in px and independent of viewport height. A visible-fraction test does not
@@ -479,6 +494,7 @@ const mobileLayoutQuery = window.matchMedia('(max-width: 900px)');
 function initPanel() {
   const panelBody = document.querySelector('.panel-body');
   const panel = document.querySelector('.panel');
+  const page = document.querySelector('.page');
   const headerLabel = document.querySelector('.panel-head-label');
   const liveRegion = document.querySelector('[data-panel-live]');
   const rows = Array.prototype.slice.call(document.querySelectorAll('.row'));
@@ -489,13 +505,23 @@ function initPanel() {
     return row.classList.contains('row--cta');
   })[0] || null;
 
+  /* Detail-state elements (round 6). */
+  const indexList = document.querySelector('.index-list');
+  const indexSection = document.querySelector('.index');
+  const howSection = document.querySelector('.how');
+  const proofEl = document.querySelector('.proof');
+  const detailEl = document.querySelector('.detail');
+  const detailCopySlot = document.querySelector('[data-detail-copy]');
+  const detailBack = document.querySelector('[data-detail-back]');
+  const conversionEl = document.querySelector('.conversion');
+  const conversionPrice = document.querySelector('.conversion-price');
+
   if (!panelBody || !rows.length) {
     return;
   }
 
-  /* Client feedback round 2 (item 1): the CTA now carries aria-pressed too, so
-     the six rows form one single-selection group with exactly one pressed at a
-     time. It starts unpressed like the index rows. */
+  /* The six rows form one single-selection group with aria-pressed; exactly one
+     is pressed at a time (or none, at the welcome and on exit). */
   indexRows.forEach(function (row) {
     row.setAttribute('aria-pressed', 'false');
   });
@@ -503,30 +529,81 @@ function initPanel() {
     ctaRow.setAttribute('aria-pressed', 'false');
   }
 
-  let currentView = null;   /* V1 welcome is showing; no view key yet. */
-  let swapTimer = 0;
+  /* The leaving / entering sets for the left-column morph. */
+  const leavingEls = [indexSection, howSection, proofEl];
+  const enteringEls = [detailEl, conversionEl];
 
-  /* Client feedback round 4 (owner-directed): the round-3 scroll-scrub playback
-     is RETIRED. Desktop and mobile both return to the muted autoplay loop specced
-     in CONCEPT section 5. The clips are now slow, seamlessly looping ambient
-     captures, so a plain muted loop reads as calm animation, not a screen
-     recording. The markup carries autoplay/muted/loop/playsinline/preload="none";
-     on selection the element enters the DOM and the autoplay algorithm starts the
-     load. The play() nudge is belt and braces so a freshly cloned element starts
-     reliably (it is muted, so autoplay is permitted). Scrolling the view reveals
-     the blurb, caption and visit button but never touches the video. Under reduced
-     motion this is unchanged from stage 6, where a muted autoplay video was
-     accepted. */
-  function configureProjectVideo(view) {
-    const video = view.querySelector('.preview-video');
-    if (!video) {
+  let currentView = null;      /* V1 welcome is showing; no view key yet. */
+  let swapTimer = 0;
+  let morphTimer = 0;
+  let inDetail = false;        /* the detail state is open */
+  let detailKey = null;        /* which project is open */
+  let detailOriginRow = null;  /* the row that opened it (focus returns here) */
+  let detailPushed = false;    /* a history entry was pushed for this detail */
+  let sectionObserver = null;  /* gates section-video playback by visibility */
+
+  /* ---- panel content ---------------------------------------------------- */
+
+  /* Section-card videos (round 6, verifier round-6 FAIL 1). The markup keeps
+     autoplay for mobile robustness, but starting every clip at once (three at a
+     time for the star) overran the decoder and dropped 15 to 29% of frames. So
+     an IntersectionObserver gates playback on ALL breakpoints: only a card
+     substantially in view (>= 50%) plays; the rest are paused. On setup every
+     clip is paused first (cancelling the autoplay start), so at most the one or
+     two visible clips ever decode together. root is the viewport (null): the
+     panel's overflow:hidden and the stack's overflow-y:auto clip off-screen
+     cards, so their intersection ratio is ~0 and they stay paused; this works on
+     desktop (internal panel scroll) and mobile (page scroll) alike. The observer
+     is torn down on every view swap (before the old nodes are removed) so it
+     never leaks or fights the About / Pricing / form / welcome views, and it does
+     not touch reduced motion (a muted preview loop was accepted there; the
+     observer only manages play/pause by visibility, binds no transition and
+     spawns no node). */
+  const SECTION_PLAY_RATIO = 0.5;
+
+  function teardownSectionObserver() {
+    if (sectionObserver) {
+      sectionObserver.disconnect();
+      sectionObserver = null;
+    }
+  }
+
+  function setupSectionVideos() {
+    teardownSectionObserver();
+    const vids = Array.prototype.slice.call(
+      panelBody.querySelectorAll('.section-video'));
+    if (!vids.length) {
       return;
     }
-    video.muted = true;
-    const play = video.play();
-    if (play && play.catch) {
-      play.catch(function () {});
+    /* Pause every clip so the autoplay algorithm does not start all of them at
+       once; the observer then plays only the visible one(s). */
+    vids.forEach(function (v) {
+      v.muted = true;
+      try { v.pause(); } catch (e) { /* ignore */ }
+    });
+
+    if (!('IntersectionObserver' in window)) {
+      /* No observer support: fall back to the autoplay attribute (play them). */
+      vids.forEach(function (v) {
+        const p = v.play();
+        if (p && p.catch) { p.catch(function () {}); }
+      });
+      return;
     }
+
+    sectionObserver = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        const v = entry.target;
+        if (entry.isIntersecting) {
+          const p = v.play();
+          if (p && p.catch) { p.catch(function () {}); }
+        } else {
+          try { v.pause(); } catch (e) { /* ignore */ }
+        }
+      });
+    }, { threshold: SECTION_PLAY_RATIO });
+
+    vids.forEach(function (v) { sectionObserver.observe(v); });
   }
 
   function renderView(viewKey) {
@@ -534,21 +611,32 @@ function initPanel() {
     if (!tpl) {
       return;
     }
-    panelBody.replaceChildren(tpl.content.cloneNode(true));
+    /* Disconnect the previous section observer before the old nodes leave the
+       DOM (covers project -> project, project -> welcome and every other swap). */
+    teardownSectionObserver();
+    const frag = tpl.content.cloneNode(true);
 
-    /* Inject the Formspree endpoint into the freshly cloned form (single
-       source of truth; also the plain POST target if fetch is unavailable). */
+    if (PROJECT_KEYS.indexOf(viewKey) !== -1) {
+      /* A project template carries a .detail-copy (for the left header) and a
+         .section-stack (for the panel). Only the stack goes in the panel here;
+         the copy is placed by fillDetailCopy when the detail state opens. */
+      const stack = frag.querySelector('.section-stack');
+      if (stack) {
+        panelBody.replaceChildren(stack);
+        setupSectionVideos();
+      }
+      return;
+    }
+
+    /* welcome / about / pricing / form: the whole view goes in the panel. */
+    panelBody.replaceChildren(frag);
     if (viewKey === 'form') {
+      /* Inject the Formspree endpoint into the freshly cloned form (single
+         source of truth; also the plain POST target if fetch is unavailable). */
       const form = panelBody.querySelector('[data-contact-form]');
       if (form) {
         form.action = FORMSPREE_ENDPOINT;
       }
-    }
-
-    /* Project views (V2) carry the muted autoplay loop video (round 4). */
-    const projView = panelBody.querySelector('.view--project');
-    if (projView) {
-      configureProjectVideo(projView);
     }
   }
 
@@ -564,12 +652,13 @@ function initPanel() {
       headerLabel.textContent = headerText;
     }
     announce(headerText);
-    /* Scroll after the content is in the DOM so the geometry is measured
-       post-swap. commit() runs synchronously on the reduced-motion path and at
-       the swap midpoint on the animated path, so calling from here covers both;
-       calling from select() measured the stale pre-swap box (the animated swap
-       only schedules the content change 130ms later). */
-    scrollPanelIntoView();
+    /* Only the normal index-model views scroll the panel into view on mobile
+       (round 6): the detail state morphs in place and its header sits in the left
+       column, so a project selection must not scroll the panel over that header.
+       The welcome restore stays at the top so the restored index is visible. */
+    if (viewKey === 'about' || viewKey === 'pricing' || viewKey === 'form') {
+      scrollPanelIntoView();
+    }
   }
 
   function swap(viewKey, headerText) {
@@ -591,10 +680,7 @@ function initPanel() {
 
   /* Bring the panel into view on selection. Mobile only: on desktop (>900px) the
      panel sits beside the index and must never scroll, so the whole function is
-     guarded on the mobile-layout media query rather than relying on geometry.
-     The top edge is tested against a fixed px band (see PANEL_TOP_MIN /
-     PANEL_TOP_BAND); if the header is already near the viewport top no re-scroll
-     happens. Reduced motion: an instant jump (no smooth behaviour). */
+     guarded on the mobile-layout media query rather than relying on geometry. */
   function scrollPanelIntoView() {
     if (!panel || !mobileLayoutQuery.matches) {
       return;
@@ -610,44 +696,251 @@ function initPanel() {
     });
   }
 
-  function select(row) {
-    const viewKey = row.dataset.view;
-    if (!viewKey || viewKey === currentView) {
-      return;   /* judgement call: do not replay the swap for the active view */
+  /* ---- left-column morph (round 6) -------------------------------------- */
+
+  function showEl(el) { if (el) { el.removeAttribute('hidden'); } }
+  function hideEl(el) { if (el) { el.setAttribute('hidden', ''); } }
+  function clearFx(el) { if (el) { el.style.transition = ''; el.style.opacity = ''; } }
+
+  /* Two-phase crossfade: fade outEls to 0, then (at the midpoint) run onMid, hide
+     outEls and reveal inEls at 0, then fade them to 1. Inline styles only, so the
+     load-in .fade-block transition is never touched. Instant under reduced motion
+     (the CONCEPT 3.3 guard: no bound animation, content swaps immediately). */
+  function crossfade(outEls, inEls, onMid) {
+    if (prefersReducedMotion()) {
+      outEls.forEach(function (el) { hideEl(el); clearFx(el); });
+      if (onMid) { onMid(); }
+      inEls.forEach(function (el) { showEl(el); clearFx(el); });
+      return;
+    }
+    outEls.forEach(function (el) {
+      if (!el) { return; }
+      el.style.transition = 'opacity ' + MORPH_MS + 'ms ease';
+      el.style.opacity = '0';
+    });
+    window.clearTimeout(morphTimer);
+    morphTimer = window.setTimeout(function () {
+      outEls.forEach(function (el) { hideEl(el); clearFx(el); });
+      if (onMid) { onMid(); }
+      inEls.forEach(function (el) {
+        if (!el) { return; }
+        el.style.transition = 'none';
+        el.style.opacity = '0';
+        showEl(el);
+      });
+      if (inEls[0]) { void inEls[0].offsetWidth; }   /* flush the 0 state */
+      inEls.forEach(function (el) {
+        if (!el) { return; }
+        el.style.transition = 'opacity ' + MORPH_MS + 'ms ease';
+        el.style.opacity = '1';
+      });
+      window.setTimeout(function () { inEls.forEach(clearFx); }, MORPH_MS);
+    }, MORPH_MS);
+  }
+
+  /* The Get in touch CTA is ONE element. In the normal model it is row 06 in the
+     index list; in the detail state it is relocated into the conversion cluster
+     (its click, drift, rim, mist and bloom listeners travel with the node). */
+  function moveCtaToConversion() {
+    if (ctaRow && conversionEl && ctaRow.parentElement !== conversionEl) {
+      conversionEl.appendChild(ctaRow);
+    }
+  }
+  function moveCtaToIndex() {
+    if (ctaRow && indexList && ctaRow.parentElement !== indexList) {
+      indexList.appendChild(ctaRow);   /* back as the last index row */
+    }
+  }
+
+  function fillDetailCopy(key) {
+    const tpl = document.getElementById('view-' + key);
+    if (!tpl || !detailCopySlot) { return; }
+    const frag = tpl.content.cloneNode(true);
+    const copy = frag.querySelector('.detail-copy');
+    if (copy) {
+      detailCopySlot.replaceChildren(copy);
+    }
+  }
+
+  function focusAfterMorph(el) {
+    if (!el) { return; }
+    if (prefersReducedMotion()) {
+      el.focus();
+    } else {
+      /* Focus once the element is shown again (the crossfade reveals it at the
+         midpoint, MORPH_MS in). */
+      window.setTimeout(function () { el.focus(); }, MORPH_MS);
+    }
+  }
+
+  function pushDetailHistory() {
+    try {
+      history.pushState({ zaynDetail: 1 }, '');
+      detailPushed = true;
+    } catch (e) {
+      detailPushed = false;
+    }
+  }
+  function consumeDetailHistory() {
+    if (detailPushed) {
+      try { history.replaceState(null, ''); } catch (e) { /* ignore */ }
+      detailPushed = false;
+    }
+  }
+
+  /* ---- selection routing ------------------------------------------------ */
+
+  function nameOf(row) {
+    const nameEl = row.querySelector('.row-name');
+    return nameEl ? nameEl.textContent : '';
+  }
+
+  function clearAllSelection() {
+    indexRows.forEach(function (r) {
+      r.classList.remove('is-active');
+      r.setAttribute('aria-pressed', 'false');
+    });
+    if (ctaRow) {
+      ctaRow.classList.remove('is-open');
+      ctaRow.setAttribute('aria-pressed', 'false');
+    }
+  }
+
+  /* Project rows 01 to 03: open (or switch within) the detail state. */
+  function selectProject(row, key) {
+    if (inDetail && key === detailKey) {
+      return;   /* re-selecting the open project is a no-op */
+    }
+    const entering = !inDetail;
+
+    /* aria: this project pressed, everything else cleared. No raised card is
+       shown (the index is hidden in the detail state). */
+    indexRows.forEach(function (r) {
+      r.classList.remove('is-active');
+      r.setAttribute('aria-pressed', r === row ? 'true' : 'false');
+    });
+    if (ctaRow) {
+      ctaRow.classList.remove('is-open');
+      ctaRow.setAttribute('aria-pressed', 'false');
     }
 
-    /* Active state (R3). CTA is never active; selecting it clears every row. */
+    detailOriginRow = row;
+    detailKey = key;
+    fillDetailCopy(key);
+
+    if (entering) {
+      page.classList.add('is-detail');
+      inDetail = true;
+      pushDetailHistory();
+      crossfade(leavingEls, enteringEls, moveCtaToConversion);
+      focusAfterMorph(detailBack);
+    }
+
+    swap(key, 'Preview / ' + nameOf(row));
+    currentView = key;
+  }
+
+  /* Rows 04 About, 05 Pricing, 06 CTA: the normal index model. If the detail
+     state is open, exit it first (restore the index), then show the view. */
+  function selectNormal(row, key) {
+    const cameFromDetail = inDetail;
+    if (!cameFromDetail && key === currentView) {
+      return;   /* no-op re-select of the shown view */
+    }
+    if (cameFromDetail) {
+      page.classList.remove('is-detail');
+      inDetail = false;
+      detailKey = null;
+      consumeDetailHistory();
+      crossfade(enteringEls, leavingEls, moveCtaToIndex);
+      focusAfterMorph(row);
+    }
+
     indexRows.forEach(function (r) {
       const active = (r === row);
       r.classList.toggle('is-active', active);
       r.setAttribute('aria-pressed', active ? 'true' : 'false');
     });
-
-    /* CTA grow-and-push (item 1). The CTA is not an index row, so the loop above
-       already clears every index row when the CTA is chosen. The CTA carries a
-       parallel `is-open` class (grow only, NO colour/selection styling; see the
-       .row--cta.is-open CSS rule) plus aria-pressed, kept in sync so exactly one
-       of the six rows is pressed at a time. Selecting any index row sets
-       is-open false and aria-pressed false, so the CTA clears the moment another
-       view opens (per the brief). */
     if (ctaRow) {
-      const ctaSelected = (row === ctaRow);
+      const ctaSelected = (key === 'form');
       ctaRow.classList.toggle('is-open', ctaSelected);
       ctaRow.setAttribute('aria-pressed', ctaSelected ? 'true' : 'false');
     }
 
-    const nameEl = row.querySelector('.row-name');
-    const name = nameEl ? nameEl.textContent : '';
-    const headerText = 'Preview / ' + name;
+    swap(key, 'Preview / ' + nameOf(row));
+    currentView = key;
+  }
 
-    swap(viewKey, headerText);
-    currentView = viewKey;
+  function select(row) {
+    const key = row.dataset.view;
+    if (!key) { return; }
+    if (PROJECT_KEYS.indexOf(key) !== -1) {
+      selectProject(row, key);
+    } else {
+      selectNormal(row, key);
+    }
+  }
+
+  function selectByKey(key) {
+    const row = rows.filter(function (r) { return r.dataset.view === key; })[0];
+    if (row) { select(row); }
+  }
+
+  /* Exit the detail state back to the welcome (back control, Escape, browser
+     back). Restores the full index, clears selection, returns focus to the row
+     that opened the detail. */
+  function exitToWelcome() {
+    if (!inDetail) { return; }
+    const origin = detailOriginRow;
+    page.classList.remove('is-detail');
+    inDetail = false;
+    detailKey = null;
+    detailPushed = false;
+    clearAllSelection();
+    crossfade(enteringEls, leavingEls, moveCtaToIndex);
+    swap('welcome', 'Preview / No selection');
+    currentView = null;
+    focusAfterMorph(origin);
+  }
+
+  /* The back control and Escape route through the history entry when one was
+     pushed, so browser back, the button and the key all land in the same place. */
+  function closeDetail() {
+    if (!inDetail) { return; }
+    if (detailPushed) {
+      history.back();   /* triggers popstate -> exitToWelcome */
+    } else {
+      exitToWelcome();
+    }
   }
 
   rows.forEach(function (row) {
     row.addEventListener('click', function () {
       select(row);
     });
+  });
+
+  if (conversionPrice) {
+    conversionPrice.addEventListener('click', function () {
+      selectByKey('pricing');
+    });
+  }
+
+  if (detailBack) {
+    detailBack.addEventListener('click', closeDetail);
+  }
+
+  document.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape' && inDetail) {
+      closeDetail();
+    }
+  });
+
+  window.addEventListener('popstate', function () {
+    if (inDetail) {
+      detailPushed = false;   /* the entry has already been popped */
+      exitToWelcome();
+    }
   });
 }
 

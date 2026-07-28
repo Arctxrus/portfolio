@@ -1,0 +1,25 @@
+{
+  "landed_on_stack_at_tab_press_number": 8,
+  "confirmed_stack_focused": true,
+  "stack_focus_visible_box_shadow": "rgb(26, 111, 212) 0px 0px 0px 1px inset",
+  "keyboard_scroll": {
+    "before": 0,
+    "after_arrow1": 40,
+    "after_arrow2": 80,
+    "after_pagedown": 706
+  },
+  "keyboard_scroll_to_bottom": {
+    "steps": 3,
+    "max_scroll": {
+      "scrollTop": 1011,
+      "scrollHeight": 1727,
+      "clientHeight": 716
+    },
+    "last_caption": {
+      "text": "The booking form",
+      "top": 808.375,
+      "stackBottom": 843,
+      "visible": true
+    }
+  }
+}
