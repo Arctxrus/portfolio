@@ -1,0 +1,142 @@
+{
+  "enter_star_t0": {
+    "max_delta": 76.5,
+    "over_33": [
+      [
+        14,
+        133.4,
+        34.8
+      ],
+      [
+        46,
+        452.8,
+        76.5
+      ],
+      [
+        53,
+        591.7,
+        48.7
+      ]
+    ],
+    "count": 82
+  },
+  "enter_star_t1": {
+    "max_delta": 55.6,
+    "over_33": [
+      [
+        41,
+        435.2,
+        55.6
+      ]
+    ],
+    "count": 86
+  },
+  "enter_star_t2": {
+    "max_delta": 48.7,
+    "over_33": [
+      [
+        44,
+        430.9,
+        48.7
+      ]
+    ],
+    "count": 89
+  },
+  "enter_star_t3": {
+    "max_delta": 55.5,
+    "over_33": [
+      [
+        48,
+        427.2,
+        55.5
+      ]
+    ],
+    "count": 92
+  },
+  "enter_star_t4": {
+    "max_delta": 27.8,
+    "over_33": [],
+    "count": 92
+  },
+  "enter_star_median_max_delta": 55.5,
+  "enter_star_all_max_deltas": [
+    76.5,
+    55.6,
+    48.7,
+    55.5,
+    27.8
+  ],
+  "switch_blackthorn_to_star_t0": {
+    "max_delta": 62.6,
+    "over_33": [
+      [
+        32,
+        350.3,
+        41.7
+      ],
+      [
+        33,
+        392.0,
+        34.6
+      ],
+      [
+        34,
+        426.6,
+        62.6
+      ]
+    ],
+    "count": 71
+  },
+  "switch_blackthorn_to_star_t1": {
+    "max_delta": 55.7,
+    "over_33": [
+      [
+        37,
+        407.5,
+        55.7
+      ]
+    ],
+    "count": 78
+  },
+  "switch_blackthorn_to_star_t2": {
+    "max_delta": 62.5,
+    "over_33": [
+      [
+        43,
+        408.1,
+        62.5
+      ]
+    ],
+    "count": 81
+  },
+  "switch_blackthorn_to_star_t3": {
+    "max_delta": 62.5,
+    "over_33": [
+      [
+        40,
+        406.2,
+        62.5
+      ]
+    ],
+    "count": 79
+  },
+  "switch_blackthorn_to_star_t4": {
+    "max_delta": 55.5,
+    "over_33": [
+      [
+        42,
+        400.4,
+        55.5
+      ]
+    ],
+    "count": 85
+  },
+  "switch_median_max_delta": 62.5,
+  "switch_all_max_deltas": [
+    62.6,
+    55.7,
+    62.5,
+    62.5,
+    55.5
+  ]
+}

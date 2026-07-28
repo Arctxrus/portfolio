@@ -1,0 +1,79 @@
+{
+  "correlated_run": {
+    "card_mount_times_ms": [
+      415.80000000074506,
+      486.8999999985099,
+      541.6999999992549
+    ],
+    "video_events_ms": [
+      {
+        "e": "loadeddata",
+        "t": 488
+      },
+      {
+        "e": "playing",
+        "t": 488
+      },
+      {
+        "e": "loadeddata",
+        "t": 542.5
+      },
+      {
+        "e": "playing",
+        "t": 542.5
+      },
+      {
+        "e": "loadeddata",
+        "t": 591.8999999985099
+      }
+    ],
+    "frame_overruns_cum_ms_and_delta": [
+      [
+        149.1,
+        41.7
+      ],
+      [
+        433.9,
+        55.6
+      ],
+      [
+        510.2,
+        48.7
+      ],
+      [
+        558.9,
+        55.5
+      ],
+      [
+        614.4,
+        34.8
+      ]
+    ]
+  },
+  "gating_state_after_settle": [
+    {
+      "paused": false,
+      "inView": true
+    },
+    {
+      "paused": false,
+      "inView": true
+    },
+    {
+      "paused": true,
+      "inView": true
+    }
+  ],
+  "rapidfire_escape": {
+    "detail_hidden": true,
+    "flip_clones": 0,
+    "leftover_cards": 0,
+    "index_visible": true
+  },
+  "rapidfire_chipswitch": {
+    "final_title": "Blackthorn & Co.",
+    "flip_clones": 0,
+    "cards_in_dom": 5
+  },
+  "console_errors_checks": []
+}

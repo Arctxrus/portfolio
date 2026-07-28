@@ -1,0 +1,56 @@
+{
+  "mid_travel_150ms": {
+    "cards_count": 3,
+    "shell_present": true,
+    "shell_attrs": {
+      "role": "region",
+      "tabindex": "0",
+      "ariaLabel": "Until the Last Star previews"
+    }
+  },
+  "cards_at_400ms": 3,
+  "cards_mounted_at_ms": 430.19999999925494,
+  "first_video_playing_at_ms": 582.8000000007451,
+  "gating_state_after_settle": [
+    {
+      "paused": false,
+      "inView": true
+    },
+    {
+      "paused": false,
+      "inView": true
+    },
+    {
+      "paused": true,
+      "inView": true
+    }
+  ],
+  "rapidfire_star_then_escape": {
+    "detail_hidden": true,
+    "flip_clones": 0,
+    "flip_layers": 1,
+    "leftover_cards_in_dom": 0,
+    "index_visible": true
+  },
+  "rapidfire_star_then_chipswitch": {
+    "final_title": "Blackthorn & Co.",
+    "flip_clones": 0,
+    "cards_in_dom": 5,
+    "detail_hidden": false
+  },
+  "rapidfire_star_then_chipswitch_cards_after_extra_wait": 5,
+  "keyboard_tab_during_travel": {
+    "tag": "BUTTON",
+    "cls": "detail-back"
+  },
+  "stack_tabindex_after_settle": "0",
+  "mobile_390_scroll_during_travel": {
+    "scrollWidth": 390,
+    "clientWidth": 390
+  },
+  "mobile_390_scroll_after_settle": {
+    "scrollWidth": 375,
+    "clientWidth": 375
+  },
+  "console_errors": []
+}

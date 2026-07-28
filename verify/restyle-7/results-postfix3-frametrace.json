@@ -1,0 +1,168 @@
+{
+  "enter_star_t0": {
+    "max_delta": 55.7,
+    "over_33": [
+      [
+        15,
+        156.2,
+        34.7
+      ],
+      [
+        40,
+        433.9,
+        55.7
+      ],
+      [
+        42,
+        503.4,
+        48.7
+      ],
+      [
+        43,
+        552.1,
+        55.5
+      ],
+      [
+        44,
+        607.6,
+        34.7
+      ]
+    ],
+    "count": 73
+  },
+  "enter_star_t1": {
+    "max_delta": 34.7,
+    "over_33": [
+      [
+        42,
+        483.6,
+        34.7
+      ]
+    ],
+    "count": 79
+  },
+  "enter_star_t2": {
+    "max_delta": 41.6,
+    "over_33": [
+      [
+        48,
+        530.4,
+        41.6
+      ]
+    ],
+    "count": 80
+  },
+  "enter_star_t3": {
+    "max_delta": 27.9,
+    "over_33": [],
+    "count": 79
+  },
+  "enter_star_t4": {
+    "max_delta": 34.7,
+    "over_33": [
+      [
+        43,
+        464.2,
+        34.7
+      ]
+    ],
+    "count": 81
+  },
+  "enter_star_median_max_delta": 34.7,
+  "enter_star_all_max_deltas": [
+    55.7,
+    34.7,
+    41.6,
+    27.9,
+    34.7
+  ],
+  "switch_blackthorn_to_star_t0": {
+    "max_delta": 34.7,
+    "over_33": [
+      [
+        34,
+        402.6,
+        34.7
+      ],
+      [
+        39,
+        527.6,
+        34.7
+      ]
+    ],
+    "count": 70
+  },
+  "switch_blackthorn_to_star_t1": {
+    "max_delta": 41.7,
+    "over_33": [
+      [
+        40,
+        461.6,
+        41.7
+      ],
+      [
+        42,
+        517.2,
+        34.7
+      ]
+    ],
+    "count": 74
+  },
+  "switch_blackthorn_to_star_t2": {
+    "max_delta": 34.8,
+    "over_33": [
+      [
+        40,
+        507.1,
+        34.8
+      ]
+    ],
+    "count": 70
+  },
+  "switch_blackthorn_to_star_t3": {
+    "max_delta": 48.6,
+    "over_33": [
+      [
+        36,
+        363.7,
+        48.6
+      ],
+      [
+        38,
+        426.1,
+        41.7
+      ],
+      [
+        42,
+        523.3,
+        34.8
+      ]
+    ],
+    "count": 72
+  },
+  "switch_blackthorn_to_star_t4": {
+    "max_delta": 34.7,
+    "over_33": [
+      [
+        46,
+        455.2,
+        34.6
+      ],
+      [
+        48,
+        496.8,
+        34.7
+      ]
+    ],
+    "count": 81
+  },
+  "switch_median_max_delta": 34.8,
+  "switch_all_max_deltas": [
+    34.7,
+    41.7,
+    34.8,
+    48.6,
+    34.7
+  ],
+  "console_errors_frametrace": []
+}

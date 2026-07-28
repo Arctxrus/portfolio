@@ -486,11 +486,12 @@ const GROUP_FADE_MS = 260;      /* outgoing / incoming group slide + fade */
 const GROUP_SHIFT = 8;          /* px slide of the fading group (6 to 10px band) */
 const CARD_STAGGER_MS = 60;     /* per-card step, same rhythm as the load-in blocks */
 const CARD_FADE_MS = 300;       /* per-card opacity + 6px translateY */
-/* Defer the section-video decode until just after the primary travel completes
-   (round 7 verifier FAIL: starting decode mid-travel dropped a 41 to 48ms frame on
-   the 3-video star). Measured from the start of the choreography; a small margin
-   past FLIP_MS keeps it clear of the clone reveal. */
-const SECTION_START_DELAY = FLIP_MS + 40;   /* 380ms from the choreography start */
+/* Keep the section stack MOUNT and the section-video DECODE out of the travel
+   window (round 7 verifier FAILs). The FLIP measurements are all left-column
+   (title, chips, rows), so the panel stack is not needed at commit time: commit
+   renders the header plus an EMPTY stack shell, the cards mount at travel end (so
+   the stagger IS their entrance), and the video decode starts a beat after that. */
+const SECTION_CARDS_DELAY = FLIP_MS;         /* begin the incremental mount at travel end */
 
 /* Panel-into-view scroll (CONCEPT.md section 8). After a selection on mobile the
    panel header must be on screen. The test is on the panel's top edge, measured
@@ -590,6 +591,9 @@ function initPanel() {
   let detailPushed = false;    /* a history entry was pushed for this detail */
   let sectionObserver = null;  /* gates section-video playback by visibility */
   let sectionStartTimer = 0;   /* deferred playback start (round 7 FAIL fix) */
+  let sectionMountTimer = 0;   /* deferred stack-card mount (round 7 FAIL fix) */
+  let sectionMountGen = 0;     /* generation token: cancels an in-flight card chain */
+  let flipLayer = null;        /* viewport-clipped overlay that holds FLIP clones */
 
   /* ---- panel content ---------------------------------------------------- */
 
@@ -615,21 +619,27 @@ function initPanel() {
       sectionObserver.disconnect();
       sectionObserver = null;
     }
-    /* Cancel any deferred playback start (round 7 verifier FAIL): if the user
-       exits or switches before the start fires, there is no zombie timer. */
+    /* Cancel any deferred stack-card mount and playback start (round 7 verifier
+       FAILs): if the user exits or switches before they fire, there is no zombie
+       mount or timer. Called at the top of every renderView and on exit / switch. */
+    window.clearTimeout(sectionMountTimer);
+    sectionMountTimer = 0;
     window.clearTimeout(sectionStartTimer);
     sectionStartTimer = 0;
+    /* Bump the mount generation so any in-flight incremental append chain (its
+       deferred steps are guarded on this token) cancels the rest of its cards. */
+    sectionMountGen++;
   }
 
-  /* Round 7 verifier FAIL fix. Starting the section-video decode synchronously at
-     mount collided with the FLIP clone travel and dropped a 41 to 48ms frame on
-     the 3-video star (image-only projects were clean). Playback is now split from
-     the mount: primeSectionVideos() runs synchronously at mount and only PAUSES
-     the clips (cancelling the autoplay-attribute decode, so nothing decodes during
-     the travel while the posters still render); startSectionVideos() attaches the
-     visibility observer and lets it play the in-view clip(s), and is scheduled to
-     run after the primary travel (SECTION_START_DELAY) or immediately (delay 0)
-     on the reduced-motion / non-animated paths. */
+  /* Round 7 verifier FAIL fixes. Two costs used to land inside the FLIP travel:
+     (1) the section-video DECODE and (2) the section stack MOUNT (decoding three
+     posters plus 1600px jpgs and laying out the stack). Both are now kept out of
+     the 0..FLIP_MS window. commit renders only an EMPTY stack shell; mountStackCards
+     appends the cards at travel end (so the stagger is their entrance);
+     primeSectionVideos pauses the freshly mounted clips (cancelling the autoplay
+     decode while the posters render); startSectionVideos attaches the visibility
+     observer and plays the in-view clip(s) a beat after the mount. On the
+     reduced-motion / non-animated paths everything mounts and starts immediately. */
 
   function primeSectionVideos() {
     const vids = panelBody.querySelectorAll('.section-video');
@@ -639,29 +649,8 @@ function initPanel() {
     });
   }
 
-  function startSectionVideos() {
-    teardownSectionObserver();
-    const vids = Array.prototype.slice.call(
-      panelBody.querySelectorAll('.section-video'));
-    if (!vids.length) {
-      return;
-    }
-    /* Keep them paused until the observer decides who is visible. */
-    vids.forEach(function (v) {
-      v.muted = true;
-      try { v.pause(); } catch (e) { /* ignore */ }
-    });
-
-    if (!('IntersectionObserver' in window)) {
-      /* No observer support: fall back to the autoplay attribute (play them). */
-      vids.forEach(function (v) {
-        const p = v.play();
-        if (p && p.catch) { p.catch(function () {}); }
-      });
-      return;
-    }
-
-    sectionObserver = new IntersectionObserver(function (entries) {
+  function makeSectionObserver() {
+    return new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         const v = entry.target;
         if (entry.isIntersecting) {
@@ -672,14 +661,45 @@ function initPanel() {
         }
       });
     }, { threshold: SECTION_PLAY_RATIO });
-
-    vids.forEach(function (v) { sectionObserver.observe(v); });
   }
 
-  /* Schedule the playback start: 0 (or falsy) starts it now; a positive delay
-     defers it past the travel. teardownSectionObserver (run at the top of every
-     renderView, and on exit) clears a pending start, so exiting or switching
-     within the window never leaves a zombie timer or a start on removed nodes. */
+  function ensureSectionObserver() {
+    if (!sectionObserver && ('IntersectionObserver' in window)) {
+      sectionObserver = makeSectionObserver();
+    }
+  }
+
+  /* Prime one card's clip (pause + mute, cancelling the autoplay decode) and hand
+     it to the visibility observer so it plays only while in view; the no-observer
+     fallback just plays it. Called per card AS it mounts, so the video-decode cost
+     spreads across the stagger beats instead of firing all at once. */
+  function wireCardVideo(card) {
+    const v = card.querySelector('.section-video');
+    if (!v) { return; }
+    v.muted = true;
+    try { v.pause(); } catch (e) { /* ignore */ }
+    if (sectionObserver) {
+      sectionObserver.observe(v);
+    } else {
+      const p = v.play();
+      if (p && p.catch) { p.catch(function () {}); }
+    }
+  }
+
+  /* Start videos for an already-mounted FULL stack (reduced motion / immediate).
+     One-shot, which is fine when nothing animates. */
+  function startSectionVideos() {
+    teardownSectionObserver();
+    const cards = Array.prototype.slice.call(
+      panelBody.querySelectorAll('.section-card'));
+    if (!cards.length) { return; }
+    ensureSectionObserver();
+    cards.forEach(wireCardVideo);
+  }
+
+  /* Schedule the playback start for the FULL-mount path (reduced motion / immediate
+     via commit): 0 starts it now; a positive delay defers it. teardownSectionObserver
+     clears a pending start, so a quick exit / switch leaves no zombie timer. */
   function scheduleSectionVideos(delay) {
     window.clearTimeout(sectionStartTimer);
     if (!delay) {
@@ -693,13 +713,94 @@ function initPanel() {
     }, delay);
   }
 
-  function renderView(viewKey) {
+  /* Append one card, fade it in (opacity + 6px translateY), and wire its video. A
+     single figure's layout fits in a frame and its img decodes async, so this is a
+     per-frame cost rather than a burst. */
+  function appendCard(stack, card) {
+    stack.appendChild(card);
+    wireCardVideo(card);
+    card.style.transition = 'none';
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(6px)';
+    card.style.willChange = 'opacity, transform';
+    void card.offsetWidth;
+    card.style.transition = 'opacity ' + CARD_FADE_MS + 'ms ease, transform ' +
+      CARD_FADE_MS + 'ms ease';
+    card.style.opacity = '1';
+    card.style.transform = 'translateY(0)';
+    window.setTimeout(function () {
+      card.style.transition = '';
+      card.style.opacity = '';
+      card.style.transform = '';
+      card.style.willChange = '';
+    }, CARD_FADE_MS + 40);
+  }
+
+  /* Incrementally mount the stack cards (round 7 verifier FAIL 3: the one-shot mount
+     burst dropped a frame at ~400 to 450ms). Append the first card now, then one
+     card per CARD_STAGGER_MS beat, each fading in as it lands, so the layout plus
+     poster / jpg decode is spread one figure per frame instead of a single heavy
+     burst: the stagger IS the mount. Cards append at the END of the stack (the
+     scroll container), so earlier cards never shift (only scrollHeight grows). Each
+     deferred step is guarded on a generation token (sectionMountGen), which
+     teardownSectionObserver bumps, so a rapid exit / switch cancels the rest of the
+     chain with no zombie appends. Reduced motion mounts every card at once. */
+  function mountStackCards(key) {
+    const stack = panelBody.querySelector('.section-stack');
+    const tpl = document.getElementById('view-' + key);
+    if (!stack || !tpl) { return; }
+    if (stack.querySelector('.section-card')) { return; }   /* guard double-mount */
+    const frag = tpl.content.cloneNode(true);
+    const cards = Array.prototype.slice.call(frag.querySelectorAll('.section-card'));
+    if (!cards.length) { return; }
+
+    ensureSectionObserver();
+
+    if (prefersReducedMotion()) {
+      cards.forEach(function (card) {
+        stack.appendChild(card);
+        wireCardVideo(card);
+      });
+      return;
+    }
+
+    const gen = ++sectionMountGen;
+    appendCard(stack, cards[0]);                   /* first card now */
+    for (let i = 1; i < cards.length; i++) {
+      (function (card, idx) {
+        window.setTimeout(function () {
+          if (gen !== sectionMountGen) { return; }   /* cancelled by exit / switch */
+          if (!stack.isConnected) { return; }        /* stack removed */
+          appendCard(stack, card);
+        }, idx * CARD_STAGGER_MS);
+      })(cards[i], i);
+    }
+  }
+
+  /* Schedule the card mount: 0 mounts now (reduced motion / immediate); a positive
+     delay defers it to travel end. Cleared by teardownSectionObserver on the next
+     renderView or on exit, so a quick exit / switch leaves no zombie mount. */
+  function scheduleStackCards(key, delay) {
+    window.clearTimeout(sectionMountTimer);
+    if (!delay) {
+      sectionMountTimer = 0;
+      mountStackCards(key);
+      return;
+    }
+    sectionMountTimer = window.setTimeout(function () {
+      sectionMountTimer = 0;
+      mountStackCards(key);
+    }, delay);
+  }
+
+  function renderView(viewKey, shellOnly) {
     const tpl = document.getElementById('view-' + viewKey);
     if (!tpl) {
       return;
     }
-    /* Disconnect the previous section observer before the old nodes leave the
-       DOM (covers project -> project, project -> welcome and every other swap). */
+    /* Disconnect the previous section observer and cancel any pending mount /
+       start before the old nodes leave the DOM (covers project -> project,
+       project -> welcome and every other swap). */
     teardownSectionObserver();
     const frag = tpl.content.cloneNode(true);
 
@@ -709,11 +810,20 @@ function initPanel() {
          the copy is placed by fillDetailCopy when the detail state opens. */
       const stack = frag.querySelector('.section-stack');
       if (stack) {
+        if (shellOnly) {
+          /* Keep the region SHELL (role / tabindex / aria-label, so the tab order
+             and the scroll region exist through the travel) but strip the cards, so
+             no poster / jpg decodes or lays out during the FLIP travel. The cards
+             are mounted at travel end by mountStackCards (round 7 verifier FAIL). */
+          Array.prototype.slice.call(stack.querySelectorAll('.section-card'))
+            .forEach(function (c) { c.remove(); });
+        }
         panelBody.replaceChildren(stack);
-        /* Mount only: pause the clips now (cancel autoplay); the observer and any
-           play() are deferred by commit via scheduleSectionVideos so the decode
-           does not collide with the FLIP travel (round 7 verifier FAIL). */
-        primeSectionVideos();
+        if (!shellOnly) {
+          /* Full mount (reduced motion / immediate): pause the clips now; the
+             observer / play() are started by commit via scheduleSectionVideos. */
+          primeSectionVideos();
+        }
       }
       return;
     }
@@ -736,17 +846,28 @@ function initPanel() {
     }
   }
 
-  function commit(viewKey, headerText, videoDelay) {
-    renderView(viewKey);   /* mounts + primes (paused); teardown clears old timer */
+  /* opts (round 7): { shellOnly, cardsDelay, videoDelay }.
+     - shellOnly true (animated project enter / switch): render the empty stack
+       shell and schedule the card mount cardsDelay from now (travel end). The card
+       mount then primes + staggers + starts the videos.
+     - shellOnly false (reduced motion / immediate, and the non-project views):
+       render the full view now; for a project, start the videos after videoDelay
+       (0 = immediate). The non-project views have no section videos. */
+  function commit(viewKey, headerText, opts) {
+    opts = opts || {};
+    renderView(viewKey, opts.shellOnly);
     if (headerLabel) {
       headerLabel.textContent = headerText;
     }
     announce(headerText);
-    /* Start the section videos: 0 (default) is immediate (reduced motion and the
-       non-animated views, where there are no section videos anyway); a positive
-       delay defers the decode past the FLIP travel (animated project enter/switch).
-       Scheduled after renderView so its teardown does not clear this timer. */
-    scheduleSectionVideos(videoDelay || 0);
+    /* Scheduled AFTER renderView so its teardown does not clear the timer we set. */
+    if (PROJECT_KEYS.indexOf(viewKey) !== -1) {
+      if (opts.shellOnly) {
+        scheduleStackCards(viewKey, opts.cardsDelay || 0);
+      } else {
+        scheduleSectionVideos(opts.videoDelay || 0);
+      }
+    }
     /* Only the normal index-model views scroll the panel into view on mobile
        (round 6): the detail state morphs in place and its header sits in the left
        column, so a project selection must not scroll the panel over that header.
@@ -756,19 +877,20 @@ function initPanel() {
     }
   }
 
-  /* videoDelay (round 7 FAIL fix) is passed through to commit so a project switch
-     defers its section-video decode past the FLIP travel. commit runs at the swap
-     midpoint (SWAP_HALF in), so the caller passes the delay measured FROM the
-     midpoint; 0 for the reduced-motion and non-video paths. */
-  function swap(viewKey, headerText, videoDelay) {
+  /* opts (round 7 FAIL fix) is passed through to commit so a project switch renders
+     an empty shell at the swap midpoint and mounts its cards / starts its videos at
+     travel end. commit runs at the midpoint (SWAP_HALF in), so a caller passing a
+     cardsDelay measures it FROM the midpoint. Under reduced motion the content still
+     swaps instantly and in full (no shell, no deferral). */
+  function swap(viewKey, headerText, opts) {
     if (prefersReducedMotion()) {
-      commit(viewKey, headerText, 0);   /* instant, content still swaps */
+      commit(viewKey, headerText, { shellOnly: false, videoDelay: 0 });
       return;
     }
     window.clearTimeout(swapTimer);
     panelBody.classList.add('is-swapping');   /* out: opacity 0, translateY 6px */
     swapTimer = window.setTimeout(function () {
-      commit(viewKey, headerText, videoDelay || 0);   /* switch at the midpoint */
+      commit(viewKey, headerText, opts);      /* switch at the midpoint */
       /* Flush the opacity 0 state with the new content, then drop the class so
          the body eases back in (130ms). A layout read is used rather than rAF
          so the fade-in is not left stuck when the tab is backgrounded. */
@@ -966,12 +1088,28 @@ function initPanel() {
     window.setTimeout(function () { els.forEach(clearFx); }, GROUP_FADE_MS + 40);
   }
 
+  /* The FLIP clones live inside one fixed, viewport-sized, overflow-clipped layer
+     (created lazily). Because a clone is absolutely positioned inside it, a clone
+     edge that briefly crosses the viewport during the travel is clipped rather than
+     adding a horizontal scrollbar on mobile. The layer is pointer-inert and stays
+     in the DOM once created (an empty fixed div is harmless). */
+  function ensureFlipLayer() {
+    if (!flipLayer || !flipLayer.isConnected) {
+      flipLayer = document.createElement('div');
+      flipLayer.className = 'flip-layer';
+      flipLayer.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(flipLayer);
+    }
+    return flipLayer;
+  }
+
   /* Fly a text clone from a First rect to a Last rect, scaling by width so it
-     resolves to the destination type. The clone is a fixed overlay (no layout
-     effect) borrowing the destination class for its type; it is removed on finish
-     (and the real destination is revealed by onDone). fadeOutEnd dissolves the
-     clone into an already-visible destination (used on exit, where the rows are
-     shown). Never called under reduced motion. */
+     resolves to the destination type. The clone is an overlay (no layout effect)
+     borrowing the destination class for its type; it is removed on finish (and the
+     real destination is revealed by onDone). fadeOutEnd dissolves the clone into an
+     already-visible destination (used on exit, where the rows are shown). The
+     clone's left/top are viewport coordinates, which map directly into the
+     viewport-anchored flip layer. Never called under reduced motion. */
   function flyText(text, cls, first, last, opts) {
     opts = opts || {};
     if (!first || !last) { if (opts.onDone) { opts.onDone(); } return null; }
@@ -986,7 +1124,7 @@ function initPanel() {
       clone.style.whiteSpace = 'normal';
     }
     clone.style.willChange = 'transform, opacity';
-    document.body.appendChild(clone);
+    ensureFlipLayer().appendChild(clone);   /* clipped to the viewport, no h-scroll */
 
     const dx = first.left - last.left;
     const dy = first.top - last.top;
@@ -1028,39 +1166,6 @@ function initPanel() {
       { transform: 'translate(' + dx + 'px,' + dy + 'px)' },
       { transform: 'translate(0px,0px)' }
     ], { duration: FLIP_MS, easing: FLIP_EASE });
-  }
-
-  /* Stagger the section cards in: opacity + 6px translateY, 60ms steps, the same
-     rhythm as the load-in blocks. Skipped under reduced motion (cards just show).
-     will-change is set for the move and cleared afterwards. */
-  function staggerCards() {
-    if (prefersReducedMotion()) { return; }
-    const cards = Array.prototype.slice.call(
-      panelBody.querySelectorAll('.section-card'));
-    if (!cards.length) { return; }
-    cards.forEach(function (c) {
-      c.style.transition = 'none';
-      c.style.opacity = '0';
-      c.style.transform = 'translateY(6px)';
-      c.style.willChange = 'opacity, transform';
-    });
-    void panelBody.offsetWidth;
-    cards.forEach(function (c, i) {
-      const delay = i * CARD_STAGGER_MS;
-      c.style.transition = 'opacity ' + CARD_FADE_MS + 'ms ease ' + delay +
-        'ms, transform ' + CARD_FADE_MS + 'ms ease ' + delay + 'ms';
-      c.style.opacity = '1';
-      c.style.transform = 'translateY(0)';
-    });
-    const total = (cards.length - 1) * CARD_STAGGER_MS + CARD_FADE_MS + 60;
-    window.setTimeout(function () {
-      cards.forEach(function (c) {
-        c.style.transition = '';
-        c.style.opacity = '';
-        c.style.transform = '';
-        c.style.willChange = '';
-      });
-    }, total);
   }
 
   function focusAfterFlip(el) {
@@ -1120,8 +1225,12 @@ function initPanel() {
     inDetail = true;
     pushDetailHistory();
     setPressed(key);
-    /* panel stack, no fade; defer the section-video decode past the FLIP travel */
-    commit(key, 'Preview / ' + PROJECT_NAMES[key], SECTION_START_DELAY);
+    /* Panel: render the header + an EMPTY stack shell now (calm surface during the
+       travel); the cards mount at travel end (SECTION_CARDS_DELAY) so the stagger
+       is their entrance and neither the mount nor the video decode lands in the
+       travel window (round 7 verifier FAILs). */
+    commit(key, 'Preview / ' + PROJECT_NAMES[key],
+      { shellOnly: true, cardsDelay: SECTION_CARDS_DELAY });
     currentView = key;
 
     /* Last rects, measured with the entering set at its resting transform. */
@@ -1150,7 +1259,9 @@ function initPanel() {
       });
     });
 
-    staggerCards();
+    /* The section cards are mounted incrementally at travel end by mountStackCards
+       (scheduled via commit): one card per stagger beat, so the mount IS the
+       entrance and its cost never lands here in the travel window. */
     focusAfterFlip(detailBack);
   }
 
@@ -1163,6 +1274,10 @@ function initPanel() {
     const thirdKey = PROJECT_KEYS.filter(function (k) {
       return k !== oldKey && k !== newKey;
     })[0];
+
+    /* Cancel the outgoing project's observer and any pending mount / start now, so
+       a late timer cannot fire against the fading-out stack (no zombie mount). */
+    teardownSectionObserver();
 
     if (prefersReducedMotion()) {
       detailKey = newKey;
@@ -1189,9 +1304,11 @@ function initPanel() {
     fillDetailCopy(newKey);
     renderChips(newKey);          /* chips now show oldKey + thirdKey */
     setPressed(newKey);
-    /* panel crossfade; defer the video decode to FLIP_MS+40 from this click. swap
-       commits at SWAP_HALF, so pass the delay measured from that midpoint. */
-    swap(newKey, 'Preview / ' + PROJECT_NAMES[newKey], SECTION_START_DELAY - SWAP_HALF);
+    /* Panel: crossfade to an EMPTY shell, then mount + stagger the cards at travel
+       end. swap commits at SWAP_HALF, so pass the cardsDelay measured from that
+       midpoint (absolute SECTION_CARDS_DELAY from this click). */
+    swap(newKey, 'Preview / ' + PROJECT_NAMES[newKey],
+      { shellOnly: true, cardsDelay: SECTION_CARDS_DELAY - SWAP_HALF });
     currentView = newKey;
 
     /* Crossfade the supporting copy (sub, blurb, See it live); the title inside
@@ -1240,6 +1357,10 @@ function initPanel() {
     const origin = detailOriginRow;
     const key = detailKey;
     const others = PROJECT_KEYS.filter(function (k) { return k !== key; });
+
+    /* Cancel any pending stack mount / video start immediately (no zombie mount if
+       the user exits within the travel window). */
+    teardownSectionObserver();
 
     if (prefersReducedMotion()) {
       moveCtaToIndex();
@@ -1301,6 +1422,8 @@ function initPanel() {
      or the form via the relocated CTA). A quiet group crossfade (no title/chip
      FLIP, since we are moving to a different view, not back to the index). */
   function exitDetailToView() {
+    /* Cancel any pending stack mount / video start (no zombie mount). */
+    teardownSectionObserver();
     moveCtaToIndex();
     if (prefersReducedMotion()) {
       page.classList.remove('is-detail');

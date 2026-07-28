@@ -33,7 +33,7 @@
   font-weight: 400 600;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/archivo-latin-var.woff2?v=15') format('woff2');
+  src: url('../fonts/archivo-latin-var.woff2?v=16') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -43,7 +43,7 @@
   font-weight: 300 500;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/martian-mono-latin-var.woff2?v=15') format('woff2');
+  src: url('../fonts/martian-mono-latin-var.woff2?v=16') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -1607,15 +1607,24 @@ a {
   box-shadow: var(--shadow-field-focus);
 }
 
-/* FLIP travel clones (Client feedback round 7). A fixed-position overlay that
-   flies a title or chip label between its list and detail positions; it is
-   removed as soon as the real element is revealed. Fixed and pointer-inert so it
-   never affects layout or hit-testing. Not spawned at all under reduced motion
-   (main.js guards). The clone borrows the .detail-title or .chip type so the
-   travelling text matches its destination. */
-.flip-clone {
+/* FLIP travel clones (Client feedback round 7). Clones fly a title or chip label
+   between its list and detail positions and are removed as soon as the real
+   element is revealed. They live inside .flip-layer, a fixed viewport-sized,
+   overflow-clipped, pointer-inert overlay: a clone edge that briefly crosses the
+   viewport during the travel is clipped rather than adding a horizontal scrollbar
+   on mobile (the clone is absolutely positioned, so the layer's overflow:hidden
+   clips it). The layer never affects layout or hit-testing. Not spawned at all
+   under reduced motion (main.js guards). The clone borrows the .detail-title or
+   .chip type so the travelling text matches its destination. */
+.flip-layer {
   position: fixed;
+  inset: 0;
   z-index: 50;
+  overflow: hidden;
+  pointer-events: none;
+}
+.flip-clone {
+  position: absolute;
   margin: 0;
   pointer-events: none;
   transform-origin: top left;

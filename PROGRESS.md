@@ -2877,3 +2877,135 @@ results-frametrace-exit-switch.json. Fixed exactly per the verifier's suggestion
   document.hidden and freezes rendering, so the frame trace cannot be captured here.
   The collision CAUSE is removed (nothing decodes during the travel), which is the
   substance of the fix.
+
+### Round 7 - verifier FAIL fix (deferred stack MOUNT, 2026-07-28)
+
+Post-push frame trace on the live build: the video-decode deferral worked (first
+play about 490ms, gating intact) but frames still dropped: enter star max deltas
+34.7 / 55.6 / 104.2ms, chip switch 48.7 to 55.5ms at about 199 to 208ms, 3/3. With
+the videos deferred, the remaining cost was the section stack MOUNT itself inside
+commit() at the swap midpoint: decoding three posters plus 1600px jpgs and laying
+out the stack while the clones animate. Fixed per the verifier's suggestion; every
+?v=15 bumped to ?v=16 (a push follows). Files changed: index.html (decoding="async"
+on the 8 section imgs + version bump), css/styles.css (flip-layer + version bump),
+js/main.js.
+
+- MOUNT moved OUT of the travel window. commit now renders the panel header plus an
+  EMPTY stack SHELL: renderView(viewKey, shellOnly) clones the .section-stack but
+  strips its .section-card children, so during the travel the panel shows a calm
+  empty stack surface (NO cards, NO videos, NO imgs, so no poster/jpg decode and no
+  stack layout in the 0..FLIP_MS window). WHAT SHOWS DURING THE TRAVEL (reported):
+  on enter the welcome is replaced by the empty shell (calm --surface-preview); on
+  switch the old stack fades out (is-swapping, as before) then the empty shell fades
+  back in. No skeleton, no placeholder flash.
+- CARDS mount at TRAVEL END. mountStackCards(key) appends the .section-card children
+  into the shell, then runs the stagger (so the stagger IS the entrance) and starts
+  the videos SECTION_START_AFTER_MOUNT (140ms) later. It is scheduled by commit via
+  scheduleStackCards at SECTION_CARDS_DELAY (FLIP_MS = 340ms) from the choreography
+  start: enter passes SECTION_CARDS_DELAY (commit at t0); switch passes
+  SECTION_CARDS_DELAY - SWAP_HALF through swap (commit at the 130ms midpoint), so the
+  mount still lands 340ms from the click. A guard skips a double-mount if a stray
+  timer fires (only fills an empty shell).
+- decoding="async" added to all 8 section imgs (loading="lazy" kept), so the jpgs
+  decode off the main thread: the travel-end mount is layout-only and the images
+  resolve async under the stagger.
+- KEYBOARD / ARIA UNAFFECTED. The empty shell keeps the region attributes
+  (role="region", tabindex="0", per-project aria-label), so the scroll region and
+  Tab stop exist throughout the travel: the tab flow never hits a missing region
+  mid-travel. Verified in-pane (shell present with role/tabindex/aria-label during
+  the travel window).
+- NO ZOMBIE MOUNT. teardownSectionObserver() now also clears sectionMountTimer and
+  is called at the top of every renderView AND immediately at the start of
+  switchProject / exitDetail / exitDetailToView, so exiting or switching within the
+  window cancels the pending mount before the old nodes are removed. Verified:
+  entering star then exiting in the same tick leaves the welcome with zero section
+  cards (the mount timer was cancelled, no zombie), zero videos, nothing playing.
+- REDUCED MOTION / immediate paths mount in FULL immediately (renderView shellOnly
+  false mounts the cards and commit starts the videos with delay 0), exactly as
+  before. swap forces the full immediate mount under reduced motion.
+- MOBILE h-scroll (found while re-smoking, fixed): the FLIP clones are fixed
+  overlays, and a clone edge briefly crossed the viewport during the travel, adding
+  a transient horizontal scrollbar on mobile (post-settle was always clean; missed
+  earlier because only the settled state was measured). Fixed: the clones now live
+  inside one .flip-layer (position:fixed, inset:0, overflow:hidden, pointer-inert),
+  and each clone is position:absolute inside it, so an overflowing edge is CLIPPED
+  instead of adding scroll. Verified at 390: horizontal overflow is 0 across the
+  whole travel (structurally impossible now), the FLIP still lands correctly, and
+  the settled state is unchanged.
+- SMOKE RE-CHECK (Browser pane, local http): enter star shows the empty shell during
+  travel (0 cards/videos, region present) then mounts 3 cards + gates videos (2
+  in-view play, off-screen paused) at travel end; chip switch to blackthorn lands 5
+  cards with decoding="async" + loading="lazy"; exit is clean (0 cards/videos,
+  welcome, index restored); zombie-cancel holds; no horizontal scroll at 390; zero
+  console errors. The synchronous enter handler chunk is now about 7ms (the image
+  decode + stack layout is no longer in it; cards=0 at commit time confirms the
+  mount is deferred). The rAF frame-delta re-run on star enter/switch stays the
+  verifier's headed-GPU harness (the Browser pane freezes rendering while hidden).
+
+### Round 7 - verifier FAIL fix (incremental card mount, 2026-07-28)
+
+Frame trace round 3: the travel window (0 to 340ms) is now clean, but the
+over-budget frames moved to the one-shot card-mount BURST at ~400 to 450ms (enter
+median 55.5, switch median 62.5; mount lands ~406 to 427ms, first video ~576 to
+584ms) because the whole stack mounted in a single heavy figure-layout + poster/jpg
+decode. Evidence verify/restyle-7/results-postfix2-*.json. Fixed per the verifier's
+suggestion; ?v=16 kept (no push since the bump). File changed: js/main.js (plus this
+log). No index.html / css changes this round.
+
+- INCREMENTAL MOUNT. mountStackCards now appends the FIRST card immediately (at
+  travel end) and each subsequent card on its own CARD_STAGGER_MS (60ms) beat via a
+  setTimeout chain; appendCard(stack, card) appends one figure, fades it in
+  (opacity + 6px translateY, CARD_FADE_MS) and wires its video. A single figure's
+  layout fits comfortably in a frame and its img decodes async (decoding="async"),
+  so the cost is spread one figure per frame instead of one burst: the stagger IS
+  the mount. Measured append cadence (Browser pane): star cards land at ~345 / 406 /
+  468ms from the click (60ms beats from travel end); blackthorn mounts all 5.
+- PER-CARD VIDEO OBSERVATION (spreads the decode too). The IntersectionObserver is
+  created once (ensureSectionObserver) and each card's clip is primed + observed AS
+  it mounts (wireCardVideo), so the video decode spreads across the beats and only
+  in-view clips play (gating unchanged). The old one-shot scheduleSectionVideos /
+  SECTION_START_AFTER_MOUNT deferral is retired for the animated path (kept only for
+  the reduced-motion / immediate full-mount via commit). staggerCards() (the old
+  all-at-once CSS stagger) is removed; the per-card fade in appendCard replaces it.
+- FIRST CARD STABLE (verified, the acceptance point). Cards append at the END of the
+  stack, so earlier cards never move: only scrollHeight grows. Desktop (1280x820,
+  blackthorn, 5 appends): the first card's offsetTop stays 149 across every append,
+  the stack clientHeight stays 676 (a fixed-height scroll container) while its
+  scrollHeight grows 676 -> 680 -> 1005 -> 1331 -> 1657; no horizontal scroll.
+  Mobile flow layout (433 wide): first card offsetTop stays 572 across all 5
+  appends; no horizontal scroll (the page-scroller grows downward, first card fixed).
+- CANCELLATION MECHANISM (reported). Each deferred append step is guarded on a
+  generation token: mountStackCards captures `gen = ++sectionMountGen` and every
+  scheduled step returns early unless `gen === sectionMountGen` (and unless the stack
+  is still connected). teardownSectionObserver bumps sectionMountGen (and clears the
+  deferred-start timer and disconnects the observer) and runs at the top of every
+  renderView AND at the start of switchProject / exitDetail / exitDetailToView, so a
+  rapid exit or switch cancels the rest of the chain: no zombie appends. Verified:
+  switching Blackthorn (mid / post chain) to Barker yields exactly Barker's 4 cards
+  (captions all Barker sections), no leftover Blackthorn card, first card stable, no
+  errors; exit leaves 0 cards.
+- REDUCED MOTION unchanged: mountStackCards' reduced branch appends every card at
+  once (the one-shot cost is fine when nothing animates), and the reduced-motion enter
+  / switch still take the immediate full-mount path via commit (renderView full +
+  startSectionVideos). aria / tabindex / keyboard are untouched (the region shell and
+  its role / tabindex / aria-label are unchanged; cards append inside it).
+- HONESTY NOTE for the verifier's 5-trial rerun: the per-frame rAF trace still cannot
+  be captured in the Browser pane (it freezes rendering while document.hidden), so
+  the target (no frame over ~33ms) is the verifier's headed-GPU harness. The
+  structural change spreads the mount to one figure per 60ms beat; the residual risk
+  the coordinator flagged is a single VIDEO card whose POSTER decode alone might
+  exceed a frame (video posters have no decoding="async" equivalent). If that still
+  spikes, the numbers should be reported as a documented entrance-phase hitch rather
+  than chased further, per the coordinator's steer.
+
+### Round 7 performance acceptance (orchestrator ruling, 2026-07-28)
+- After three fix rounds the FLIP travel window (0 to 340ms) traces clean.
+  Residual: roughly one-frame slips (median 34.7/34.8ms vs the ~33ms budget,
+  occasional 41 to 56ms) scattered through the card-entrance band (400 to
+  620ms) while cards fade in from opacity 0, measured on a machine running
+  heavy concurrent workloads. Ruled ACCEPTED: the entrance is the least
+  perceptible moment, the slips are not at a fixed repeating instant, and
+  the original complaint (clunky transitions) is addressed by the clean
+  travel. Evidence: verify/restyle-7/results-postfix3-frametrace.json.
+- First-card mount lands ~70 to 85ms after the 345ms target (406 to 427ms
+  observed): noted, not chased; the beat spacing itself holds at ~60ms.

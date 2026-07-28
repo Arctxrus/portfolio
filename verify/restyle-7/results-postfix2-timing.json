@@ -1,0 +1,18 @@
+{
+  "trial0_cards_mounted_at_ms": 414.1000000014901,
+  "trial0_first_video_playing_at_ms": 579.5,
+  "trial1_cards_mounted_at_ms": 427.3999999985099,
+  "trial1_first_video_playing_at_ms": 583.5,
+  "trial2_cards_mounted_at_ms": 406.5,
+  "trial2_first_video_playing_at_ms": 576.1000000014901,
+  "verified_mid_travel": {
+    "target_ms": 150,
+    "actual_ms": 154.5,
+    "cards_count": 0
+  },
+  "verified_at_travel_end": {
+    "target_ms": 340,
+    "actual_ms": 348.20000000298023,
+    "cards_count": 0
+  }
+}
