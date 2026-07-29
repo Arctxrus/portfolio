@@ -1,0 +1,9 @@
+{
+  "row01_rest_shadow": "none",
+  "row01_hover_shadow": "rgba(255, 255, 255, 0.62) 0px 0px 0px 1px inset, rgba(255, 255, 255, 0.85) 0px 1px 0px 0px inset, rgba(20, 20, 22, 0.06) 0px 1px 3px 0px",
+  "row01_active_shadow": "NO_ACTIVE_ROW",
+  "row01_active_padding": null,
+  "row01_active_hover_shadow": "NO_ACTIVE_ROW",
+  "row01_focus_shadow_after_js_focus": "none",
+  "first_tab_target_class": "chip"
+}

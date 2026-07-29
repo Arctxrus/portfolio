@@ -1,0 +1,23 @@
+{
+  "backbutton_path_closeDetail": {
+    "y_deep": 1009,
+    "final_y": 0,
+    "max_scroll": 606,
+    "own_scrollTo_calls_during_exit": [],
+    "popstate_fired": 1,
+    "verdict": "SNAPS TO 0 (still broken)"
+  },
+  "escape_path_closeDetail": {
+    "y_deep": 1009,
+    "final_y": 0,
+    "max_scroll": 606,
+    "own_scrollTo_calls_during_exit": [],
+    "verdict": "SNAPS TO 0 (still broken)"
+  },
+  "hardware_go_back_path": {
+    "y_deep": 1009,
+    "final_y": 606,
+    "max_scroll": 606,
+    "verdict": "OK (settles at max, no snap)"
+  }
+}

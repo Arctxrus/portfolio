@@ -1,0 +1,18 @@
+{
+  "trail_dot_count": 0,
+  "trail_class_matches": [],
+  "mist_before_count": 1,
+  "mist_after": {
+    "zIndex": "-1",
+    "opacity": "0.399266",
+    "position": "absolute",
+    "borderRadius": "999px",
+    "background": "radial-gradient(circle, rgba(233, 246, 253, 0.55) 0%, rgba(233, 246, 253, 0.26) "
+  },
+  "mist_after_leave": {
+    "present": true,
+    "opacity": "0"
+  },
+  "cta_mist_zindex": "2",
+  "console_errors": []
+}

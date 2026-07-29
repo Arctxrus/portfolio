@@ -1,0 +1,142 @@
+{
+  "s1_button_deep_360": {
+    "y_deep": 1009,
+    "trace": [
+      [
+        1,
+        1009,
+        1749
+      ],
+      [
+        494,
+        606,
+        1346
+      ]
+    ],
+    "final_y": 606,
+    "max_scroll": 606,
+    "scrollTo_calls": [
+      {
+        "t": 2765,
+        "args": [
+          0,
+          1009
+        ],
+        "before": 0
+      },
+      {
+        "t": 3234,
+        "args": [
+          0,
+          606
+        ],
+        "before": 606
+      }
+    ],
+    "touched_zero_mid_or_end": false,
+    "post_settle_manual_scroll_immediate": 606,
+    "post_settle_manual_scroll_after_wait": 606
+  },
+  "s2_button_deep_390": {
+    "y_deep": 1053,
+    "trace": [
+      [
+        2,
+        1053,
+        1833
+      ],
+      [
+        495,
+        573,
+        1353
+      ]
+    ],
+    "final_y": 573,
+    "max_scroll": 573,
+    "touched_zero_mid_or_end": false
+  },
+  "s3_hardware_back_deep_360": {
+    "y_deep": 866,
+    "trace": [
+      [
+        7,
+        866,
+        1696
+      ],
+      [
+        477,
+        606,
+        1346
+      ]
+    ],
+    "final_y": 606,
+    "max_scroll": 606
+  },
+  "s4_reduced_motion_deep_360": {
+    "y_deep": 674,
+    "trace": [
+      [
+        0,
+        674,
+        1414
+      ],
+      [
+        44,
+        606,
+        1346
+      ]
+    ],
+    "final_y": 606,
+    "max_scroll": 606
+  },
+  "s5_shallow_30_360": {
+    "trace": [
+      [
+        6,
+        30,
+        1749
+      ]
+    ],
+    "final_y": 30
+  },
+  "s6_escape_deep_360": {
+    "y_deep": 1009,
+    "trace": [
+      [
+        7,
+        1009,
+        1874
+      ],
+      [
+        353,
+        0,
+        1749
+      ]
+    ],
+    "final_y": 0,
+    "focused_after": "row",
+    "focused_rect_viewport": {
+      "top": 203.1875,
+      "bottom": 250.1875
+    }
+  },
+  "smoke": {
+    "mist": {
+      "opacity": "0.5",
+      "zIndex": "-1"
+    },
+    "rim": "rgba(255, 255, 255, 0.62) 0px 0px 0px 1px inset, rgba(255, 255, 255, 0.85) 0px 1px 0px 0px inset, rgba(20, 20, 22, 0.06) 0px 1px 3px 0px",
+    "is_detail": true,
+    "title": "Blackthorn & Co."
+  },
+  "console_errors_by_scenario": {
+    "s1": [],
+    "s2": [],
+    "s3": [],
+    "s4": [],
+    "s5": [],
+    "s6": [],
+    "smoke": []
+  },
+  "any_console_errors": false
+}

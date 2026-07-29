@@ -3428,3 +3428,335 @@ no mojibake, no em dashes. `node --check js/main.js` passes; zero console errors
   added, used, and REMOVED (grep-confirmed: no __forceRM / __scLog / __restLog / __hold in
   the source). node --check passes; no em dashes; UK English. A no-store dev server was
   used again so file edits reloaded past the ?v=18 cache during iteration.
+
+## Client feedback round 10 (owner-directed, five items + version bump, 2026-07-29)
+
+Status: BUILT, awaiting verification. Files changed: index.html (version bump only),
+css/styles.css, js/main.js, PROGRESS.md. All shipped asset refs bumped ?v=18 to
+?v=19 (index.html 23, css/styles.css 2, js/main.js 0). Encoding clean (Edit tool +
+byte-preserving sed; no BOM, no mojibake, no em dashes; grep-confirmed). Instrumented
+in a headed pane over a local http server at 950/1000/1100/1200/1250/1440 and
+360/390/768.
+
+### CONCEPT SUPERSESSIONS (owner-directed)
+
+- SUPERSEDES CONCEPT 3.3 "Row pointer trail" motion row entirely (item 2). The row
+  pointer trails are removed: the spawn code, the pointermove listeners, the
+  .trail-dot rule and the TRAIL_ constants are deleted. The --trail-a / --trail-b /
+  --trail-opacity tokens STAY in the verbatim 3.1 block but are now UNUSED (kept so
+  the 3.1 block remains byte-verbatim). CONCEPT 3.4 R2's "trails spawning" clause is
+  likewise void. Row hover keeps motion via the CTA mist (item 3), not particles.
+
+### Item 1 - Intermediate two-column widths (css/styles.css)
+
+- New bounded media query: min-width 901px and max-width 1250px. In this band the
+  base desktop grid (460px + 80px gap + 76px side padding) starved the 1fr panel:
+  measured ~304px at 1000px (owner screenshot: squeezed panel, welcome glyph
+  overlapping SELECT A PROJECT). The band now steps down to
+  grid-template-columns 400px 1fr; gap var(--sp-36); padding var(--sp-36)
+  var(--sp-36) var(--sp-48), and scales the welcome glyph to 240px with a
+  proportional optical-centre offset (43 * 240/340 = about 30px up, from the round-2
+  item-6 measurement) so the ghost arrow never overlaps the line.
+- DEVIATION (reported): the brief floated "gap ~48, padding ~48". I used --sp-36 for
+  both the gap and the side padding instead. Reason (instrumented): with a classic
+  15px vertical scrollbar reserved, the ~48 values leave the panel at ~415px at a
+  950px viewport, just under the owner's ~420 floor. --sp-36 clears it. Measured
+  panel widths (pane, with a 15px scrollbar present): 427px @950, 465px @1000,
+  ~565px @1100, ~665px @1200, 742px @1250. Panel at least ~420 from 950 up, as
+  required.
+- 1440+ UNCHANGED: the query caps at 1250px, so 1251px and up keep the base grid.
+  Verified at 1440: cols 460px/748px, gap 80px, padding 76px, glyph 340px, glyph
+  transform matrix translate about -124/-179 (the -43px optical offset). Pixel-
+  identical to today, no regression.
+- No horizontal scroll and left column not clipped at 950 (docScrollW 935, hScroll
+  false); glyph fits inside the panel horizontally (glyph 629..804 within panel
+  484..949 at 1000). Left column at 400px holds the masthead / 4-row index / pricing
+  / how / proof / footer without overflow.
+- Pixel screenshots at each width and both themes are the verifier's (the pane
+  backgrounds the tab); geometry was measured programmatically as above.
+
+### Item 2 - Remove pointer trails (js/main.js, css/styles.css)
+
+- Deleted initRowTrails and its TRAIL_SPAWN_INTERVAL / TRAIL_LIFETIME constants, the
+  init() call, and the .trail-dot CSS rule. Verified: zero .trail-dot nodes can spawn
+  (grep-clean of trail spawn code; DOM query returns 0). Remaining "trail" text is in
+  documentation comments and the unused 3.1 tokens only.
+
+### Item 3 - Row hover gains the CTA mist (js/main.js, css/styles.css)
+
+- REFACTOR (reported): the CTA's inline hover-mist block is extracted into ONE
+  generic function wireHoverMist(host) (single node per host, pointerenter /
+  pointermove / pointerleave, 900ms lag in the CSS transition, opacity 0 to 0.5 in
+  420ms, guarded off under reduced motion and on real touch devices, per-event
+  pointerType touch filter kept for hybrids). initCta calls wireHoverMist(cta); a new
+  initRowMist() calls it per .row:not(.row--cta) (rows 01 to 03). No duplicated
+  implementation.
+- CSS: .cta-mist renamed to a shared .hover-mist (same visual). z-index is set per
+  context: .row--cta .hover-mist z-index 2 (above the drift layers, below the z-5
+  label) and .row:not(.row--cta) .hover-mist z-index -1 (above the hover card fill,
+  below the row text). The rows are given overflow: hidden (to clip the mist to the
+  16px radius) and isolation: isolate (so the mist's negative z-index is scoped to the
+  row, not the page). Verified: row mist node created on a synthetic mouse
+  pointerenter, position absolute, z-index -1; CTA mist z-index 2.
+- DARK THEME (reported): the mist reuses --cta-hover-mist directly, which already
+  carries both theme values (light: pale sea-blue rgba(233,246,253,...); dark: a soft
+  blue glow rgba(120,170,230,...)). Verified in the pane (dark theme active) that the
+  row mist paints the dark token on the dark hover card. No new token added.
+
+### Item 4 - Glassier rows (css/styles.css)
+
+- The project rows' hover and active/open box-shadows now compose --cta-rim (the CTA
+  inset white rim + brighter top-highlight) in front of the single sanctioned outset
+  card shadow: box-shadow var(--cta-rim), var(--shadow-row-active) on
+  .row:not(.row--cta):hover and .row.is-active, .row.is-active:hover, with the
+  focus-visible variants layering the accent ring first
+  (var(--shadow-field-focus), var(--cta-rim), var(--shadow-row-active)). Verified
+  computed (dark, transition disabled for the read): inset 1px rgba(190,216,244,0.2),
+  inset 0 1px 0 rgba(200,224,248,0.3), then outset 0 1px 3px rgba(0,0,0,0.45).
+- --cta-rim carries its own dark-theme values, so both themes work with no new token.
+  Inset-only-except-the-one-card-shadow and two-radii discipline hold.
+- JUDGEMENT CALL (reported): the CTA's edge-lift (::after radial vignette) was NOT
+  translated to the rows. The inset rim plus the bright top-highlight already read as
+  glass on the white/dark card; adding an extra clipped pseudo-layer risked z-order
+  churn against the mist for a marginal gain. No pastel drift added to the rows (per
+  the brief). If the verifier judges the rows still read flat vs the CTA, a subtle
+  edge-lift can be added.
+
+### Item 5 - Mobile section-card captions (css/styles.css)
+
+- In the mobile detail state the section stack ran padding: 0, so the mono captions
+  touched the panel's left edge and the last clipped at the bottom (owner
+  screenshot). Changed to padding: 0 var(--sp-16) var(--sp-32): the media AND its
+  caption now sit a comfortable 16px in from the panel edge (still aligned to each
+  other), and a 32px bottom inset clears the last caption from the panel end and the
+  conversion cluster. Verified in the detail state at 360 / 390 (5 cards) and 768 (3
+  cards): caption inset from the panel outer edge = 17px (16 stack pad + 1 border),
+  caption left aligns with the media left; last caption clears the panel bottom by
+  33px (360/390) and 27px (768); panel overflow:hidden no longer clips it.
+
+### Item 6 - Version bump + guard / no-regression re-checks
+
+- ?v=18 to ?v=19 across index.html (23) and css/styles.css (2). js/main.js has no
+  versioned refs. UK English, no em dashes, tokens only (400px column and 240px glyph
+  are layout/size values with no token, same class as the existing 460px/340px), two
+  radii, one border width, inset-only-except-the-card-shadow all held.
+- Mist reduced-motion / touch guards: preserved by construction (the extracted
+  wireHoverMist keeps the identical prefersReducedMotion() || isTouchDevice()
+  early-return that the round-9 CTA mist used, and only binds listeners past it, so no
+  nodes spawn and no listeners bind when guarded). Pane reported reducedMotion false /
+  touchDevice false, so listeners bound and the mist rendered as expected.
+- Round-9 no-scroll-regression re-check at 360: scrolled to y=120, tapped a project
+  (enter), then Back (exit). scrollY held at 120 across enter-click, enter-settle,
+  exit-click and exit-settle (no snap up or down); detail closed cleanly; no console
+  errors through the whole sweep.
+
+### Round 10 - deviations / judgement calls (summary for the orchestrator)
+
+- Intermediate gap/padding are --sp-36, not the ~48 the brief floated (needed to hold
+  the panel at least ~420px at 950px once a 15px scrollbar is reserved). See item 1.
+- The CTA edge-lift was deliberately NOT added to the rows (item 4 judgement call).
+- The --trail-a / --trail-b / --trail-opacity tokens are now unused but kept verbatim
+  in the 3.1 block (item 2).
+- Verification note: same backgrounded-pane limitation as prior stages (pixel
+  screenshots time out); all behaviour above was measured programmatically over a
+  local http server. Screenshot / visual sign-off is the verifier's.
+
+### Client feedback round 10 - verifier follow-up (deep-exit scroll regression in the round-9 mechanism)
+
+- Verifier finding (verify/restyle-10/scroll_trace_results.json): everything else passed,
+  but a deep exit regressed the round-9 scroll-preservation. At 360x740, enter at 120,
+  scroll the detail stack to 1009, tap back: scrollY read 1009 at t=5ms then 0 at t=20ms
+  and stayed there, never reaching the correct settle (the index max). Diagnosis: the
+  round-9 DETAIL_ZERO_GUARD (60px) only ignores a y===0 event while the tracked offset is
+  still above it, but during the back sequence an exit-morph / nav reflow can clamp scroll
+  to a small NON-zero value first, which the still-active passive listener records,
+  dropping lastDetailScrollY below the 60px threshold; the subsequent y===0 event then
+  passes the guard and the real 1009 target is lost, so restoreDetailScroll reads 0.
+
+- Fix (js/main.js, the robust variant the verifier suggested): capture the offset ONCE,
+  synchronously, at each exit entry point and pass it as an ARGUMENT all the way to
+  restoreDetailScroll's window.scrollTo, so no intervening scroll event (real, or a
+  reflow / zeroing clamp) can clobber it between capture and restore. Concretely:
+  1. closeDetail (the back control and Escape) snapshots capturedY = window.scrollY and
+     STOPS the tracking immediately, before history.back(); it passes capturedY through
+     (directly for the no-history path, or via pendingExitScrollY across the
+     history.back() -> popstate hop).
+  2. The popstate handler's FIRST line stops the tracking, then resolves capturedY =
+     (pendingExitScrollY !== null) ? pendingExitScrollY : lastDetailScrollY. A genuine
+     hardware back never called closeDetail, so it uses the last tracked value (window.scrollY
+     is already zeroed by the browser at popstate, so it cannot be read live); stopping the
+     listener on the first line freezes that value so the exit morph cannot clobber it.
+  3. exitDetail(viaKeyboard, capturedY) -> restoreDetailScroll(capturedY) does the single
+     window.scrollTo(0, capturedY). The DETAIL_ZERO_GUARD is kept as a secondary guard for
+     the genuine-back window (before popstate), but correctness no longer depends on it.
+  releaseDocHeight's clamp-at-release semantics are unchanged: if the settled welcome is
+  shorter than the restored offset, it settles once to the true welcome max. ?v stays 19.
+
+- Re-traced through the REAL interaction paths over a local http server (detail fully
+  settled so its height is stable; the browser's pre-popstate zeroing reproduced faithfully
+  for the genuine-back paths by a scroll-to-0 then a dispatched popstate; the back control
+  and Escape drive closeDetail for real). Welcome maxScroll measured 589 at 360x740 and 547
+  at 390x844 with the settled content:
+  - THE EXACT FAILING SCENARIO, 360x740, enter 120, scroll the stack to the bottom (1051),
+    tap BACK: lands at 589 (min(1051, 589) via the single release settle), never 0. (The
+    settle fires; an earlier reading of 1009 was my sampler catching the frame before the
+    pane's throttled release timer, not a miss.)
+  - 360x740 genuine hardware back from the bottom (1051) WITH the zeroing: guard + last
+    tracked value recovered 1051, settled to 589; origin focused preventScroll (pointer-like).
+  - 360 shallow BACK (scrolled 30): no drift, held at 30, origin focused preventScroll.
+  - 360 Escape from the bottom (1051): held, then the intended keyboard focus return to the
+    origin AFTER the morph (focus delta -1051, endY 0). Origin focused, visible.
+  - 360 reduced motion mismatched (enter 50): recovered to a valid tracked position with NO
+    snap to 0; origin focused preventScroll. (Reduced-motion enter untouched.)
+  - 390x844 pointer BACK from the bottom (1031): settled to 547; origin focused preventScroll.
+  - 390x844 genuine hardware back from the bottom (1031) with the zeroing and realistic
+    (incremental, event-firing) scrolling: recovered and settled to 547.
+  No console errors; body min-height clean after every exit (no leak).
+
+- Test-environment note: single synthetic scrollTo(0, big) calls are sometimes coalesced by
+  the automation pane so the passive listener never fires for them, which made a couple of
+  genuine-back traces read the enter offset instead of the deep one (no snap to 0, just an
+  unrepresentative landing); the closeDetail paths (back control / Escape) are unaffected
+  because they capture synchronously, and an incremental scroll that fires real scroll
+  events reproduced the correct deep recovery. Real user scrolling fires events continuously,
+  so lastDetailScrollY is at most a frame stale for genuine hardware back.
+
+- Instrumentation discipline: measured with a wrapped HTMLElement focus and an 8ms scrollY
+  sampler from the console; three temporary in-source probes (a log in onDetailScroll and
+  releaseDetailScroll region, and the window.__forceRM branch in prefersReducedMotion to
+  drive the reduced-motion path the pane cannot emulate) were added, used, and REMOVED
+  (grep-confirmed: no __forceRM / __scLog / __restLog / __relLog / __hold in the source).
+  node --check passes; no em dashes; UK English; no BOM. A no-store dev server was used so
+  edits reloaded past the ?v=19 cache during iteration.
+
+### Client feedback round 10 - verifier follow-up 2 (per-path zeroing ordering, exit-window enforcement)
+
+- Verifier finding (verify/restyle-10/fix_final_evidence.json): the follow-up-1 fix worked
+  for a genuine HARDWARE back but NOT for the PRIMARY paths (the back control and Escape).
+  The native zeroing ORDERING differs per path: hardware back zeroes BEFORE popstate (so the
+  one-shot restoreDetailScroll corrects it), but the button / Escape paths zero AFTER
+  restoreDetailScroll runs (the verifier wrapped scrollTo and logged zero calls: the guard
+  window.scrollY !== y was false because the scroll was still intact at that instant), and
+  the later zeroing was never corrected (the release clamp only fires when scrollY exceeds
+  the settled max, and 0 never does).
+
+- Fix (js/main.js): enforce the captured target across the WHOLE exit window instead of a
+  one-shot restore. For pointer / hardware exits (viaKeyboard false):
+  1. beginScrollEnforcement(target) at the top of exitDetail: an immediate re-assert (covers
+     the hardware-back "before" ordering), plus listeners for the duration of the hold:
+     a passive `scroll` listener re-asserts the target whenever scrollY drops below
+     ENFORCE_FLOOR (8px) without user input (this catches the button / Escape "after"
+     ordering), and `wheel` / `touchmove` listeners mark genuine user intent.
+  2. At release, releaseDocHeight calls endScrollEnforcement(true): it removes the listeners
+     and, unless the user scrolled, settles UNCONDITIONALLY to min(target, settledMax) (this
+     corrects a zeroing that landed right at release, which the old "only when over" clamp
+     missed). The height reserve keeps the document tall through the hold so the target fits;
+     reduced motion has no reserve but the same enforcement window guards the async zeroing
+     and settles once (the target is clamped to settledMax, which is the desired landing).
+  3. User-intent cancels enforcement: a wheel / touchmove during the window sets userScrolled,
+     after which the scroll listener stops re-asserting and the release skips the settle, so a
+     user who scrolls during the morph keeps their position (reported mechanism).
+  4. Keyboard exits (Escape, keyboard-activated back button) do NOT enforce: focus(origin)
+     intentionally scrolls the origin into view and owns the final position; a one-shot
+     restore covers the pre-popstate ordering there. A fast re-enter within the window cancels
+     any pending enforcement (startDetailScrollTracking calls endScrollEnforcement) so no stale
+     target is re-asserted over the new detail. ?v stays 19.
+
+- Re-traced ALL paths through the REAL interaction handlers over a local http server, with the
+  per-path zeroing reproduced faithfully (button / Escape: an injected scrollTo(0,0) about
+  30ms AFTER the back click, i.e. after restore; hardware: scrollTo(0,0) then a dispatched
+  popstate, i.e. before). Detail fully settled; deep offset registered via a real scroll event
+  (as continuous user scrolling does). Welcome maxScroll 589 at 360x740, 573 at 390x780:
+  - 360x740 button deep (1051) + POST-restore zeroing: minY stayed 589, endY 589 (the injected
+    0 was re-asserted within a frame, never visible), origin focused preventScroll. LANDS 589,
+    NEVER 0.
+  - 360x740 hardware back deep (1051) + pre-popstate zeroing: endY 589, origin preventScroll.
+  - 360x740 Escape deep (1051): intended keyboard focus return to origin (delta -1051, endY 0).
+  - 360x740 keyboard-activated back button deep (click detail 0): keyboard focus return (endY 0).
+  - 360x740 shallow BACK (30) + injected zeroing: held at 30 (minY = maxY = 30), no drift.
+  - 360x740 reduced motion deep (1051) + injected zeroing: settled to 589 (settledMax), origin
+    preventScroll, no snap to 0. Reduced-motion enter untouched.
+  - 360x740 user-intent cancel: pointer back from 1051, then a touchmove + scroll to 400 during
+    the morph: ends at 400 (the user's position), not re-asserted and not settled.
+  - 390x780 button deep (1095) + POST-restore zeroing: endY 573. Hardware back deep + zeroing:
+    endY 573.
+  - Multi-cycle (enter -> chip switch -> back -> re-enter -> back -> form): all transitions
+    correct, body min-height clean after every exit (no leak), enter / switch untouched. No
+    console errors.
+
+- Form scroll-into-view note: unchanged by this fix (scrollPanelIntoView / commit / selectNormal
+  untouched). It uses behaviour:'smooth', which is a confirmed no-op in the automation pane
+  (verified directly: panel.scrollIntoView smooth left scrollY 0, auto scrolled to 441), so the
+  panel does not scroll in the pane; on a real device the smooth scroll runs. Not a regression.
+
+- Test-environment note (carried from follow-up 1): a single synthetic scrollTo(0, big) is
+  sometimes coalesced so the passive listener never records it, which only affects the
+  genuine-hardware-back path (it reads the tracker); dispatching a real scroll event, as
+  continuous user scrolling does, reproduces the correct deep recovery. The button / Escape
+  paths capture window.scrollY synchronously in closeDetail and are unaffected.
+
+- Instrumentation discipline: measured with a wrapped HTMLElement focus, an 8ms scrollY sampler,
+  and a scrollIntoView spy from the console; faithful zeroing was injected from the test
+  harness (never in source); one temporary window.__forceRM branch in prefersReducedMotion (to
+  drive the reduced-motion path the pane cannot emulate) was added, used, and REMOVED
+  (grep-confirmed clean). node --check passes; no em dashes; UK English; no BOM; ?v=19 held.
+
+### Client feedback round 10 - verifier follow-up 3 (TRUE root cause: focus-scroll zeroes the live scroll before every handler; captured target was 0)
+
+- Methodology correction (accepted): the follow-up-2 traces used INJECTED synthetic zeroing and
+  passed, but the verifier's REAL mouse clicks failed. Root-caused this round in a REAL headed
+  Chromium launched with the round-5 GPU flags plus --disable-features=CalculateNativeWinOcclusion
+  (defeats the automation-pane throttling), driving a real Playwright trusted click. Three
+  temporary logs (top of beginScrollEnforcement, in closeDetail, in the popstate handler) settled
+  it in one run.
+
+- TRUE root cause (verify/restyle-10 real-click diag): the back control sits at the TOP of the
+  column and is NOT sticky, so at a deep scroll it is off-screen. A real / trusted click (and
+  Playwright actionability) first scrolls it into view, and the browser's native focus-scroll
+  zeroes window.scrollY to 0 BEFORE any of our handlers run. The real-click log showed:
+  closeDetail entered with scrollY already 0 and captured 0; popstate saw pendingExitScrollY 0
+  but lastDetailScrollY 1009; beginScrollEnforcement received target 0; the doc height held
+  (min-height 1749, maxScroll 606 throughout) so the settle computed min(0, 606) = 0. So the fix
+  was correct in shape but the TARGET was wrong: every synchronous window.scrollY read at exit
+  time is post-focus-scroll (0). The follow-up-1 "capture synchronously in closeDetail" and the
+  follow-up-3 first attempt (snapshot on the back-control pointerdown) BOTH failed the same way,
+  because Playwright / the browser scrolls the control into view even before pointerdown fires.
+  Only the continuously-tracked, guard-preserved lastDetailScrollY held the true offset (1009).
+
+- Fix (js/main.js): make the guard-preserved tracker the single source of the pre-exit offset.
+  1. closeDetail no longer reads window.scrollY; it stops the tracker (freezing its value) and
+     carries lastDetailScrollY as the captured offset (the pointerdown/keydown snapshot attempt
+     was removed as useless: the browser scrolls the off-screen control into view before those
+     fire too). The popstate handler already uses pendingExitScrollY else lastDetailScrollY.
+  2. The scroll guard is strengthened so the tracker survives BOTH the exact-0 zeroing and the
+     round-10 small-non-zero clamp: onDetailScroll ignores any scroll event that lands below
+     DETAIL_ZERO_GUARD (60px) while the tracked offset is still above DETAIL_DEEP_GUARD (240px),
+     i.e. a SUDDEN deep -> top jump, which is the native focus-scroll / nav zeroing, not a user
+     gesture (a real scroll-up arrives gradually, so by the time y is small the tracked value is
+     small too). The exit-window enforcement (follow-up 2) is unchanged and now receives the
+     correct target. ?v stays 19.
+
+- Re-traced ALL paths with REAL interactions in the headed GPU Chromium (real trusted
+  Playwright click for the button, page.keyboard.press('Escape'), page.go_back() for hardware,
+  emulate_media reduced-motion; deep scroll driven via real rAF-stepped window scrolling; a
+  scrollTo spy recorded the corrective calls). Welcome maxScroll 606 at 360x740, 573 at 390x780:
+  - button deep 360x740: preExit 1009 -> endY 606 (scrolls [1009, 606]: immediate re-assert to
+    the true target, single settle to 606, no intermediate 0), origin focused, min-height clean.
+  - button deep 390x780: preExit 1053 -> endY 573.
+  - hardware back deep 360: preExit 1009 -> endY 606.
+  - reduced motion deep 360 (emulate_media reduce): preExit 1009 -> endY 606.
+  - shallow 360 (scrolled 30): preExit 30 -> endY 30 (no drift).
+  - Escape deep 360: preExit 1009 -> endY 0 (intended keyboard focus return to the origin row;
+    origin focused).
+  All: inDetail false after exit, body min-height clean (no leak).
+
+- Methodology note for future rounds: do NOT validate scroll behaviour with synthetic dispatched
+  events or injected zeroing in the throttled preview pane. Real trusted clicks trigger the
+  native focus-scroll / actionability auto-scroll that synthetic dispatch does not, which is
+  exactly where this defect lived. Use the headed GPU Chromium harness
+  (scratchpad/matrix.py, GPU_ARGS incl. --disable-features=CalculateNativeWinOcclusion).
+
+- Instrumentation discipline: three temporary window.__diag log lines (beginScrollEnforcement,
+  closeDetail, popstate) were added, used for the one diagnostic run, and REMOVED
+  (grep-confirmed: no __diag / armExit / __forceRM in the source). node --check passes; no em
+  dashes; UK English; no BOM; ?v=19 held (index 23, css 2).

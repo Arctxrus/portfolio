@@ -1,0 +1,14 @@
+{
+  "note": "Instrumented evidence for the still-broken button/Escape/keyboard-button exit path, gathered with a wrapped window.scrollTo (stack-trace tagged) plus EventTarget.addEventListener/removeEventListener interception, no source files modified.",
+  "scenario": "360x740, scrollTo(0,120), enter Blackthorn detail, scrollTo(0, body.scrollHeight) -> y=1009, click [data-detail-back]",
+  "listener_and_event_trace": [
+    {"t": 2609.0, "ev": "removeListener(scroll)", "note": "closeDetail() calling stopDetailScrollTracking() synchronously at click time"},
+    {"t": 2610.1, "ev": "native popstate (capture phase)", "y_at_this_point": 0, "note": "confirms Chromium already zeroed scrollY before the popstate event is even dispatched"},
+    {"t": 2610.2, "ev": "removeListener(scroll)", "note": "popstate handler's own stopDetailScrollTracking() call"},
+    {"t": 2610.3, "ev": "removeListener(scroll)", "note": "beginScrollEnforcement()'s internal stopDetailScrollTracking() call"},
+    {"t": 2610.4, "ev": "addListener(scroll)", "note": "beginScrollEnforcement() registers state.onScroll -- enforcement IS wired up"},
+    {"t": 3078.6, "ev": "removeListener(scroll)", "note": "endScrollEnforcement() tearing down its listener at release"},
+    {"t": 3078.7, "ev": "scrollTo(0, 0)", "before": 0, "stack": "window.scrollTo <- endScrollEnforcement (main.js:1193) <- releaseDocHeight (main.js:1075)", "note": "THE ONLY scrollTo call logged in the entire exit window. Expected clamp math min(target=1009, maxScroll) with the real measured scrollHeight at that time (1346, per the rAF trace) gives maxScroll=606, so this call should have been scrollTo(0,606), not scrollTo(0,0)."}
+  ],
+  "conclusion": "Between t=2610.4 (enforcement listener registered) and t=3078.6 (release), the native zero-scroll event at t=2610.1 never produced any corrective scrollTo call from state.onScroll, and beginScrollEnforcement's own immediate reassertTarget() call (which runs synchronously right after exitEnforce is set, before the listeners are even attached) produced no scrollTo call either -- meaning it evaluated as a no-op, which is only possible if the clamped target it computed was already 0. The only scrollTo call that does fire (the unconditional release settle) also computes to (0,0) instead of the expected (0,606). This points to state.target itself reading as 0 (or clamping to 0) throughout the button/Escape/keyboard-button exit path, despite the captured pre-click scrollY being verified as 1009 immediately before the click. The hardware-back path (page.go_back(), bypassing closeDetail's pendingExitScrollY hand-off) does not exhibit this and correctly settles at the clamped max."
+}

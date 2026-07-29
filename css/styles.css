@@ -33,7 +33,7 @@
   font-weight: 400 600;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/archivo-latin-var.woff2?v=18') format('woff2');
+  src: url('../fonts/archivo-latin-var.woff2?v=19') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -43,7 +43,7 @@
   font-weight: 300 500;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/martian-mono-latin-var.woff2?v=18') format('woff2');
+  src: url('../fonts/martian-mono-latin-var.woff2?v=19') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -523,6 +523,19 @@ a {
               box-shadow 200ms ease, padding 200ms ease;
 }
 
+/* Client feedback round 10 (items 3 and 4): project rows (01 to 03) gain the CTA's
+   cursor-following hover mist and its glassy rim. The mist is clipped to the row's
+   16px radius, so the row needs overflow:hidden; isolation:isolate makes the row a
+   stacking context so the mist's negative z-index is scoped to the row (above the
+   card fill, below the text) instead of falling behind the page. The inset focus
+   ring and the single outset card shadow are the row's OWN box-shadows, which an
+   element's own overflow never clips, and the padding grow is internal, so neither
+   is affected. The CTA keeps its own overflow:hidden and is excluded here. */
+.row:not(.row--cta) {
+  overflow: hidden;
+  isolation: isolate;
+}
+
 /* Type: Row index 01 to 06 - Mono 11px / 400 / normal / normal / zero padded */
 .row-index {
   font-family: var(--font-mono);
@@ -620,10 +633,16 @@ a {
    rule, hiding the niche tag on the active row (CONCEPT section 8: tags stay
    visible on touch). This mirrors the JS isTouchDevice guard. */
 @media (hover: hover) and (pointer: fine) {
+  /* Client feedback round 10 (item 4): the hover card also takes the CTA's glassy
+     rim language, --cta-rim (an inset white rim plus a brighter top-highlight),
+     composed over the single outset card shadow so the row reads like glass the
+     way the CTA pill does. Inset-only, so the two-radii / inset-except-the-one-card-
+     shadow discipline holds. --cta-rim carries its own dark-theme values, so both
+     themes work with no new tokens. No pastel drift is added to the rows. */
   .row:not(.row--cta):hover {
     background: var(--surface-white);
     border-color: var(--border);
-    box-shadow: var(--shadow-row-active);
+    box-shadow: var(--cta-rim), var(--shadow-row-active);
   }
 
   .row:not(.row--cta):hover .row-index {
@@ -647,7 +666,7 @@ a {
      (the hover box-shadow, specificity 0,3,0, would otherwise clobber the
      .row:focus-visible ring at 0,2,0). Mirrors .row.is-active:focus-visible. */
   .row:not(.row--cta):hover:focus-visible {
-    box-shadow: var(--shadow-field-focus), var(--shadow-row-active);
+    box-shadow: var(--shadow-field-focus), var(--cta-rim), var(--shadow-row-active);
   }
 }
 
@@ -673,7 +692,8 @@ a {
   padding: var(--sp-18) var(--sp-16);
   background: var(--surface-white);
   border-color: var(--border);
-  box-shadow: var(--shadow-row-active);
+  /* Round 10 (item 4): the active/open card carries the same glassy rim as hover. */
+  box-shadow: var(--cta-rim), var(--shadow-row-active);
 }
 
 /* Keep the focus-visible accent inset ring exactly as before, even on the active
@@ -683,7 +703,7 @@ a {
    box-shadow and .row.is-active:hover, and layers the ring over the card
    elevation so a keyboard-focused active row shows the ring and stays raised. */
 .row.is-active:focus-visible {
-  box-shadow: var(--shadow-field-focus), var(--shadow-row-active);
+  box-shadow: var(--shadow-field-focus), var(--cta-rim), var(--shadow-row-active);
 }
 
 .row.is-active .row-index {
@@ -823,8 +843,15 @@ a {
   }
 }
 
-/* Hover mist node (--cta-hover-mist), follows the cursor with 900ms lag. */
-.cta-mist {
+/* Cursor-following hover mist (CONCEPT.md 3.4 C2). ONE node, reused generically by
+   the CTA pill and, from Client feedback round 10 (item 3), the project index rows.
+   It follows the cursor with a 900ms lag (the lag lives in the CSS transition) and
+   fades opacity 0 to 0.5 in 420ms. Fully round (--radius-pill), clipped to the host
+   by the host's own overflow:hidden. Background is --cta-hover-mist, the same token
+   in both themes (a pale sea-blue on light, a soft blue glow on dark), so it reads
+   correctly on the CTA pastel pill AND on the white / dark row hover card. The
+   per-element wiring is one JS function, wireHoverMist (main.js). */
+.hover-mist {
   position: absolute;
   top: 0;
   left: 0;
@@ -833,11 +860,23 @@ a {
   border-radius: var(--radius-pill);
   background: var(--cta-hover-mist);
   opacity: 0;
-  z-index: 2;
   pointer-events: none;
   transform: translate(-50%, -50%);
   transition: transform 900ms cubic-bezier(0.22, 0.61, 0.36, 1), opacity 420ms ease;
   will-change: transform, opacity;
+}
+
+/* CTA: the mist sits above the drift / light-pass layers but below the label
+   (the label content is z-index 5 via .row--cta > *). This 0,2,0 rule beats that. */
+.row--cta .hover-mist {
+  z-index: 2;
+}
+
+/* Project rows: the mist sits just above the hover card fill but below the row
+   text. isolation:isolate on the row (see the .row:not(.row--cta) rule) scopes this
+   negative index to the row, so the mist cannot fall behind the page. */
+.row:not(.row--cta) .hover-mist {
+  z-index: -1;
 }
 
 /* Press bloom node (--cta-press-mist), one per press, scale 0.25 to 1. */
@@ -1477,9 +1516,9 @@ a {
   border: 0;
   /* Client feedback round 2 (item 2): the submit button moves from
      --radius-pill (999px) to --radius-surface (16px), the new button language.
-     The two-radii rule stands; --radius-pill still serves the trail dot, the
-     CTA hover mist and the CTA press bloom (all fully-round nodes), so it is
-     NOT defined-but-unused. Recorded in PROGRESS.md. */
+     The two-radii rule stands; --radius-pill still serves the hover mist (CTA and
+     rows) and the CTA press bloom (both fully-round nodes), so it is NOT
+     defined-but-unused. Recorded in PROGRESS.md. */
   border-radius: var(--radius-surface);
   transition: background 150ms ease;
 }
@@ -1890,24 +1929,46 @@ a {
 }
 
 /* --------------------------------------------------------------------------
-   Row pointer trails (CONCEPT.md 3.3 "Row pointer trail")
-   12px dot, blur 12px, colours --trail-a / --trail-b. The opacity timeline
-   (0 to 0.32 with a 20ms delay, hold, then 0.32 to 0) is driven in main.js
-   via the Web Animations API. Fixed to the viewport at the cursor point.
+   Row pointer trails: REMOVED (Client feedback round 10, item 2). The owner read
+   the hover trails as stray whitish particles (worst in dark theme) and asked for
+   them gone: the spawn code, listeners and the .trail-dot rule are deleted. The
+   --trail-a / --trail-b / --trail-opacity tokens stay in the verbatim 3.1 block
+   above but are now unused (noted in PROGRESS.md as a supersession of CONCEPT 3.3
+   "Row pointer trail"). The cursor-following mist the CTA uses now also serves the
+   rows (item 3), so the hover still has motion, just not the trail particles.
    -------------------------------------------------------------------------- */
 
-.trail-dot {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 12px;
-  height: 12px;
-  border-radius: var(--radius-pill);
-  filter: blur(12px);
-  opacity: 0;
-  z-index: 2;
-  pointer-events: none;
-  will-change: opacity, transform;
+/* --------------------------------------------------------------------------
+   Intermediate two-column widths (Client feedback round 10, item 1). Between the
+   900px single-column breakpoint and about 1250px the base desktop grid (460px
+   left column + 80px gap + 76px side padding) starves the 1fr preview panel: at
+   1000px the panel resolves to only about 304px and the welcome glyph overlaps
+   the SELECT A PROJECT line. In this band the left column, the gap and the page
+   padding step down from the spacing scale so the panel always keeps a workable
+   share (about 430px from a 950px viewport up), and the welcome glyph plus its
+   optical-centre offset (round 2, item 6) scale down proportionally so the giant
+   arrow never overlaps the welcome line. Bounded at min-width 901px so it never
+   touches the single-column layout, and capped at 1250px so 1251px and up (1440
+   included) stay pixel-identical to today.
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 901px) and (max-width: 1250px) {
+  .page {
+    grid-template-columns: 400px 1fr;
+    /* gap and side padding are --sp-36 (not the ~48 the brief floated): with a
+       classic 15px scrollbar reserved, the wider values leave the panel at ~415px
+       at a 950px viewport, just under the ~420 floor; --sp-36 clears ~425px there
+       and grows from about 475px at 1000px up. Reported in PROGRESS.md. */
+    gap: var(--sp-36);
+    padding: var(--sp-36) var(--sp-36) var(--sp-48);
+  }
+
+  /* Glyph scales from 340px to 240px; the optical-centre offset scales with it
+     (43 * 240/340 is about 30px up), so the ink mass still centres on the text. */
+  .welcome-glyph {
+    font-size: 240px;
+    transform: translate(-50%, calc(-50% - 30px));
+  }
 }
 
 /* --------------------------------------------------------------------------
@@ -1978,11 +2039,17 @@ a {
   .page.is-detail .panel {
     min-height: 0;
   }
+  /* Client feedback round 10 (item 5): on phones the stack previously ran padding:0
+     in the detail state, so the mono section captions (THE PRICE MENU etc.) touched
+     the panel's left edge and the last one clipped against the panel bottom. Give
+     the stack a horizontal inset (so the media AND its caption sit a comfortable
+     --sp-16 in from the edge, still aligned to each other) and a --sp-32 bottom
+     inset so the last caption clears the panel end and the conversion cluster. */
   .page.is-detail .section-stack {
     height: auto;
     overflow: visible;
     overscroll-behavior: auto;
-    padding: 0;
+    padding: 0 var(--sp-16) var(--sp-32);
   }
 
   /* Proof strip is no longer pinned with margin-top auto (a desktop flex

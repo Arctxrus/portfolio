@@ -1,0 +1,271 @@
+{
+  "w950_light": {
+    "gridTemplateColumns": "400px 442px",
+    "gap": "36px",
+    "padding": "36px 36px 48px",
+    "panelWidth": 442,
+    "colLeftWidth": 400,
+    "docScrollWidth": 950,
+    "innerWidth": 950,
+    "hScroll": false,
+    "glyphFontSize": "240px",
+    "glyphTransform": "matrix(1, 0, 0, 1, -87.8906, -126)",
+    "glyphRect": {
+      "left": 605.109375,
+      "right": 780.890625,
+      "top": 343,
+      "bottom": 535
+    },
+    "lineRect": {
+      "left": 622.59375,
+      "right": 763.40625,
+      "top": 462.5,
+      "bottom": 475.5
+    },
+    "panelRect": {
+      "x": 472,
+      "y": 36,
+      "width": 442,
+      "height": 816,
+      "top": 36,
+      "right": 914,
+      "bottom": 852,
+      "left": 472
+    },
+    "ov": true
+  },
+  "w1000_light": {
+    "gridTemplateColumns": "400px 492px",
+    "gap": "36px",
+    "padding": "36px 36px 48px",
+    "panelWidth": 492,
+    "colLeftWidth": 400,
+    "docScrollWidth": 1000,
+    "innerWidth": 1000,
+    "hScroll": false,
+    "glyphFontSize": "240px",
+    "glyphTransform": "matrix(1, 0, 0, 1, -87.8906, -126)",
+    "glyphRect": {
+      "left": 630.109375,
+      "right": 805.890625,
+      "top": 343,
+      "bottom": 535
+    },
+    "lineRect": {
+      "left": 647.59375,
+      "right": 788.40625,
+      "top": 462.5,
+      "bottom": 475.5
+    },
+    "panelRect": {
+      "x": 472,
+      "y": 36,
+      "width": 492,
+      "height": 816,
+      "top": 36,
+      "right": 964,
+      "bottom": 852,
+      "left": 472
+    },
+    "ov": true
+  },
+  "w1100_light": {
+    "gridTemplateColumns": "400px 592px",
+    "gap": "36px",
+    "padding": "36px 36px 48px",
+    "panelWidth": 592,
+    "colLeftWidth": 400,
+    "docScrollWidth": 1100,
+    "innerWidth": 1100,
+    "hScroll": false,
+    "glyphFontSize": "240px",
+    "glyphTransform": "matrix(1, 0, 0, 1, -87.8906, -126)",
+    "glyphRect": {
+      "left": 680.109375,
+      "right": 855.890625,
+      "top": 343,
+      "bottom": 535
+    },
+    "lineRect": {
+      "left": 697.59375,
+      "right": 838.40625,
+      "top": 462.5,
+      "bottom": 475.5
+    },
+    "panelRect": {
+      "x": 472,
+      "y": 36,
+      "width": 592,
+      "height": 816,
+      "top": 36,
+      "right": 1064,
+      "bottom": 852,
+      "left": 472
+    },
+    "ov": true
+  },
+  "w1200_light": {
+    "gridTemplateColumns": "400px 692px",
+    "gap": "36px",
+    "padding": "36px 36px 48px",
+    "panelWidth": 692,
+    "colLeftWidth": 400,
+    "docScrollWidth": 1200,
+    "innerWidth": 1200,
+    "hScroll": false,
+    "glyphFontSize": "240px",
+    "glyphTransform": "matrix(1, 0, 0, 1, -87.8906, -126)",
+    "glyphRect": {
+      "left": 730.109375,
+      "right": 905.890625,
+      "top": 343,
+      "bottom": 535
+    },
+    "lineRect": {
+      "left": 747.59375,
+      "right": 888.40625,
+      "top": 462.5,
+      "bottom": 475.5
+    },
+    "panelRect": {
+      "x": 472,
+      "y": 36,
+      "width": 692,
+      "height": 816,
+      "top": 36,
+      "right": 1164,
+      "bottom": 852,
+      "left": 472
+    },
+    "ov": true
+  },
+  "w1250_light": {
+    "gridTemplateColumns": "400px 742px",
+    "gap": "36px",
+    "padding": "36px 36px 48px",
+    "panelWidth": 742,
+    "colLeftWidth": 400,
+    "docScrollWidth": 1250,
+    "innerWidth": 1250,
+    "hScroll": false,
+    "glyphFontSize": "240px",
+    "glyphTransform": "matrix(1, 0, 0, 1, -87.8906, -126)",
+    "glyphRect": {
+      "left": 755.109375,
+      "right": 930.890625,
+      "top": 343,
+      "bottom": 535
+    },
+    "lineRect": {
+      "left": 772.59375,
+      "right": 913.40625,
+      "top": 462.5,
+      "bottom": 475.5
+    },
+    "panelRect": {
+      "x": 472,
+      "y": 36,
+      "width": 742,
+      "height": 816,
+      "top": 36,
+      "right": 1214,
+      "bottom": 852,
+      "left": 472
+    },
+    "ov": true
+  },
+  "w1251_light": {
+    "gridTemplateColumns": "460px 559px",
+    "gap": "80px",
+    "padding": "76px 76px 56px",
+    "panelWidth": 559,
+    "colLeftWidth": 460,
+    "docScrollWidth": 1251,
+    "innerWidth": 1251,
+    "hScroll": false,
+    "glyphFontSize": "340px",
+    "glyphTransform": "matrix(1, 0, 0, 1, -124.516, -179)",
+    "glyphRect": {
+      "left": 770.984375,
+      "right": 1020.015625,
+      "top": 306,
+      "bottom": 578
+    },
+    "lineRect": {
+      "left": 825.09375,
+      "right": 965.90625,
+      "top": 478.5,
+      "bottom": 491.5
+    },
+    "panelRect": {
+      "x": 616,
+      "y": 76,
+      "width": 559,
+      "height": 768,
+      "top": 76,
+      "right": 1175,
+      "bottom": 844,
+      "left": 616
+    },
+    "ov": true
+  },
+  "w1440_light": {
+    "gridTemplateColumns": "460px 748px",
+    "gap": "80px",
+    "padding": "76px 76px 56px",
+    "panelWidth": 748,
+    "colLeftWidth": 460,
+    "docScrollWidth": 1440,
+    "innerWidth": 1440,
+    "hScroll": false,
+    "glyphFontSize": "340px",
+    "glyphTransform": "matrix(1, 0, 0, 1, -124.516, -179)",
+    "glyphRect": {
+      "left": 865.484375,
+      "right": 1114.515625,
+      "top": 306,
+      "bottom": 578
+    },
+    "lineRect": {
+      "left": 919.59375,
+      "right": 1060.40625,
+      "top": 478.5,
+      "bottom": 491.5
+    },
+    "panelRect": {
+      "x": 616,
+      "y": 76,
+      "width": 748,
+      "height": 768,
+      "top": 76,
+      "right": 1364,
+      "bottom": 844,
+      "left": 616
+    },
+    "ov": true
+  },
+  "mobile_360": {
+    "display": "flex",
+    "flexDirection": "column",
+    "docScrollWidth": 360,
+    "innerWidth": 360
+  },
+  "mobile_390": {
+    "display": "flex",
+    "flexDirection": "column",
+    "docScrollWidth": 390,
+    "innerWidth": 390
+  },
+  "mobile_768": {
+    "display": "flex",
+    "flexDirection": "column",
+    "docScrollWidth": 768,
+    "innerWidth": 768
+  },
+  "mobile_900": {
+    "display": "flex",
+    "flexDirection": "column",
+    "docScrollWidth": 900,
+    "innerWidth": 900
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "scenario1_exact_failing_360_backbtn": {
+    "y_before_deep": 120,
+    "y_deep": 1009,
+    "trace": [
+      [
+        6,
+        1009,
+        1749
+      ],
+      [
+        27,
+        0,
+        1749
+      ]
+    ],
+    "final_y": 0,
+    "max_scroll_at_settle": 606,
+    "touched_zero_mid": false
+  },
+  "scenario2_genuine_go_back_deep_360": {
+    "y_deep": 866,
+    "trace": [
+      [
+        1,
+        866,
+        1606
+      ],
+      [
+        473,
+        606,
+        1346
+      ]
+    ],
+    "final_y": 606,
+    "max_scroll_at_settle": 606,
+    "touched_zero_mid": false
+  },
+  "scenario3_shallow_120_360": {
+    "trace": [
+      [
+        5,
+        120,
+        1749
+      ]
+    ],
+    "final_y": 120
+  },
+  "scenario4_reduced_motion_deep_360": {
+    "y_deep": 674,
+    "trace": [
+      [
+        0,
+        674,
+        1414
+      ],
+      [
+        38,
+        0,
+        1346
+      ]
+    ],
+    "final_y": 0,
+    "max_scroll_at_settle": 606,
+    "touched_zero_mid": false
+  },
+  "scenario5_390_deep": {
+    "y_deep": 1053,
+    "trace": [
+      [
+        6,
+        1053,
+        1833
+      ],
+      [
+        22,
+        0,
+        1941
+      ]
+    ],
+    "final_y": 0,
+    "max_scroll_at_settle": 573,
+    "touched_zero_mid": false
+  }
+}

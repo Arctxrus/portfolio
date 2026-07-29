@@ -1,0 +1,150 @@
+{
+  "s1_button_deep_360": {
+    "y_deep": 1009,
+    "trace": [
+      [
+        5,
+        1009,
+        1749
+      ],
+      [
+        27,
+        0,
+        1874
+      ]
+    ],
+    "final_y": 0,
+    "max_scroll": 606,
+    "scrollTo_calls": [
+      {
+        "t": 3192,
+        "args": [
+          0,
+          0
+        ],
+        "before": 0
+      }
+    ],
+    "touched_zero": true,
+    "post_settle_manual_scroll_immediate": 300,
+    "post_settle_manual_scroll_after_wait": 300
+  },
+  "s2_escape_deep_360": {
+    "y_deep": 1009,
+    "trace": [
+      [
+        8,
+        1009,
+        1874
+      ],
+      [
+        354,
+        0,
+        1749
+      ]
+    ],
+    "final_y": 0,
+    "max_scroll": 606,
+    "focused_after": "row",
+    "focused_rect_viewport": {
+      "top": 203.1875,
+      "bottom": 250.1875
+    }
+  },
+  "s3_keyboard_activated_button_360": {
+    "y_deep": 1009,
+    "trace": [
+      [
+        7,
+        1009,
+        1874
+      ],
+      [
+        353,
+        0,
+        1749
+      ]
+    ],
+    "final_y": 0,
+    "max_scroll": 606,
+    "focused_after": "row"
+  },
+  "s4_hardware_back_deep_360": {
+    "y_deep": 866,
+    "trace": [
+      [
+        3,
+        866,
+        1606
+      ],
+      [
+        475,
+        606,
+        1346
+      ]
+    ],
+    "final_y": 606,
+    "max_scroll": 606,
+    "touched_zero_permanently": false
+  },
+  "s5_reduced_motion_deep_360": {
+    "y_deep": 674,
+    "trace": [
+      [
+        0,
+        674,
+        1414
+      ],
+      [
+        39,
+        0,
+        1346
+      ]
+    ],
+    "final_y": 0,
+    "max_scroll": 606
+  },
+  "s6_shallow_120_360": {
+    "trace": [
+      [
+        2,
+        120,
+        1749
+      ]
+    ],
+    "final_y": 120
+  },
+  "s7_user_scroll_during_morph_360": {
+    "y_deep": 1009,
+    "trace": [
+      [
+        2,
+        1009,
+        1749
+      ],
+      [
+        24,
+        0,
+        1874
+      ]
+    ],
+    "final_y": 0
+  },
+  "s8_button_deep_390": {
+    "y_deep": 1053,
+    "trace": [
+      [
+        4,
+        1053,
+        1833
+      ],
+      [
+        28,
+        0,
+        1941
+      ]
+    ],
+    "final_y": 0,
+    "max_scroll": 573
+  }
+}

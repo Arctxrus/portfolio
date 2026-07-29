@@ -1,0 +1,55 @@
+{
+  "rest_sweep": [
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta",
+      "shadow": "rgba(255, 255, 255, 0.62) 0px 0px 0px 1px inset, rgba(255, 255, 255, 0.85) 0px 1px 0px 0px inset"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "shadow": "rgba(20, 20, 22, 0.06) 0px 1px 3px 0px"
+    }
+  ],
+  "row_hover_sweep": [
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "shadow": "rgba(255, 255, 255, 0.62) 0px 0px 0px 1px inset, rgba(255, 255, 255, 0.85) 0px 1px 0px 0px inset, rgba(20, 20, 22, 0.06) 0px 1px 3px 0px"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta",
+      "shadow": "rgba(255, 255, 255, 0.62) 0px 0px 0px 1px inset, rgba(255, 255, 255, 0.85) 0px 1px 0px 0px inset"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "shadow": "rgba(20, 20, 22, 0.06) 0px 1px 3px 0px"
+    }
+  ],
+  "theme_dark_sweep": [
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta",
+      "shadow": "rgba(190, 216, 244, 0.2) 0px 0px 0px 1px inset, rgba(200, 224, 248, 0.3) 0px 1px 0px 0px inset"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "shadow": "rgba(0, 0, 0, 0.45) 0px 1px 3px 0px"
+    }
+  ],
+  "cta_open_sweep": [
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta is-open",
+      "shadow": "rgba(190, 216, 244, 0.2) 0px 0px 0px 1px inset, rgba(200, 224, 248, 0.3) 0px 1px 0px 0px inset, rgba(0, 0, 0, 0.45) 0px 1px 3px 0px"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "shadow": "rgba(0, 0, 0, 0.45) 0px 1px 3px 0px"
+    }
+  ]
+}

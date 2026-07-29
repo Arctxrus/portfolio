@@ -1,0 +1,16 @@
+{
+  "mist_info": {
+    "opacity": "0.5",
+    "rect": {
+      "x": 299,
+      "y": 232.6875,
+      "width": 200,
+      "height": 200,
+      "top": 232.6875,
+      "right": 499,
+      "bottom": 432.6875,
+      "left": 299
+    },
+    "zIndex": "-1"
+  }
+}

@@ -2,7 +2,7 @@
    Zayn portfolio - main.js
    Stage 1: single email constant, footer wiring, dot grid canvas.
    Stage 2: decode/scramble, block fade-in, row selection (R1 to R4),
-            row pointer trails, CTA hover mist and press bloom.
+            CTA hover mist and press bloom (row pointer trails removed round 10).
    Stage 3: panel controller (row/CTA to view swap, V5 animation, active-state
             sync, aria-live announcement, contact-form submit stub).
    Stage 4: contact form wiring (Formspree fetch, success/failure states,
@@ -19,6 +19,8 @@
             The two OTHER projects become chips under the back control; a chip
             switches the open project in place (a FLIP swap). All FLIP is skipped
             under reduced motion (no clones spawned, no transforms bound).
+   Round 10: row pointer trails removed; the CTA hover mist is refactored into one
+            generic wireHoverMist and also wired to the project rows.
    Vanilla JS only. UK English. No em dashes.
    ========================================================================== */
 
@@ -36,8 +38,8 @@ function prefersReducedMotion() {
 }
 
 /* Real touch device (CONCEPT.md section 8): a coarse pointer with no hover.
-   Used to fully skip binding the pointer-trail and CTA-hover-mist listeners on
-   phones (the dot grid already keys off the same query). The per-event
+   Used to fully skip binding the hover-mist listeners (CTA and rows) on phones
+   (the dot grid already keys off the same query). The per-event
    pointerType === 'touch' checks are kept as well, so a hybrid laptop that
    reports hover/fine still filters its own touch events correctly. */
 const coarsePointerQuery = window.matchMedia('(hover: none) and (pointer: coarse)');
@@ -1063,8 +1065,17 @@ function initPanel() {
 
   function releaseDocHeight() {
     window.clearTimeout(heightHoldTimer);
-    if (!document.body.style.minHeight) { return; }
-    document.body.style.minHeight = '';
+    const hadReserve = !!document.body.style.minHeight;
+    if (hadReserve) { document.body.style.minHeight = ''; }
+    /* Exit path: finalize the enforcement (round 10 follow-up 2) with an unconditional
+       settle to min(target, settledMax), which also corrects a zeroing that landed
+       during the hold. Enter / switch never start enforcement, so exitEnforce is null
+       there and the generic conditional settle below runs instead. */
+    if (exitEnforce) {
+      endScrollEnforcement(true);
+      return;
+    }
+    if (!hadReserve) { return; }
     /* Reserve gone: if the settled content is now shorter than the held offset,
        land on the new bottom in one instant step (the normal case, a detail taller
        than the index view, leaves scrollY untouched and this is a no-op). */
@@ -1093,16 +1104,32 @@ function initPanel() {
      the tracked offset is still well above the top (a real user reaches the top
      gradually, and exiting from a genuine top is snap-free anyway). */
   let lastDetailScrollY = 0;
-  const DETAIL_ZERO_GUARD = 60;   /* px: below this a y===0 event is a real top, not the zeroing */
+  const DETAIL_ZERO_GUARD = 60;    /* px: a landing below this is "at the top" */
+  const DETAIL_DEEP_GUARD = 240;   /* px: a sudden drop to the top from above this is not the user */
 
+  /* The tracker (lastDetailScrollY) is the single reliable source of the pre-exit
+     offset (Client feedback round 10 verifier follow-up 3). The back control sits at
+     the top of the column and is NOT sticky, so at a deep scroll it is off-screen; a
+     real / trusted click (or Playwright actionability) first scrolls it into view,
+     zeroing scrollY BEFORE any of our handlers (pointerdown, click, popstate) run. So
+     every synchronous window.scrollY read at exit time is already 0. The tracker,
+     protected by the guard below, survives that: a SUDDEN jump to the top (y below
+     DETAIL_ZERO_GUARD) while the tracked offset is still deep (above DETAIL_DEEP_GUARD)
+     is the native focus-scroll / nav zeroing, not a user gesture (a real scroll-up
+     arrives gradually, so by the time y is small the tracked value is small too), and
+     is ignored. This also covers the round-10 regression where the zeroing landed on a
+     small NON-zero value first. */
   function onDetailScroll() {
     const y = window.scrollY;
-    if (y === 0 && lastDetailScrollY > DETAIL_ZERO_GUARD) {
-      return;   /* the browser's intrinsic scroll-to-0 before a back: keep the offset */
+    if (y < DETAIL_ZERO_GUARD && lastDetailScrollY > DETAIL_DEEP_GUARD) {
+      return;   /* a sudden deep -> top jump: the browser's scroll, not the user's */
     }
     lastDetailScrollY = y;
   }
   function startDetailScrollTracking() {
+    /* Cancel any still-pending exit enforcement (a fast re-enter within the exit
+       window) so its listeners cannot re-assert a stale target over the new detail. */
+    endScrollEnforcement(false);
     lastDetailScrollY = window.scrollY;
     window.addEventListener('scroll', onDetailScroll, { passive: true });
   }
@@ -1110,12 +1137,73 @@ function initPanel() {
     window.removeEventListener('scroll', onDetailScroll);
   }
   /* Undo the browser's intrinsic zeroing so the reserve + settle own the position.
-     A no-op when nothing zeroed the scroll (the direct, non-popstate exit path):
-     lastDetailScrollY then equals the current offset. */
-  function restoreDetailScroll() {
+     The offset is CAPTURED once, synchronously, at the exit entry point (closeDetail
+     or the popstate first line) and passed in as an argument, so no intervening scroll
+     event (the browser's pre-popstate zeroing OR an exit-morph reflow clamp to a small
+     non-zero value) can clobber it between capture and here (round 10 regression fix).
+     A no-op when nothing moved the scroll (the direct, non-popstate exit path). */
+  function restoreDetailScroll(capturedY) {
     stopDetailScrollTracking();
-    if (window.scrollY !== lastDetailScrollY) {
-      window.scrollTo(0, lastDetailScrollY);
+    const y = (typeof capturedY === 'number') ? capturedY : lastDetailScrollY;
+    if (window.scrollY !== y) {
+      window.scrollTo(0, y);
+    }
+  }
+
+  /* Exit-window scroll enforcement (Client feedback round 10 verifier follow-up 2).
+     The one-shot restore above only works when the browser's native scroll-zeroing
+     lands BEFORE it runs (the hardware-back ordering: zero, then popstate). On the
+     PRIMARY paths (the back control and Escape) Chromium zeroes scrollY AFTER
+     restoreDetailScroll, so the restore is a no-op (scroll was still intact) and the
+     later zeroing is never corrected (the release clamp only fires when scrollY
+     exceeds the settled max, and 0 never does). So for pointer / hardware exits we
+     ENFORCE the captured target across the whole exit hold: the height reserve keeps
+     the document tall (so the target fits), a scroll listener re-asserts the target
+     whenever scrollY drops below a floor without user input (the zeroing), and at
+     release we settle UNCONDITIONALLY to min(target, settledMax). A wheel / touchmove
+     during the window marks genuine user intent and cancels both the enforcement and
+     the settle, so a user who scrolls during the morph keeps their position. Keyboard
+     exits do NOT enforce: there focus(origin) intentionally scrolls the origin into
+     view and must own the final position. Reduced motion uses the same enforcement
+     (no animation is involved, only the scroll correction). */
+  const ENFORCE_FLOOR = 8;   /* px: a drop below this without user input is the zeroing */
+  let exitEnforce = null;    /* { target, userScrolled, onScroll, onIntent } while enforcing */
+
+  function reassertTarget() {
+    if (!exitEnforce) { return; }
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const y = Math.max(0, Math.min(exitEnforce.target, maxScroll));
+    if (window.scrollY !== y) { window.scrollTo(0, y); }
+  }
+
+  function beginScrollEnforcement(target) {
+    endScrollEnforcement(false);            /* clear any stale enforcement */
+    stopDetailScrollTracking();             /* the exit owns the scroll now */
+    const state = { target: target, userScrolled: false };
+    exitEnforce = state;
+    reassertTarget();                       /* immediate restore (covers the pre-restore zeroing) */
+    state.onIntent = function () { state.userScrolled = true; };
+    state.onScroll = function () {
+      if (state.userScrolled) { return; }
+      if (window.scrollY < ENFORCE_FLOOR && state.target >= ENFORCE_FLOOR) {
+        reassertTarget();                   /* undo an unexpected drop to ~0 (the zeroing) */
+      }
+    };
+    window.addEventListener('wheel', state.onIntent, { passive: true });
+    window.addEventListener('touchmove', state.onIntent, { passive: true });
+    window.addEventListener('scroll', state.onScroll, { passive: true });
+  }
+
+  function endScrollEnforcement(settle) {
+    if (!exitEnforce) { return; }
+    const state = exitEnforce;
+    exitEnforce = null;                     /* null first so the settle scrollTo is not re-caught */
+    window.removeEventListener('wheel', state.onIntent);
+    window.removeEventListener('touchmove', state.onIntent);
+    window.removeEventListener('scroll', state.onScroll);
+    if (settle && !state.userScrolled) {
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      window.scrollTo(0, Math.max(0, Math.min(state.target, maxScroll)));
     }
   }
 
@@ -1575,15 +1663,23 @@ function initPanel() {
      beneath; the panel card stack fades out via the welcome swap. Nothing is
      cloned, so the exit is frame-trace friendly by construction. Focus returns to
      the originating project row. Reduced motion is instant. */
-  function exitDetail(viaKeyboard) {
+  function exitDetail(viaKeyboard, capturedY) {
     if (!inDetail) { return; }
     const origin = detailOriginRow;
 
-    /* FIRST action, before any hold or DOM mutation: undo the browser's intrinsic
-       scroll-to-0 that precedes a same-document back navigation (verifier re-check),
-       so the reserve and the single settle at release own the position. Stops the
-       scroll tracking as it does so. A no-op on the direct exit path (no zeroing). */
-    restoreDetailScroll();
+    /* FIRST action, before any hold or DOM mutation: own the scroll position against
+       the browser's native zeroing on a same-document back (round 10 follow-up 2). For
+       pointer / hardware exits the zeroing may land before OR after this line, so we
+       ENFORCE the captured target across the whole exit window (immediate restore now,
+       re-assert on any drop, unconditional settle at release). Keyboard exits do NOT
+       enforce: focus(origin) intentionally scrolls the origin into view; a one-shot
+       restore is enough to cover the pre-popstate ordering there. */
+    const enforce = !viaKeyboard;
+    if (enforce) {
+      beginScrollEnforcement(typeof capturedY === 'number' ? capturedY : lastDetailScrollY);
+    } else {
+      restoreDetailScroll(capturedY);
+    }
 
     /* Cancel any pending stack mount / video start immediately (no zombie mount if
        the user exits within the travel window). */
@@ -1600,6 +1696,9 @@ function initPanel() {
       detailPushed = false;
       swap('welcome', 'Preview / No selection');
       currentView = null;
+      /* No height hold in reduced motion, but the enforcement window still guards the
+         async zeroing and settles once to min(target, settledMax) at the same delay. */
+      if (enforce) { scheduleReleaseDocHeight(HEIGHT_HOLD_EXIT_MS); }
       if (origin) { applyFocus(origin, viaKeyboard); }
       return;
     }
@@ -1710,19 +1809,21 @@ function initPanel() {
      never calls closeDetail) defaults to false = pointer-like: preventScroll focus and
      a settle to the true welcome max, not a focus scroll to the top (verifier spec). */
   let popstateViaKeyboard = false;
+  let pendingExitScrollY = null;   /* offset captured by closeDetail, carried to popstate */
   function closeDetail(viaKeyboard) {
     if (!inDetail) { return; }
-    /* Capture the live offset synchronously here (the back control and Escape both
-       route through this), independent of scroll-event timing, so restoreDetailScroll
-       always has the true pre-back position even though the browser zeroes scrollY
-       before popstate. A genuine hardware back cannot be intercepted and relies on
-       the passive scroll listener, which fires continuously during real scrolling. */
-    lastDetailScrollY = window.scrollY;
+    /* Use the guard-preserved tracker, NOT the live window.scrollY: on a deep exit the
+       native focus-scroll of the off-screen back control has already zeroed the live
+       scroll before this handler runs (round 10 follow-up 3). Freeze the tracker by
+       stopping the listener, then carry the frozen value to the exit. */
+    stopDetailScrollTracking();
+    const capturedY = lastDetailScrollY;
     if (detailPushed) {
       popstateViaKeyboard = !!viaKeyboard;
+      pendingExitScrollY = capturedY;   /* carry across the history.back() -> popstate hop */
       history.back();   /* triggers popstate -> exitDetail */
     } else {
-      exitDetail(viaKeyboard);
+      exitDetail(viaKeyboard, capturedY);
     }
   }
 
@@ -1756,13 +1857,20 @@ function initPanel() {
 
   window.addEventListener('popstate', function () {
     if (inDetail) {
+      /* FIRST line, before anything else runs: freeze the tracked offset so the exit
+         morph cannot clobber it (round 10). closeDetail (back control / Escape) already
+         snapshotted into pendingExitScrollY; a genuine hardware back never called it, so
+         its offset is the last tracked value (the browser has already zeroed window.scrollY
+         by now, so that cannot be read live). */
+      stopDetailScrollTracking();
       detailPushed = false;   /* the entry has already been popped */
-      /* Consume the stash from closeDetail (back control / Escape); a genuine browser
-         or hardware back never set it, so it reads false = pointer-like (no scroll to
-         the top, just the settle). Reset so the next genuine back also defaults false. */
+      const capturedY = (pendingExitScrollY !== null) ? pendingExitScrollY : lastDetailScrollY;
+      /* Consume the modality stash; a genuine browser / hardware back never set it, so it
+         reads false = pointer-like (no scroll to the top, just the settle). */
       const viaKeyboard = popstateViaKeyboard;
       popstateViaKeyboard = false;
-      exitDetail(viaKeyboard);
+      pendingExitScrollY = null;
+      exitDetail(viaKeyboard, capturedY);
     }
   });
 }
@@ -1957,85 +2065,92 @@ function initContactForm() {
 }
 
 /* --------------------------------------------------------------------------
-   Row pointer trails (CONCEPT.md 3.3 "Row pointer trail")
-   On pointermove over an index row, spawn at most every 100ms a 12px blurred
-   dot at the cursor. Opacity: 0 to 0.32 in 300ms (20ms delay), hold, then
-   0.32 to 0 over 1200ms starting at 1000ms; the node is removed at 2200ms.
-   Not bound under reduced motion; each move ignored when pointerType is touch.
+   Cursor-following hover mist (CONCEPT.md 3.4 C2 hover mist)
+
+   ONE generic wiring, reused by the CTA pill and, from Client feedback round 10
+   (item 3), the project index rows (per-element wiring, no duplicated code). A
+   single mist node per host follows the cursor with a 900ms lag (the lag lives in
+   the CSS transition on .hover-mist) and fades opacity 0 to 0.5 in 420ms. It is
+   NOT rendered under reduced motion or on real touch devices (section 8), and each
+   move is ignored when pointerType is touch (so a hybrid laptop still filters its
+   own touch events). The host must be position:relative and overflow:hidden so the
+   mist is clipped to the host's radius; the CTA and the project rows both are.
+
+   (Round 10, item 2: the previous row pointer TRAILS are removed entirely; this
+   mist is what gives the row hover its motion now.)
    -------------------------------------------------------------------------- */
 
-const TRAIL_SPAWN_INTERVAL = 100;
-const TRAIL_LIFETIME = 2200;
-
-function initRowTrails() {
-  if (prefersReducedMotion()) {
-    return;   /* not spawned under reduced motion: no listener bound */
-  }
-  if (isTouchDevice()) {
-    return;   /* real touch device (section 8): no trails, no listener bound */
+function wireHoverMist(host) {
+  if (!host || prefersReducedMotion() || isTouchDevice()) {
+    return;   /* not rendered under reduced motion or on touch: no listener bound */
   }
 
-  const rows = document.querySelectorAll('.row:not(.row--cta)');
-  if (!rows.length) {
-    return;
+  let mist = null;
+
+  function ensureMist() {
+    if (!mist) {
+      mist = document.createElement('div');
+      mist.className = 'hover-mist';
+      host.appendChild(mist);
+    }
+    return mist;
   }
 
-  const rootStyles = getComputedStyle(document.documentElement);
-  const trailA = rootStyles.getPropertyValue('--trail-a').trim();
-  const trailB = rootStyles.getPropertyValue('--trail-b').trim();
-  const peak = parseFloat(rootStyles.getPropertyValue('--trail-opacity')) || 0.32;
-
-  let lastSpawn = 0;
-  let useA = true;
-
-  function spawn(x, y) {
-    const dot = document.createElement('div');
-    dot.className = 'trail-dot';
-    dot.style.background = useA ? trailA : trailB;
-    useA = !useA;
-    dot.style.transform = 'translate(' + x + 'px, ' + y + 'px) translate(-50%, -50%)';
-    document.body.appendChild(dot);
-
-    /* Opacity timeline over the full 2200ms lifetime (offsets are ms/2200):
-       0ms 0, 20ms 0 (delay), 320ms peak, 1000ms peak, 2200ms 0. */
-    const anim = dot.animate([
-      { opacity: 0, offset: 0 },
-      { opacity: 0, offset: 20 / TRAIL_LIFETIME },
-      { opacity: peak, offset: 320 / TRAIL_LIFETIME },
-      { opacity: peak, offset: 1000 / TRAIL_LIFETIME },
-      { opacity: 0, offset: 1 }
-    ], { duration: TRAIL_LIFETIME, easing: 'ease', fill: 'forwards' });
-
-    anim.onfinish = function () {
-      dot.remove();
-    };
+  /* instant true: place without the 900ms lag (used on first appearance). */
+  function moveMist(event, instant) {
+    const rect = host.getBoundingClientRect();
+    const node = ensureMist();
+    const transform =
+      'translate(' + (event.clientX - rect.left) + 'px, ' +
+      (event.clientY - rect.top) + 'px) translate(-50%, -50%)';
+    if (instant) {
+      node.style.transition = 'none';
+      node.style.transform = transform;
+      void node.offsetWidth;   /* flush so the next change transitions */
+      node.style.transition = '';
+    } else {
+      node.style.transform = transform;
+    }
   }
 
-  function onPointerMove(event) {
+  host.addEventListener('pointerenter', function (event) {
     if (event.pointerType === 'touch') {
-      return;   /* skipped when pointerType is touch */
+      return;   /* mist not rendered on touch */
     }
-    const now = performance.now();
-    if (now - lastSpawn < TRAIL_SPAWN_INTERVAL) {
-      return;   /* spawn at most every 100ms */
-    }
-    lastSpawn = now;
-    spawn(event.clientX, event.clientY);
-  }
-
-  rows.forEach(function (row) {
-    row.addEventListener('pointermove', onPointerMove);
+    const node = ensureMist();
+    /* Appear under the cursor, then fade in; lag only applies while moving. */
+    moveMist(event, true);
+    window.requestAnimationFrame(function () {
+      node.style.opacity = '0.5';
+    });
   });
+
+  host.addEventListener('pointermove', function (event) {
+    if (event.pointerType === 'touch' || !mist) {
+      return;
+    }
+    moveMist(event, false);
+  });
+
+  host.addEventListener('pointerleave', function () {
+    if (mist) {
+      mist.style.opacity = '0';
+    }
+  });
+}
+
+/* Project index rows (01 to 03) share the CTA's hover mist (round 10, item 3). */
+function initRowMist() {
+  const rows = document.querySelectorAll('.row:not(.row--cta)');
+  rows.forEach(wireHoverMist);
 }
 
 /* --------------------------------------------------------------------------
    CTA pill interactions (CONCEPT.md 3.4 C2 hover mist, C3 press bloom)
-   Hover mist: a node following the cursor with 900ms lag (the lag lives in the
-   CSS transition), opacity 0 to 0.5. Not rendered under reduced motion or when
-   the pointer is touch. Press bloom: one node per press from the exact pointer
-   or tap point, scale 0.25 to 1, opacity 0 to 0.5 to 0 over 600ms ease-out,
-   removed at 700ms. The bloom fires on touch too; not spawned under reduced
-   motion. No scale is ever applied to the pill itself.
+   Hover mist: wired via the shared wireHoverMist above. Press bloom: one node per
+   press from the exact pointer or tap point, scale 0.25 to 1, opacity 0 to 0.5 to
+   0 over 600ms ease-out, removed at 700ms. The bloom fires on touch too; not
+   spawned under reduced motion. No scale is ever applied to the pill itself.
    -------------------------------------------------------------------------- */
 
 function initCta() {
@@ -2044,63 +2159,9 @@ function initCta() {
     return;
   }
 
-  /* Hover mist. Guarded off entirely under reduced motion and on real touch
-     devices (section 8: no hover mist on touch). The per-event pointerType
-     checks below stay for hybrid pointers. */
-  if (!prefersReducedMotion() && !isTouchDevice()) {
-    let mist = null;
-
-    function ensureMist() {
-      if (!mist) {
-        mist = document.createElement('div');
-        mist.className = 'cta-mist';
-        cta.appendChild(mist);
-      }
-      return mist;
-    }
-
-    /* instant true: place without the 900ms lag (used on first appearance). */
-    function moveMist(event, instant) {
-      const rect = cta.getBoundingClientRect();
-      const node = ensureMist();
-      const transform =
-        'translate(' + (event.clientX - rect.left) + 'px, ' +
-        (event.clientY - rect.top) + 'px) translate(-50%, -50%)';
-      if (instant) {
-        node.style.transition = 'none';
-        node.style.transform = transform;
-        void node.offsetWidth;   /* flush so the next change transitions */
-        node.style.transition = '';
-      } else {
-        node.style.transform = transform;
-      }
-    }
-
-    cta.addEventListener('pointerenter', function (event) {
-      if (event.pointerType === 'touch') {
-        return;   /* mist not rendered on touch */
-      }
-      const node = ensureMist();
-      /* Appear under the cursor, then fade in; lag only applies while moving. */
-      moveMist(event, true);
-      window.requestAnimationFrame(function () {
-        node.style.opacity = '0.5';
-      });
-    });
-
-    cta.addEventListener('pointermove', function (event) {
-      if (event.pointerType === 'touch' || !mist) {
-        return;
-      }
-      moveMist(event, false);
-    });
-
-    cta.addEventListener('pointerleave', function () {
-      if (mist) {
-        mist.style.opacity = '0';
-      }
-    });
-  }
+  /* Hover mist: the same node/behaviour as the rows, guarded off under reduced
+     motion and on real touch devices inside wireHoverMist. */
+  wireHoverMist(cta);
 
   /* Press bloom. Fires on touch too; not spawned under reduced motion. */
   cta.addEventListener('pointerdown', function (event) {
@@ -2140,8 +2201,8 @@ function init() {
   initAboutToggle();
   initPanel();
   initContactForm();
-  initRowTrails();
   initCta();
+  initRowMist();
 }
 
 if (document.readyState === 'loading') {
