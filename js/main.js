@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Zayn portfolio - main.js
+   Pagefront portfolio - main.js
    Stage 1: single email constant, footer wiring, dot grid canvas.
    Stage 2: decode/scramble, block fade-in, row selection (R1 to R4),
             CTA hover mist and press bloom (row pointer trails removed round 10).
@@ -68,7 +68,7 @@ function isTouchDevice() {
    behaviour are unchanged by the theme.
    -------------------------------------------------------------------------- */
 
-const THEME_STORAGE_KEY = 'zayn-theme';
+const THEME_STORAGE_KEY = 'pagefront-theme';
 const themeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
 function resolveTheme(pref) {
@@ -144,17 +144,19 @@ function initTheme() {
    Placeholder until the real address is supplied (see PROGRESS.md).
    -------------------------------------------------------------------------- */
 
-const SITE_EMAIL = 'hello@placeholder.invalid';
+const SITE_EMAIL = 'hello@pagefront.co.uk';
 
 /* --------------------------------------------------------------------------
    Formspree endpoint - defined exactly once. The contact form's action
    attribute is set from this constant when the form view is rendered (see
    initPanel/renderView), so there is a single place to edit the endpoint and
-   the plain POST target matches it. The real form ID is an open item
-   (see PROGRESS.md); the placeholder is deliberately obvious.
+   the plain POST target matches it. This is the live endpoint (rebrand +
+   migration round, 2026-08-07); because it no longer contains REPLACE_FORM_ID,
+   the placeholder short-circuit in handleContactSubmit no longer matches and the
+   real fetch path runs.
    -------------------------------------------------------------------------- */
 
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/REPLACE_FORM_ID';
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mnpajqae';
 
 /* --------------------------------------------------------------------------
    Footer wiring: build the email line and mailto from SITE_EMAIL, and stamp
@@ -710,28 +712,35 @@ function initPanel() {
   let detailOriginRow = null;  /* the row that opened it (focus returns here) */
   let detailPushed = false;    /* a history entry was pushed for this detail */
   let sectionObserver = null;  /* gates section-video playback by visibility */
-  let sectionStartTimer = 0;   /* deferred playback start (round 7 FAIL fix) */
-  let sectionMountTimer = 0;   /* deferred stack-card mount (round 7 FAIL fix) */
+  let sectionMountTimer = 0;   /* deferred stack mount / activation (round 7 FAIL fix) */
   let sectionMountGen = 0;     /* generation token: cancels an in-flight card chain */
   let flipLayer = null;        /* viewport-clipped overlay that holds FLIP clones */
 
+  /* Persistent per-project section stacks (rebrand + migration round, 2026-08-07).
+     Each project's stack is built once and kept in the panel DOM, keyed here; a
+     revisit unhides it rather than recreating it, so its media is never refetched.
+     activeProjectKey is the project whose stack is currently visible (or null). */
+  const projectStacks = {};
+  let activeProjectKey = null;
+
   /* ---- panel content ---------------------------------------------------- */
 
-  /* Section-card videos (round 6, verifier round-6 FAIL 1). The markup keeps
-     autoplay for mobile robustness, but starting every clip at once (three at a
-     time for the star) overran the decoder and dropped 15 to 29% of frames. So
-     an IntersectionObserver gates playback on ALL breakpoints: only a card
-     substantially in view (>= 50%) plays; the rest are paused. On setup every
-     clip is paused first (cancelling the autoplay start), so at most the one or
-     two visible clips ever decode together. root is the viewport (null): the
-     panel's overflow:hidden and the stack's overflow-y:auto clip off-screen
-     cards, so their intersection ratio is ~0 and they stay paused; this works on
-     desktop (internal panel scroll) and mobile (page scroll) alike. The observer
-     is torn down on every view swap (before the old nodes are removed) so it
-     never leaks or fights the About / Pricing / form / welcome views, and it does
-     not touch reduced motion (a muted preview loop was accepted there; the
-     observer only manages play/pause by visibility, binds no transition and
-     spawns no node). */
+  /* Section-card videos + persistent per-project stacks (round 6, verifier round-6
+     FAIL 1; rebrand + migration round 2026-08-07). Each project's section stack is
+     built ONCE, into a persistent container in the panel DOM (projectStacks), and
+     kept there for the life of the page: revisiting a project unhides its stack
+     rather than recreating it, so the loop videos and jpgs are never refetched and a
+     video src is never touched after the first attach. Only the active project's
+     stack is visible; the others carry the `hidden` attribute (display:none via the
+     .section-stack[hidden] CSS rule). Playback is gated by an IntersectionObserver on
+     ALL breakpoints: only a card substantially in view (>= 50%) plays; the rest pause.
+     root is the viewport (null): the panel overflow:hidden and the stack overflow-y
+     clip off-screen cards, so their ratio is ~0 and they stay paused (desktop internal
+     scroll and mobile page scroll alike). Leaving a project (exit / chip switch /
+     opening the form) pauses its videos and resets currentTime to 0; returning plays
+     the in-view clip(s) again through the observer. Reduced motion is untouched (a
+     muted preview loop was accepted there; the observer only manages play/pause by
+     visibility, binds no transition and spawns no node). */
   const SECTION_PLAY_RATIO = 0.5;
 
   function teardownSectionObserver() {
@@ -739,34 +748,14 @@ function initPanel() {
       sectionObserver.disconnect();
       sectionObserver = null;
     }
-    /* Cancel any deferred stack-card mount and playback start (round 7 verifier
-       FAILs): if the user exits or switches before they fire, there is no zombie
-       mount or timer. Called at the top of every renderView and on exit / switch. */
+    /* Cancel any deferred stack mount / activation (round 7 verifier FAILs): if the
+       user exits or switches before it fires, there is no zombie mount or timer.
+       Called at the top of every renderView and on exit / switch. */
     window.clearTimeout(sectionMountTimer);
     sectionMountTimer = 0;
-    window.clearTimeout(sectionStartTimer);
-    sectionStartTimer = 0;
-    /* Bump the mount generation so any in-flight incremental append chain (its
-       deferred steps are guarded on this token) cancels the rest of its cards. */
+    /* Bump the mount generation so any in-flight incremental append / stagger chain
+       (its deferred steps are guarded on this token) cancels the rest of its cards. */
     sectionMountGen++;
-  }
-
-  /* Round 7 verifier FAIL fixes. Two costs used to land inside the FLIP travel:
-     (1) the section-video DECODE and (2) the section stack MOUNT (decoding three
-     posters plus 1600px jpgs and laying out the stack). Both are now kept out of
-     the 0..FLIP_MS window. commit renders only an EMPTY stack shell; mountStackCards
-     appends the cards at travel end (so the stagger is their entrance);
-     primeSectionVideos pauses the freshly mounted clips (cancelling the autoplay
-     decode while the posters render); startSectionVideos attaches the visibility
-     observer and plays the in-view clip(s) a beat after the mount. On the
-     reduced-motion / non-animated paths everything mounts and starts immediately. */
-
-  function primeSectionVideos() {
-    const vids = panelBody.querySelectorAll('.section-video');
-    vids.forEach(function (v) {
-      v.muted = true;
-      try { v.pause(); } catch (e) { /* ignore: cancel the autoplay decode */ }
-    });
   }
 
   function makeSectionObserver() {
@@ -789,10 +778,12 @@ function initPanel() {
     }
   }
 
-  /* Prime one card's clip (pause + mute, cancelling the autoplay decode) and hand
-     it to the visibility observer so it plays only while in view; the no-observer
-     fallback just plays it. Called per card AS it mounts, so the video-decode cost
-     spreads across the stagger beats instead of firing all at once. */
+  /* Prime one card's clip (pause + mute, cancelling the autoplay decode) and hand it
+     to the visibility observer so it plays only while in view; the no-observer fallback
+     just plays it. Called per card AS it mounts (first open) or on a revisit, so the
+     video-decode cost spreads across the beats instead of firing all at once. The clip
+     was reset to currentTime 0 when its project was last left, so it plays from the
+     start on return. */
   function wireCardVideo(card) {
     const v = card.querySelector('.section-video');
     if (!v) { return; }
@@ -806,31 +797,47 @@ function initPanel() {
     }
   }
 
-  /* Start videos for an already-mounted FULL stack (reduced motion / immediate).
-     One-shot, which is fine when nothing animates. */
-  function startSectionVideos() {
-    teardownSectionObserver();
-    const cards = Array.prototype.slice.call(
-      panelBody.querySelectorAll('.section-card'));
-    if (!cards.length) { return; }
-    ensureSectionObserver();
-    cards.forEach(wireCardVideo);
+  /* Build a project's persistent stack container ONCE. Clone the template's
+     .section-stack SHELL (its role / tabindex / aria-label, so the tab order and the
+     scroll region exist) but strip the cards, so no media loads before the project is
+     first opened; hide it and append it to the panel body. Subsequent calls return the
+     same node, so its media is never rebuilt or refetched. */
+  function ensureStack(key) {
+    if (projectStacks[key]) { return projectStacks[key]; }
+    const tpl = document.getElementById('view-' + key);
+    if (!tpl) { return null; }
+    const frag = tpl.content.cloneNode(true);
+    const stack = frag.querySelector('.section-stack');
+    if (!stack) { return null; }
+    Array.prototype.slice.call(stack.querySelectorAll('.section-card'))
+      .forEach(function (c) { c.remove(); });
+    stack.hidden = true;
+    panelBody.appendChild(stack);
+    projectStacks[key] = stack;
+    return stack;
   }
 
-  /* Schedule the playback start for the FULL-mount path (reduced motion / immediate
-     via commit): 0 starts it now; a positive delay defers it. teardownSectionObserver
-     clears a pending start, so a quick exit / switch leaves no zombie timer. */
-  function scheduleSectionVideos(delay) {
-    window.clearTimeout(sectionStartTimer);
-    if (!delay) {
-      sectionStartTimer = 0;
-      startSectionVideos();
-      return;
-    }
-    sectionStartTimer = window.setTimeout(function () {
-      sectionStartTimer = 0;
-      startSectionVideos();
-    }, delay);
+  /* Leave a project: hide its persistent stack and pause + rewind its videos, so on
+     return they play from the start (and only the visible project's clips ever play).
+     The nodes are kept, so nothing is refetched. */
+  function deactivateProject(key) {
+    const stack = projectStacks[key];
+    if (!stack) { return; }
+    stack.hidden = true;
+    Array.prototype.slice.call(stack.querySelectorAll('.section-video'))
+      .forEach(function (v) {
+        try { v.pause(); v.currentTime = 0; } catch (e) { /* ignore */ }
+      });
+  }
+
+  /* Remove the transient welcome / form node(s) from the panel body, leaving the
+     persistent project stacks (.section-stack) and the no-JS <noscript> in place. */
+  function clearTransient() {
+    Array.prototype.slice.call(panelBody.children).forEach(function (child) {
+      if (child.classList && child.classList.contains('section-stack')) { return; }
+      if (child.tagName === 'NOSCRIPT') { return; }
+      panelBody.removeChild(child);
+    });
   }
 
   /* Append one card, fade it in (opacity + 6px translateY), and wire its video. A
@@ -856,27 +863,26 @@ function initPanel() {
     }, CARD_FADE_MS + 40);
   }
 
-  /* Incrementally mount the stack cards (round 7 verifier FAIL 3: the one-shot mount
-     burst dropped a frame at ~400 to 450ms). Append the first card now, then one
-     card per CARD_STAGGER_MS beat, each fading in as it lands, so the layout plus
-     poster / jpg decode is spread one figure per frame instead of a single heavy
-     burst: the stagger IS the mount. Cards append at the END of the stack (the
-     scroll container), so earlier cards never shift (only scrollHeight grows). Each
-     deferred step is guarded on a generation token (sectionMountGen), which
-     teardownSectionObserver bumps, so a rapid exit / switch cancels the rest of the
-     chain with no zombie appends. Reduced motion mounts every card at once. */
-  function mountStackCards(key) {
-    const stack = panelBody.querySelector('.section-stack');
+  /* FIRST open of a project: mount its cards into the (empty) persistent stack. The
+     card nodes, including each <video> with its src, are created here exactly once and
+     kept for the life of the page (so media loads only now, and only once). Animated:
+     append the first card now, then one per CARD_STAGGER_MS beat, each fading in as it
+     lands (the stagger IS the mount, so the poster / jpg decode is spread one figure
+     per frame; round 7 verifier FAIL 3). Each deferred step is guarded on the
+     generation token, so a rapid exit / switch cancels the rest. Reduced motion /
+     immediate mounts every card at once. */
+  function mountStackCards(key, animate) {
+    const stack = projectStacks[key];
     const tpl = document.getElementById('view-' + key);
     if (!stack || !tpl) { return; }
-    if (stack.querySelector('.section-card')) { return; }   /* guard double-mount */
+    if (stack.querySelector('.section-card')) { return; }   /* already mounted */
     const frag = tpl.content.cloneNode(true);
     const cards = Array.prototype.slice.call(frag.querySelectorAll('.section-card'));
     if (!cards.length) { return; }
 
     ensureSectionObserver();
 
-    if (prefersReducedMotion()) {
+    if (!animate) {
       cards.forEach(function (card) {
         stack.appendChild(card);
         wireCardVideo(card);
@@ -889,71 +895,135 @@ function initPanel() {
     for (let i = 1; i < cards.length; i++) {
       (function (card, idx) {
         window.setTimeout(function () {
-          if (gen !== sectionMountGen) { return; }   /* cancelled by exit / switch */
-          if (!stack.isConnected) { return; }        /* stack removed */
+          if (gen !== sectionMountGen) { return; }              /* cancelled */
+          if (!stack.isConnected || stack.hidden) { return; }   /* left / removed */
           appendCard(stack, card);
         }, idx * CARD_STAGGER_MS);
       })(cards[i], i);
     }
   }
 
-  /* Schedule the card mount: 0 mounts now (reduced motion / immediate); a positive
-     delay defers it to travel end. Cleared by teardownSectionObserver on the next
-     renderView or on exit, so a quick exit / switch leaves no zombie mount. */
-  function scheduleStackCards(key, delay) {
+  /* REVISIT of a project: the cards already exist. Re-wire each clip to the observer
+     (which resumes in-view playback from currentTime 0) and, when animated, stagger a
+     pure-opacity + 6px translateY reveal on the existing nodes (no clone, no remount).
+     The from-state (opacity 0) is set synchronously in renderView so the panel never
+     flashes the full stack before the stagger. Guarded on the generation token like
+     the first-open mount, so a rapid exit / switch cancels the rest. */
+  function revisitStack(stack, animate) {
+    const cards = Array.prototype.slice.call(stack.querySelectorAll('.section-card'));
+    if (!cards.length) { return; }
+    cards.forEach(wireCardVideo);
+    if (!animate) {
+      cards.forEach(function (card) {
+        card.style.transition = '';
+        card.style.opacity = '';
+        card.style.transform = '';
+      });
+      return;
+    }
+    const gen = ++sectionMountGen;
+    cards.forEach(function (card, i) {
+      window.setTimeout(function () {
+        if (gen !== sectionMountGen) {
+          card.style.transition = '';
+          card.style.opacity = '';
+          card.style.transform = '';
+          return;
+        }
+        card.style.transition = 'opacity ' + CARD_FADE_MS + 'ms ease, transform ' +
+          CARD_FADE_MS + 'ms ease';
+        card.style.opacity = '1';
+        card.style.transform = 'translateY(0)';
+        window.setTimeout(function () {
+          card.style.transition = '';
+          card.style.opacity = '';
+          card.style.transform = '';
+        }, CARD_FADE_MS + 40);
+      }, i * CARD_STAGGER_MS);
+    });
+  }
+
+  /* Activate the visible project's stack once the FLIP travel is over (or immediately
+     on the reduced-motion / non-animated path). First open mounts the cards; a revisit
+     reveals the already-built stack and resumes playback. firstOpen is captured in
+     commit BEFORE ensureStack builds the container. */
+  function activateStack(key, firstOpen, animate) {
+    const stack = projectStacks[key];
+    if (!stack || stack.hidden || activeProjectKey !== key) { return; }
+    ensureSectionObserver();
+    if (firstOpen) {
+      mountStackCards(key, animate);
+    } else {
+      revisitStack(stack, animate);
+    }
+  }
+
+  /* Schedule the stack activation: 0 runs now (reduced motion / immediate); a positive
+     delay defers it to travel end. Cleared + generation-bumped by teardownSectionObserver
+     on the next renderView or on exit, so a quick exit / switch leaves no zombie work. */
+  function scheduleActivateStack(key, firstOpen, animate, delay) {
     window.clearTimeout(sectionMountTimer);
     if (!delay) {
       sectionMountTimer = 0;
-      mountStackCards(key);
+      activateStack(key, firstOpen, animate);
       return;
     }
     sectionMountTimer = window.setTimeout(function () {
       sectionMountTimer = 0;
-      mountStackCards(key);
+      activateStack(key, firstOpen, animate);
     }, delay);
   }
 
+  /* Show a view in the panel body. Projects toggle their persistent, build-once stack
+     (never recreated); welcome / form are transient nodes cloned fresh each time (the
+     form must not leak typed state between visits). Leaving a project pauses + rewinds
+     its videos. When revisiting a project under animation (shellOnly), the existing
+     cards are hidden synchronously here so activateStack can stagger them in without a
+     flash. */
   function renderView(viewKey, shellOnly) {
-    const tpl = document.getElementById('view-' + viewKey);
-    if (!tpl) {
-      return;
-    }
-    /* Disconnect the previous section observer and cancel any pending mount /
-       start before the old nodes leave the DOM (covers project -> project,
-       project -> welcome and every other swap). */
+    /* Disconnect the observer and cancel any pending activation before the DOM changes
+       (covers project -> project, project -> welcome and every other swap). */
     teardownSectionObserver();
-    const frag = tpl.content.cloneNode(true);
+
+    /* Leaving the current project: pause + rewind + hide it (nodes kept). */
+    if (activeProjectKey && activeProjectKey !== viewKey) {
+      deactivateProject(activeProjectKey);
+      activeProjectKey = null;
+    }
+
+    /* Drop any transient welcome / form node. */
+    clearTransient();
 
     if (PROJECT_KEYS.indexOf(viewKey) !== -1) {
-      /* A project template carries a .detail-copy (for the left header) and a
-         .section-stack (for the panel). Only the stack goes in the panel here;
-         the copy is placed by fillDetailCopy when the detail state opens. */
-      const stack = frag.querySelector('.section-stack');
-      if (stack) {
-        if (shellOnly) {
-          /* Keep the region SHELL (role / tabindex / aria-label, so the tab order
-             and the scroll region exist through the travel) but strip the cards, so
-             no poster / jpg decodes or lays out during the FLIP travel. The cards
-             are mounted at travel end by mountStackCards (round 7 verifier FAIL). */
-          Array.prototype.slice.call(stack.querySelectorAll('.section-card'))
-            .forEach(function (c) { c.remove(); });
-        }
-        panelBody.replaceChildren(stack);
-        if (!shellOnly) {
-          /* Full mount (reduced motion / immediate): pause the clips now; the
-             observer / play() are started by commit via scheduleSectionVideos. */
-          primeSectionVideos();
-        }
+      const wasBuilt = !!projectStacks[viewKey];
+      const stack = ensureStack(viewKey);
+      if (!stack) { return; }
+      stack.hidden = false;
+      stack.scrollTop = 0;
+      activeProjectKey = viewKey;
+      if (wasBuilt && shellOnly) {
+        /* Revisit under animation: hide the existing cards now so the panel does not
+           flash the full stack before activateStack staggers them back in. */
+        Array.prototype.slice.call(stack.querySelectorAll('.section-card'))
+          .forEach(function (card) {
+            card.style.transition = 'none';
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(6px)';
+          });
       }
       return;
     }
 
-    /* welcome / about / pricing / form: the whole view goes in the panel. */
-    panelBody.replaceChildren(frag);
+    /* welcome / form: a transient node cloned fresh into the panel body. */
+    const tpl = document.getElementById('view-' + viewKey);
+    if (!tpl) { return; }
+    const node = tpl.content.cloneNode(true).firstElementChild;
+    if (!node) { return; }
+    panelBody.appendChild(node);
     if (viewKey === 'form') {
-      /* Inject the Formspree endpoint into the freshly cloned form (single
-         source of truth; also the plain POST target if fetch is unavailable). */
-      const form = panelBody.querySelector('[data-contact-form]');
+      /* Inject the Formspree endpoint into the freshly cloned form (single source of
+         truth; also the plain POST target if fetch is unavailable). */
+      const form = node.querySelector('[data-contact-form]');
       if (form) {
         form.action = FORMSPREE_ENDPOINT;
       }
@@ -966,32 +1036,34 @@ function initPanel() {
     }
   }
 
-  /* opts (round 7): { shellOnly, cardsDelay, videoDelay }.
-     - shellOnly true (animated project enter / switch): render the empty stack
-       shell and schedule the card mount cardsDelay from now (travel end). The card
-       mount then primes + staggers + starts the videos.
-     - shellOnly false (reduced motion / immediate, and the non-project views):
-       render the full view now; for a project, start the videos after videoDelay
-       (0 = immediate). The non-project views have no section videos. */
+  /* opts (round 7, rebrand round): { shellOnly, cardsDelay, videoDelay }.
+     - shellOnly true (animated project enter / switch): render the empty shell (first
+       open) or hide the existing cards (revisit) now, and schedule activateStack
+       cardsDelay from now (travel end), which mounts (first open) or staggers in
+       (revisit) and starts the videos.
+     - shellOnly false (reduced motion / immediate, and the non-project views): render
+       the view now; for a project, activate its stack after videoDelay (0 = immediate).
+       The non-project views have no section videos. */
   function commit(viewKey, headerText, opts) {
     opts = opts || {};
+    const isProject = PROJECT_KEYS.indexOf(viewKey) !== -1;
+    /* Capture firstOpen BEFORE renderView, which builds the persistent stack. */
+    const firstOpen = isProject && !projectStacks[viewKey];
     renderView(viewKey, opts.shellOnly);
     if (headerLabel) {
       headerLabel.textContent = headerText;
     }
     announce(headerText);
     /* Scheduled AFTER renderView so its teardown does not clear the timer we set. */
-    if (PROJECT_KEYS.indexOf(viewKey) !== -1) {
-      if (opts.shellOnly) {
-        scheduleStackCards(viewKey, opts.cardsDelay || 0);
-      } else {
-        scheduleSectionVideos(opts.videoDelay || 0);
-      }
+    if (isProject) {
+      const animate = !!opts.shellOnly;
+      const delay = animate ? (opts.cardsDelay || 0) : (opts.videoDelay || 0);
+      scheduleActivateStack(viewKey, firstOpen, animate, delay);
     }
-    /* Only the normal index-model views scroll the panel into view on mobile
-       (round 6): the detail state morphs in place and its header sits in the left
-       column, so a project selection must not scroll the panel over that header.
-       The welcome restore stays at the top so the restored index is visible. */
+    /* Only the normal index-model views scroll the panel into view on mobile (round 6):
+       the detail state morphs in place and its header sits in the left column, so a
+       project selection must not scroll the panel over that header. The welcome restore
+       stays at the top so the restored index is visible. */
     if (viewKey === 'form') {
       scrollPanelIntoView();
     }
@@ -1280,7 +1352,7 @@ function initPanel() {
 
   function pushDetailHistory() {
     try {
-      history.pushState({ zaynDetail: 1 }, '');
+      history.pushState({ detailOpen: 1 }, '');
       detailPushed = true;
     } catch (e) {
       detailPushed = false;

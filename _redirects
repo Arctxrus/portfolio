@@ -1,0 +1,16 @@
+# Cloudflare Pages redirect rules (rebrand + migration round, 2026-08-07).
+# Cloudflare Pages serves the WHOLE repo by path, so the build docs, history and
+# tooling (which carry the owner's name and the full change log) would otherwise be
+# publicly reachable at pagefront.co.uk. Force a 404 for every non-site path that
+# exists in this repo. The shipped site files (index.html, css/, js/, media/,
+# fonts/, favicon.svg, favicon-32.png, apple-touch-icon.png, og-image.png) are not
+# listed here, so they continue to be served normally.
+# UK English, no em dashes.
+
+/PROGRESS.md      /  404
+/CONCEPT.md       /  404
+/verify/*         /  404
+/docs/*           /  404
+/tools/*          /  404
+/references/*     /  404
+/.claude/*        /  404

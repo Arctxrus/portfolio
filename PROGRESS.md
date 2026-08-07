@@ -5,18 +5,19 @@ House rules: UK English, no em dashes, instrument then fix, commit per stage.
 
 ## Open items
 
-- [ ] OPEN BLOCKER (gates outreach, not deploy, per Zayn 2026-07-27):
-      replace placeholder email. `hello@placeholder.invalid` is the single
-      constant `SITE_EMAIL` in js/main.js, which populates every on-page use.
-      SECOND LITERAL OCCURRENCE (added in the approval round, deviation 5c): the
-      no-JS `<noscript>` fallback in index.html hard-codes the same address
-      (mailto link + visible text), because with JS off it cannot read the
-      constant. When the real address lands, edit BOTH: `SITE_EMAIL` in
-      js/main.js AND the literal in the index.html `<noscript>` (a comment there
-      points back to SITE_EMAIL).
-- [ ] OPEN BLOCKER (gates outreach, not deploy, per Zayn 2026-07-27):
-      Formspree endpoint ID. Until it exists the submit path short-circuits to
-      the graceful failure state pointing at the email line.
+- [x] DONE (rebrand + migration round, 2026-08-07): real email in place.
+      `SITE_EMAIL` in js/main.js is now `hello@pagefront.co.uk`, and the second
+      literal occurrence (the no-JS `<noscript>` fallback in index.html, mailto
+      link + visible text) was updated to match. Verified in-browser: footer line,
+      mailto and the form failure fallback all resolve to hello@pagefront.co.uk.
+- [x] DONE (rebrand + migration round, 2026-08-07): Formspree endpoint live.
+      `FORMSPREE_ENDPOINT` is now `https://formspree.io/f/mnpajqae`. Because it no
+      longer contains REPLACE_FORM_ID, the placeholder short-circuit guard in
+      handleContactSubmit no longer matches (verified guardMatches=false), so the
+      real fetch path runs. Verified with ONE real network submission (success
+      state "Sent. I will reply the same working day.") and a stubbed failure
+      (graceful fallback to the email, typed message preserved, "Try again"). See
+      verify/launch/form-states-evidence.json.
 - [ ] OPEN BLOCKER (gates outreach): the canonical 14-item de-vibe audit list
       arrived as an unfilled paste placeholder in the approval message; the
       House Tier was approved and run instead. Paste the canonical list into
@@ -32,11 +33,12 @@ House rules: UK English, no em dashes, instrument then fix, commit per stage.
 - [x] /favicon.ico 404 (flagged at stage 6): RESOLVED at stage 7. rel=icon
       links are declared; a headed probe confirmed Chromium fetches favicon.svg
       and no longer requests /favicon.ico. No favicon.ico added.
-- [ ] Stage 10 waits on Zayn confirming the deployed URL loads for him:
-      https://arctxrus.github.io/portfolio/ (deployed 2026-07-27, Pages built,
-      all assets 200, live smoke clean). When the final URL is known,
-      update the CANONICAL SITE URL comment plus og:url, og:image and
-      twitter:image in index.html together (they carry the domain literally).
+- [x] DONE (rebrand + migration round, 2026-08-07): hosting moved from GitHub
+      Pages to Cloudflare Pages (auto-deploy on push to main). Live URL is now
+      https://pagefront.co.uk; demos at blackthorn/barkerbloom/star.pagefront.co.uk.
+      The CANONICAL SITE URL comment plus og:url, og:image and twitter:image in
+      index.html were all moved to https://pagefront.co.uk. No CNAME file exists
+      (nothing to remove). See the "Rebrand and migration: Pagefront" section below.
 
 ## APPROVED COPY (was DRAFT FOR APPROVAL)
 
@@ -45,28 +47,41 @@ Approved by Zayn 2026-07-27 with one amendment: in the About prose,
 drafted. Sub lines, Pricing lines and the honest-floors note approved
 verbatim.
 
+AMENDED in the rebrand + migration round (owner-directed, 2026-08-07): the
+wordmark is "Pagefront"; the owner's name must not appear on the shipped site,
+so the About opening drops it; the demo URLs move to the new subdomains; and two
+cold-email phrasings that excluded organic visitors are reworded. These changes
+supersede the CONCEPT section 4 how-it-works copy and the previously-approved
+About and pricing sentences, and are the current approved copy below.
+
 Panel sub lines (mono, lower case, middle dot separators):
-- Blackthorn & Co.: `single page · price menu · booking form · arctxrus.github.io/blackthorn-demo`
+- Blackthorn & Co.: `single page · price menu · booking form · blackthorn.pagefront.co.uk`
   (verified: one page with anchor nav, a priced service menu, and a real
   booking form with phone + date fields, id "booking-form".)
-- Barker & Bloom: `single page · prices by dog size · booking form · arctxrus.github.io/barker-bloom-demo`
+- Barker & Bloom: `single page · prices by dog size · booking form · barkerbloom.pagefront.co.uk`
   (verified: one page, a prices-by-size section, and a stepper booking request
   form, id "bookForm".)
-- Until the Last Star: `webgl · scroll-driven timeline of the universe · arctxrus.github.io/cosmic-dawn`
+- Until the Last Star: `webgl · scroll-driven timeline of the universe · star.pagefront.co.uk`
   (verified: Three.js WebGL canvas scene, scroll-driven timeline from the first
   instant to the death of the last star.)
 
-About (V3, ~51 words):
-> I'm Zayn, an astrophysics graduate who shipped a game played by more than
-> three million people. These days I build fast, polished websites for local
+About (masthead expander, ~49 words; owner's name removed 2026-08-07):
+> I'm an astrophysics graduate who shipped a game played by more than three
+> million people. These days I build fast, polished websites for local
 > businesses, the kind of shop or salon that deserves better than the usual
 > off-the-peg site. I work quickly and directly: no agencies, no templates,
 > no jargon.
 
-Pricing (V3, three mono-labelled lines plus an honest-floor note):
+How it works (amended 2026-08-07, step 01 only; 02 and 03 unchanged):
+- 01 "You get in touch"  (was "You reply to my email")
+- 02 "I build you a free homepage mockup"
+- 03 "Live in about two weeks"
+
+Pricing (three mono-labelled lines plus an honest-floor note):
 - WEBSITES FROM £300 - A single page, written and built for your business.
 - CARE PLAN FROM £25/MONTH - Hosting, edits, and keeping it fast.
-- FREE HOMEPAGE MOCKUP - Reply to the email and see it before you pay.
+- FREE HOMEPAGE MOCKUP - Get in touch and see it before you pay.
+  (amended 2026-08-07; was "Reply to the email and see it before you pay.")
 - Note: `"From" prices are honest floors: a bigger job is quoted higher.`
 
 ## Decisions and deviations
@@ -3760,3 +3775,118 @@ in a headed pane over a local http server at 950/1000/1100/1200/1250/1440 and
   closeDetail, popstate) were added, used for the one diagnostic run, and REMOVED
   (grep-confirmed: no __diag / armExit / __forceRM in the source). node --check passes; no em
   dashes; UK English; no BOM; ?v=19 held (index 23, css 2).
+
+## Rebrand and migration: Pagefront (owner-directed, 2026-08-07)
+
+Combined rebrand ("Zayn" -> "Pagefront") and hosting migration (GitHub Pages ->
+Cloudflare Pages, auto-deploy on push to main). Live URL is now
+https://pagefront.co.uk; demos at https://blackthorn.pagefront.co.uk,
+https://barkerbloom.pagefront.co.uk, https://star.pagefront.co.uk. This
+SUPERSEDES the "Zayn" wordmark, the GitHub Pages URLs and the specific cold-email
+copy in CONCEPT (sections 4 and 9); CONCEPT.md itself is left unedited as the
+historical spec, per the established supersede-in-PROGRESS pattern. All shipped
+asset refs bumped ?v=19 -> ?v=20 (index.html 23, css 2; js/main.js carries none).
+
+Deploy model (NEW): Cloudflare Pages serves the whole repo and auto-deploys on
+push to main. There is no build step. ?v= cache-busting still applies and is
+still bumped on every push. No CNAME file is used; none existed to remove.
+
+### File by file
+
+- index.html: wordmark name -> "Pagefront"; title, og:title, twitter:title ->
+  "Pagefront . Web design for local businesses"; og:site_name -> "Pagefront";
+  og:image:alt / twitter:image:alt -> "Pagefront. ..."; canonical comment +
+  og:url + og:image + twitter:image -> https://pagefront.co.uk (image at
+  og-image.png?v=20). Favicon comment -> "P" letterform. Inline theme script
+  localStorage key 'zayn-theme' -> 'pagefront-theme'. About prose opening ->
+  "I'm an astrophysics graduate who shipped a game played by more than three
+  million people." (owner's name removed; rest unchanged). Footer copy ->
+  copyright + "Pagefront". No-JS noscript mailto + text -> hello@pagefront.co.uk.
+  Three project sub lines and three "See it live" hrefs -> the new subdomains
+  (blackthorn/barkerbloom/star.pagefront.co.uk; the barker subdomain is
+  "barkerbloom", no hyphen). How-it-works step 01 -> "You get in touch". Pricing
+  free-mockup desc -> "Get in touch and see it before you pay." All ?v=19 -> v=20.
+- css/styles.css: header comment and the .name type comment -> "Pagefront".
+  New rule .section-stack[hidden] { display: none } (the base .section-stack sets
+  display:flex, which outranks the UA [hidden] rule, so hidden stacks need this to
+  actually hide). Both @font-face ?v -> v=20.
+- js/main.js: header comment -> "Pagefront". THEME_STORAGE_KEY -> 'pagefront-theme'.
+  SITE_EMAIL -> 'hello@pagefront.co.uk'. FORMSPREE_ENDPOINT ->
+  'https://formspree.io/f/mnpajqae' (comment updated; the placeholder short-circuit
+  guard is kept but no longer matches, so the real fetch path runs). history.state
+  key { zaynDetail:1 } -> { detailOpen:1 }. Media-persistence restructure (below).
+- favicon.svg: hand-authored "P" letterform, same flat ink-on-transparent geometric
+  style as the old Z (one filled path, straight stem + single bowl arc, evenodd
+  counter). favicon-32.png + apple-touch-icon.png regenerated via tools/favicon_png.py;
+  og-image.png regenerated via tools/og_image.py (1200x630 RGB, 39.8 KB) from the
+  updated tools/og_source.html (wordmark -> "Pagefront", renders cleanly, no overflow).
+- tools/capture.py: the three demo record URLs -> the new pagefront.co.uk subdomains
+  (so a re-record targets the migrated sites). Not a shipped file; updated for
+  correctness.
+- _redirects (NEW, repo root): Cloudflare Pages force-404 rules for every non-site
+  path the platform would otherwise serve by path (/PROGRESS.md, /CONCEPT.md,
+  /verify/*, /docs/*, /tools/*, /references/*, /.claude/*), because those carry the
+  owner's name and full history. Complements the item-4 grep (shipped site files);
+  the _redirects covers the rest of the repo at the serving layer. Coordinator-directed.
+
+### Media persistence restructure (task 5)
+
+renderView no longer clones a fresh stack and replaceChildren()s the panel body on
+every project entry. Each project's .section-stack is built ONCE into a persistent
+container kept in the panel DOM (projectStacks map); selections toggle visibility:
+
+a. ensureStack(key) clones the template's stack SHELL once (region role/tabindex/
+   aria-label kept, cards stripped), hides it and appends it. Subsequent entries
+   reuse the same node; media is never rebuilt or refetched.
+b. First-selection laziness preserved: the shell is empty, so no media loads until a
+   project is first opened; the cards (with their video preload=none and lazy imgs)
+   mount on first open only, so src attaches then and is never touched again.
+c. deactivateProject(key) runs on leaving (exit / chip switch / opening the form):
+   it hides the stack and pauses + resets currentTime to 0 on its videos. On return,
+   the cards are re-wired to the IntersectionObserver, which plays only the in-view
+   clip(s) (existing gating unchanged). Only the visible project's videos ever play.
+d. FLIP preserved: FIRST open still renders the empty shell during travel and mounts
+   cards incrementally at travel end (the stagger IS the entrance). REVISIT approach
+   (reported): the from-state (opacity 0 + 6px) is set synchronously in renderView so
+   the panel never flashes the full stack, then revisitStack() staggers a pure-opacity
+   + translateY reveal on the EXISTING nodes (no clone, no remount) at travel end.
+   Generation-token (sectionMountGen) cancellation retained on both mount and revisit
+   chains; teardownSectionObserver bumps it on every renderView/exit. Removed the
+   now-dead primeSectionVideos / startSectionVideos / scheduleSectionVideos /
+   scheduleStackCards (replaced by activateStack / scheduleActivateStack /
+   revisitStack) and the sectionStartTimer.
+e. Verified (verify/launch/media-persistence-evidence.json): Blackthorn -> Star ->
+   Blackthorn produced ZERO second webm/jpg fetches for Blackthorn (5 resource
+   entries, each URL count 1, no duplicates), and the SAME stack + img DOM nodes are
+   reused (node identity ===). Star's 3 webms likewise fetched once. Leaving a project
+   left its videos paused with currentTime 0. Mobile 360 enter/exit trace: no snap,
+   height reserve held across the morph then released (bodyMinHeight cleared), stacks
+   persist hidden on exit, no regression. Zero console errors throughout.
+
+### Verification summary
+
+- Identity: grep of the shipped files (index.html, css/, js/, favicon.svg,
+  tools/og_source.html) for "zayn"/"arctxrus" returns ZERO matches; no em dashes in
+  the shipped source; no standalone word "we" in the rendered copy.
+- Form (verify/launch/form-states-evidence.json): live endpoint wired
+  (guardMatches=false); ONE real network submission -> success state; stubbed
+  aborting route -> failure state with the hello@pagefront.co.uk fallback, typed
+  message preserved, "Try again"; stub restored, zero real failure requests sent.
+- Wordmark layout: "Pagefront" (9 chars, 31px/600) does not wrap or collide with the
+  kicker at 1000px (901-1250 band, 400px column), 360px mobile, or 1440px desktop
+  (measured name/kicker rects; no horizontal scroll at 360). The name block is not a
+  scramble target (only the mono kicker is), so the longer wordmark is not decoded.
+- Both themes verified (dark via screenshots of the detail + failure states; light via
+  computed styles: ground #FAFAFA). No console errors. Screenshots of the filled form
+  and failure state captured in-session; the Browser pane intermittently times out on
+  pixel screenshots (documented backgrounded-pane limitation), so the success/light
+  states are confirmed at DOM/computed-style level.
+
+### Open items after this round
+
+- The canonical 14-item de-vibe audit list blocker REMAINS OPEN (unchanged): paste the
+  canonical list into docs/de-vibe-audit.md and run the full audit before outreach.
+- Not verified by me (coder does not self-verify): full verifier screenshot pass,
+  Lighthouse, and a forced reduced-motion run. The reduced-motion code paths are the
+  unchanged shellOnly=false branches (no clones, no listeners bound; mount/revisit run
+  immediately in full).

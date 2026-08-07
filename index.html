@@ -14,7 +14,7 @@
   <script>
     (function () {
       try {
-        var pref = localStorage.getItem('zayn-theme') || 'system';
+        var pref = localStorage.getItem('pagefront-theme') || 'system';
         var dark = pref === 'dark' || (pref === 'system' &&
           window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
         document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
@@ -24,7 +24,7 @@
     })();
   </script>
 
-  <title>Zayn · Web design for local businesses</title>
+  <title>Pagefront · Web design for local businesses</title>
   <meta name="description" content="I build fast, polished websites for local businesses. From £300.">
 
   <!-- ==========================================================================
@@ -32,37 +32,37 @@
        it is embedded literally in the og:url, og:image and twitter:image tags
        below (HTML meta cannot reference a variable). If a custom domain arrives,
        update it here and in those three tags together.
-         https://arctxrus.github.io/portfolio/
+         https://pagefront.co.uk/
        ========================================================================== -->
 
   <!-- Open Graph (share card). Title mirrors <title>, description mirrors the
        positioning line. Absolute image URL so crawlers resolve it reliably. -->
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Zayn">
-  <meta property="og:url" content="https://arctxrus.github.io/portfolio/">
-  <meta property="og:title" content="Zayn · Web design for local businesses">
+  <meta property="og:site_name" content="Pagefront">
+  <meta property="og:url" content="https://pagefront.co.uk/">
+  <meta property="og:title" content="Pagefront · Web design for local businesses">
   <meta property="og:description" content="I build fast, polished websites for local businesses. From £300.">
-  <meta property="og:image" content="https://arctxrus.github.io/portfolio/og-image.png?v=19">
+  <meta property="og:image" content="https://pagefront.co.uk/og-image.png?v=20">
   <meta property="og:image:type" content="image/png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Zayn. I build fast, polished websites for local businesses. From £300.">
+  <meta property="og:image:alt" content="Pagefront. I build fast, polished websites for local businesses. From £300.">
 
   <!-- Twitter card. summary_large_image renders the 1200x630 image full width. -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Zayn · Web design for local businesses">
+  <meta name="twitter:title" content="Pagefront · Web design for local businesses">
   <meta name="twitter:description" content="I build fast, polished websites for local businesses. From £300.">
-  <meta name="twitter:image" content="https://arctxrus.github.io/portfolio/og-image.png?v=19">
-  <meta name="twitter:image:alt" content="Zayn. I build fast, polished websites for local businesses. From £300.">
+  <meta name="twitter:image" content="https://pagefront.co.uk/og-image.png?v=20">
+  <meta name="twitter:image:alt" content="Pagefront. I build fast, polished websites for local businesses. From £300.">
 
-  <!-- Favicon: hand-authored "Z" mark, ink on transparent. SVG first, PNG
+  <!-- Favicon: hand-authored "P" letterform, ink on transparent. SVG first, PNG
        fallback for browsers without SVG icon support, apple-touch-icon for iOS.
        These rel=icon links stop Chromium requesting a default /favicon.ico. -->
-  <link rel="icon" href="favicon.svg?v=19" type="image/svg+xml">
-  <link rel="icon" href="favicon-32.png?v=19" sizes="32x32" type="image/png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=19">
+  <link rel="icon" href="favicon.svg?v=20" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png?v=20" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=20">
 
-  <link rel="stylesheet" href="css/styles.css?v=19">
+  <link rel="stylesheet" href="css/styles.css?v=20">
 
   <!-- No-JS reveal (approval round). The load-in blocks start at opacity 0 and
        are only shown by JS adding .is-in (or by the reduced-motion override). So
@@ -87,7 +87,7 @@
 
       <!-- Name block -->
       <div class="name-block fade-block">
-        <span class="name">Zayn</span>
+        <span class="name">Pagefront</span>
         <span class="name-kicker" data-scramble>Freelance / Web</span>
       </div>
 
@@ -113,7 +113,7 @@
         </button>
         <div class="about-panel" id="about-panel" aria-hidden="true">
           <div class="about-panel-inner">
-            <p class="about-prose">I'm Zayn, an astrophysics graduate who shipped a game played by more than three million people. These days I build fast, polished websites for local businesses, the kind of shop or salon that deserves better than the usual off-the-peg site. I work quickly and directly: no agencies, no templates, no jargon.</p>
+            <p class="about-prose">I'm an astrophysics graduate who shipped a game played by more than three million people. These days I build fast, polished websites for local businesses, the kind of shop or salon that deserves better than the usual off-the-peg site. I work quickly and directly: no agencies, no templates, no jargon.</p>
           </div>
         </div>
       </div>
@@ -184,7 +184,7 @@
           </li>
           <li class="pricing-line">
             <span class="pricing-head">Free homepage mockup</span>
-            <span class="pricing-desc">Reply to the email and see it before you pay.</span>
+            <span class="pricing-desc">Get in touch and see it before you pay.</span>
           </li>
         </ul>
       </section>
@@ -227,7 +227,7 @@
         <ol class="how-list">
           <li class="how-item">
             <span class="how-index">01</span>
-            <span class="how-text">You reply to my email</span>
+            <span class="how-text">You get in touch</span>
           </li>
           <li class="how-item">
             <span class="how-index">02</span>
@@ -287,7 +287,7 @@
             </button>
           </div>
         </div>
-        <p class="footer-copy">© <span data-year></span> Zayn</p>
+        <p class="footer-copy">© <span data-year></span> Pagefront</p>
       </footer>
 
     </div>
@@ -315,7 +315,7 @@
                keep it in sync with SITE_EMAIL when the real one lands (see the
                PROGRESS.md open blocker). -->
           <noscript>
-            <p class="noscript-contact">JavaScript is off, so the previews and contact form are unavailable. Email me directly at <a href="mailto:hello@placeholder.invalid">hello@placeholder.invalid</a>.</p>
+            <p class="noscript-contact">JavaScript is off, so the previews and contact form are unavailable. Email me directly at <a href="mailto:hello@pagefront.co.uk">hello@pagefront.co.uk</a>.</p>
           </noscript>
         </div>
         <!-- Panel changes announced here (concise, the panel header text). -->
@@ -353,38 +353,38 @@
   <template id="view-blackthorn">
     <div class="detail-copy">
       <h2 class="detail-title">Blackthorn &amp; Co.</h2>
-      <p class="detail-sub">single page · price menu · booking form · arctxrus.github.io/blackthorn-demo</p>
+      <p class="detail-sub">single page · price menu · booking form · blackthorn.pagefront.co.uk</p>
       <p class="detail-blurb">A single fast page for a Heywood barbershop. The whole price list is on view, from a £12 kids' cut to the £52 full works, next to a profile for each barber and a booking form that captures the date, time and chair a client wants.</p>
-      <a class="visit-pill detail-live" href="https://arctxrus.github.io/blackthorn-demo/" target="_blank" rel="noopener">See it live <span aria-hidden="true">↗</span></a>
+      <a class="visit-pill detail-live" href="https://blackthorn.pagefront.co.uk/" target="_blank" rel="noopener">See it live <span aria-hidden="true">↗</span></a>
     </div>
     <div class="section-stack" tabindex="0" role="region" aria-label="Blackthorn and Co. previews">
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/blackthorn-cover.jpg?v=19" alt="Blackthorn &amp; Co. cover: the shop name over a Heywood barbershop, with a book your chair button and a 4.9 star rating." loading="lazy" decoding="async" width="1280" height="720">
+          <img class="section-img" src="media/blackthorn-cover.jpg?v=20" alt="Blackthorn &amp; Co. cover: the shop name over a Heywood barbershop, with a book your chair button and a 4.9 star rating." loading="lazy" decoding="async" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The cover</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/blackthorn-prices.jpg?v=19" alt="The price menu, listing cuts, beard and shave services with prices from a 12 pound kids' cut to the 52 pound full works." loading="lazy" decoding="async" width="1280" height="720">
+          <img class="section-img" src="media/blackthorn-prices.jpg?v=20" alt="The price menu, listing cuts, beard and shave services with prices from a 12 pound kids' cut to the 52 pound full works." loading="lazy" decoding="async" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The price menu</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/blackthorn-barbers.jpg?v=19" alt="The barbers section, with a profile and specialisms for each of the four named barbers." loading="lazy" decoding="async" width="1280" height="720">
+          <img class="section-img" src="media/blackthorn-barbers.jpg?v=20" alt="The barbers section, with a profile and specialisms for each of the four named barbers." loading="lazy" decoding="async" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The barbers</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/blackthorn-reviews.jpg?v=19" alt="A five-star Google review of the barbershop, one of a rotating set." loading="lazy" decoding="async" width="1600" height="900">
+          <img class="section-img" src="media/blackthorn-reviews.jpg?v=20" alt="A five-star Google review of the barbershop, one of a rotating set." loading="lazy" decoding="async" width="1600" height="900">
         </div>
         <figcaption class="section-caption">In their words</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/blackthorn-booking.jpg?v=19" alt="The booking form, capturing a name, mobile, service, preferred date and time, and a chosen barber." loading="lazy" decoding="async" width="1280" height="720">
+          <img class="section-img" src="media/blackthorn-booking.jpg?v=20" alt="The booking form, capturing a name, mobile, service, preferred date and time, and a chosen barber." loading="lazy" decoding="async" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The booking form</figcaption>
       </figure>
@@ -395,35 +395,35 @@
   <template id="view-barker">
     <div class="detail-copy">
       <h2 class="detail-title">Barker &amp; Bloom</h2>
-      <p class="detail-sub">single page · prices by dog size · booking form · arctxrus.github.io/barker-bloom-demo</p>
+      <p class="detail-sub">single page · prices by dog size · booking form · barkerbloom.pagefront.co.uk</p>
       <p class="detail-blurb">One clear page for a dog grooming salon. Prices are set out by dog size, from an £18 puppy's first groom upwards, with add-ons like nail trims listed plainly and a two-step form that requests a slot by size, day and time.</p>
-      <a class="visit-pill detail-live" href="https://arctxrus.github.io/barker-bloom-demo/" target="_blank" rel="noopener">See it live <span aria-hidden="true">↗</span></a>
+      <a class="visit-pill detail-live" href="https://barkerbloom.pagefront.co.uk/" target="_blank" rel="noopener">See it live <span aria-hidden="true">↗</span></a>
     </div>
     <div class="section-stack" tabindex="0" role="region" aria-label="Barker and Bloom previews">
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/barker-hero.jpg?v=19" alt="The Barker &amp; Bloom welcome: a calm dog grooming salon with a book a groom button." loading="lazy" decoding="async" width="1600" height="900">
+          <img class="section-img" src="media/barker-hero.jpg?v=20" alt="The Barker &amp; Bloom welcome: a calm dog grooming salon with a book a groom button." loading="lazy" decoding="async" width="1600" height="900">
         </div>
         <figcaption class="section-caption">The welcome</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/barker-prices.jpg?v=19" alt="The price menu, with full groom and bath and brush priced by small, medium and large dog, plus little extras." loading="lazy" decoding="async" width="1280" height="720">
+          <img class="section-img" src="media/barker-prices.jpg?v=20" alt="The price menu, with full groom and bath and brush priced by small, medium and large dog, plus little extras." loading="lazy" decoding="async" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The price menu</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <video class="section-video" poster="media/barker-beforeafter-poster.jpg?v=19"
+          <video class="section-video" poster="media/barker-beforeafter-poster.jpg?v=20"
                  autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-            <source src="media/barker-beforeafter.webm?v=19" type="video/webm">
+            <source src="media/barker-beforeafter.webm?v=20" type="video/webm">
           </video>
         </div>
         <figcaption class="section-caption">Before and after</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <img class="section-img" src="media/barker-booking.jpg?v=19" alt="The two-step booking form, choosing a dog size on the first step." loading="lazy" decoding="async" width="1280" height="720">
+          <img class="section-img" src="media/barker-booking.jpg?v=20" alt="The two-step booking form, choosing a dog size on the first step." loading="lazy" decoding="async" width="1280" height="720">
         </div>
         <figcaption class="section-caption">The booking form</figcaption>
       </figure>
@@ -434,34 +434,34 @@
   <template id="view-star">
     <div class="detail-copy">
       <h2 class="detail-title">Until the Last Star</h2>
-      <p class="detail-sub">webgl · scroll-driven timeline of the universe · arctxrus.github.io/cosmic-dawn</p>
+      <p class="detail-sub">webgl · scroll-driven timeline of the universe · star.pagefront.co.uk</p>
       <p class="detail-blurb">A technical piece, not a client site. The whole history of the universe runs on one scroll, drawn live in the browser with WebGL. The finale bends starlight around a black hole using real gravitational lensing, computed every frame rather than faked with a picture.</p>
-      <a class="visit-pill detail-live" href="https://arctxrus.github.io/cosmic-dawn/" target="_blank" rel="noopener">See it live <span aria-hidden="true">↗</span></a>
+      <a class="visit-pill detail-live" href="https://star.pagefront.co.uk/" target="_blank" rel="noopener">See it live <span aria-hidden="true">↗</span></a>
     </div>
     <div class="section-stack" tabindex="0" role="region" aria-label="Until the Last Star previews">
       <figure class="section-card">
         <div class="section-media">
-          <video class="section-video" poster="media/star-first-poster.jpg?v=19"
+          <video class="section-video" poster="media/star-first-poster.jpg?v=20"
                  autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-            <source src="media/star-first.webm?v=19" type="video/webm">
+            <source src="media/star-first.webm?v=20" type="video/webm">
           </video>
         </div>
         <figcaption class="section-caption">The first star</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <video class="section-video" poster="media/star-web-poster.jpg?v=19"
+          <video class="section-video" poster="media/star-web-poster.jpg?v=20"
                  autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-            <source src="media/star-web.webm?v=19" type="video/webm">
+            <source src="media/star-web.webm?v=20" type="video/webm">
           </video>
         </div>
         <figcaption class="section-caption">The cosmic web</figcaption>
       </figure>
       <figure class="section-card">
         <div class="section-media">
-          <video class="section-video" poster="media/star-last-poster.jpg?v=19"
+          <video class="section-video" poster="media/star-last-poster.jpg?v=20"
                  autoplay muted loop playsinline preload="none" tabindex="-1" aria-hidden="true">
-            <source src="media/star-last.webm?v=19" type="video/webm">
+            <source src="media/star-last.webm?v=20" type="video/webm">
           </video>
         </div>
         <figcaption class="section-caption">The last star</figcaption>
@@ -503,6 +503,6 @@
     </div>
   </template>
 
-  <script src="js/main.js?v=19"></script>
+  <script src="js/main.js?v=20"></script>
 </body>
 </html>

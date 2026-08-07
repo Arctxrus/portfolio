@@ -1,0 +1,35 @@
+{
+  "test": "Media persistence across project revisits (rebrand + migration round, 2026-08-07)",
+  "method": "Local http server, Browser pane (visibilityState=visible). Sequence driven programmatically via chip switches; evidence from the in-page Performance Resource Timing API (duplicate-fetch detection) plus DOM node-identity checks. The Browser pane's own network buffer was unreliable across same-domain reloads, so resource timings were used instead.",
+  "sequence": "Blackthorn (first open) -> Star (chip switch) -> Blackthorn (chip switch back)",
+  "results": {
+    "blackthorn_media_resource_entries": 5,
+    "blackthorn_per_url_request_counts": {
+      "blackthorn-cover.jpg?v=20": 1,
+      "blackthorn-prices.jpg?v=20": 1,
+      "blackthorn-barbers.jpg?v=20": 1,
+      "blackthorn-reviews.jpg?v=20": 1,
+      "blackthorn-booking.jpg?v=20": 1
+    },
+    "blackthorn_duplicate_fetch": false,
+    "blackthorn_second_visit_new_requests": 0,
+    "blackthorn_stack_node_reused_same_object": true,
+    "blackthorn_img_nodes_reused_same_objects": true,
+    "star_media_resource_entries": 3,
+    "star_per_url_request_counts": {
+      "star-first.webm?v=20": 1,
+      "star-web.webm?v=20": 1,
+      "star-last.webm?v=20": 1
+    },
+    "star_duplicate_fetch": false,
+    "persistent_stacks_kept_in_panel_dom": 2,
+    "star_videos_after_leaving_paused_and_reset": [
+      { "src": "media/star-first.webm?v=20", "paused": true, "currentTime": 0 },
+      { "src": "media/star-web.webm?v=20", "paused": true, "currentTime": 0 },
+      { "src": "media/star-last.webm?v=20", "paused": true, "currentTime": 0 }
+    ],
+    "console_errors": 0
+  },
+  "playback_gating_note": "While Star was active, only the in-view clip played (paused:false) and the off-screen clips stayed paused, so only the visible project's in-view videos ever play.",
+  "conclusion": "PASS. Revisiting Blackthorn produced zero second webm/jpg fetches (no request at all): the exact same stack and img DOM nodes are reused, and each media URL was requested exactly once for the whole session. Leaving a project pauses and rewinds its videos to currentTime 0; only the active project's in-view clips play."
+}

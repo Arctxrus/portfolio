@@ -90,9 +90,9 @@ NO_SCROLLBAR_CSS = (
     "::-webkit-scrollbar { display: none !important; width: 0 !important; height: 0 !important; }"
 )
 
-BT_URL = "https://arctxrus.github.io/blackthorn-demo/"
-BK_URL = "https://arctxrus.github.io/barker-bloom-demo/"
-STAR_URL = "https://arctxrus.github.io/cosmic-dawn/?tier=2"
+BT_URL = "https://blackthorn.pagefront.co.uk/"
+BK_URL = "https://barkerbloom.pagefront.co.uk/"
+STAR_URL = "https://star.pagefront.co.uk/?tier=2"
 
 # Project-level session config (applied once after navigation).
 PROJECT_CFG = {
