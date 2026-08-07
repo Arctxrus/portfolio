@@ -1,0 +1,15 @@
+{
+  "detail_entered": true,
+  "chip_switch_title": "Preview / Barker & Bloom",
+  "back_button_found": true,
+  "welcome_visible_after_exit": true,
+  "theme_after_dark_click": "dark",
+  "theme_after_reload": "dark",
+  "localStorage_theme": "dark",
+  "console_errors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ]
+}

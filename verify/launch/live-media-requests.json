@@ -1,0 +1,46 @@
+{
+  "requests": [
+    {
+      "url": "https://pagefront.co.uk/media/blackthorn-cover.jpg?v=20",
+      "method": "GET"
+    },
+    {
+      "url": "https://pagefront.co.uk/media/blackthorn-prices.jpg?v=20",
+      "method": "GET"
+    },
+    {
+      "url": "https://pagefront.co.uk/media/blackthorn-barbers.jpg?v=20",
+      "method": "GET"
+    },
+    {
+      "url": "https://pagefront.co.uk/media/blackthorn-reviews.jpg?v=20",
+      "method": "GET"
+    },
+    {
+      "url": "https://pagefront.co.uk/media/blackthorn-booking.jpg?v=20",
+      "method": "GET"
+    },
+    {
+      "url": "https://pagefront.co.uk/media/star-first.webm?v=20",
+      "method": "GET"
+    },
+    {
+      "url": "https://pagefront.co.uk/media/star-web.webm?v=20",
+      "method": "GET"
+    },
+    {
+      "url": "https://pagefront.co.uk/media/star-last.webm?v=20",
+      "method": "GET"
+    }
+  ],
+  "counts": {
+    "https://pagefront.co.uk/media/blackthorn-cover.jpg?v=20": 1,
+    "https://pagefront.co.uk/media/blackthorn-prices.jpg?v=20": 1,
+    "https://pagefront.co.uk/media/blackthorn-barbers.jpg?v=20": 1,
+    "https://pagefront.co.uk/media/blackthorn-reviews.jpg?v=20": 1,
+    "https://pagefront.co.uk/media/blackthorn-booking.jpg?v=20": 1,
+    "https://pagefront.co.uk/media/star-first.webm?v=20": 1,
+    "https://pagefront.co.uk/media/star-web.webm?v=20": 1,
+    "https://pagefront.co.uk/media/star-last.webm?v=20": 1
+  }
+}

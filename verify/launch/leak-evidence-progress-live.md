@@ -3890,34 +3890,3 @@ e. Verified (verify/launch/media-persistence-evidence.json): Blackthorn -> Star 
   Lighthouse, and a forced reduced-motion run. The reduced-motion code paths are the
   unchanged shellOnly=false branches (no clones, no listeners bound; mount/revisit run
   immediately in full).
-
-### Rebrand + migration: launch-verify FAIL fixes (2026-08-07)
-
-Launch verify found two live FAILs; both fixed. ?v=20 -> ?v=21 across shipped
-refs (index.html 23, css 2). No git commands run.
-
-- FAIL 1 (non-site paths served at 200): the _redirects force-404 rules are
-  IGNORED by Cloudflare Pages in practice, because a matching static asset is
-  served BEFORE _redirects is consulted, so /PROGRESS.md, /CONCEPT.md, /docs/*,
-  /tools/*, /references/* and /verify/* all served real content at 200 (evidence:
-  verify/launch/redirect-status-summary.json). Fix: functions/_middleware.js
-  (NEW), a Cloudflare Pages Function that runs on the edge BEFORE the static asset
-  handler. It exports onRequest, lowercases the URL pathname, and returns a plain
-  404 Response for the blocklist (exact: /progress.md, /concept.md, /readme.md;
-  prefixes: /verify/, /docs/, /tools/, /references/, /.claude/, and /functions/
-  itself defensively), else context.next(). Case-insensitive by construction.
-  _redirects is KEPT as harmless belt and braces. This is deployment
-  configuration, not runtime site code: the file never ships to the browser and is
-  not referenced by index.html; Cloudflare compiles functions/ at deploy time on
-  its own platform, so no local build step, bundler, package.json or npm runtime
-  dependency is added to the repo (the no-build-step rule is not violated).
-  Tested locally with node (v22) by importing the module and exercising onRequest
-  against 19 sample paths (URL and Response are Node globals): 19/19 correct, all
-  blocklist paths -> 404 (including a mixed-case /VERIFY/... and /README.md), all
-  site assets (/, index.html, css/js/media/fonts, favicon, og-image, _redirects)
-  -> next(). Live confirmation follows the next deploy.
-
-- FAIL 2 (missing canonical tag): added
-  <link rel="canonical" href="https://pagefront.co.uk/"> beside og:url, and
-  updated the CANONICAL SITE URL comment to list the canonical link alongside
-  og:url / og:image / twitter:image as the tags carrying the domain literally.

@@ -1,0 +1,13 @@
+{
+  "status_text": "Sent. I will reply the same working day.",
+  "formspree_requests": [
+    [
+      "https://formspree.io/f/mnpajqae",
+      "POST"
+    ]
+  ],
+  "console_errors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)",
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ]
+}

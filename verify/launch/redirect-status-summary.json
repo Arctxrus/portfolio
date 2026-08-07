@@ -1,0 +1,25 @@
+{
+  "pagefront.co.uk": {
+    "/PROGRESS.md": 200,
+    "/CONCEPT.md": 200,
+    "/verify/": 200,
+    "/docs/de-vibe-audit.md": 200,
+    "/tools/capture.py": 200,
+    "/references/REFERENCES.md": 200,
+    "/.claude/settings.local.json": 200,
+    "/verify/launch/media-persistence-evidence.json": 200,
+    "/verify/launch/form-states-evidence.json": 200
+  },
+  "blackthorn.pagefront.co.uk": {
+    "/PROGRESS.md": 200,
+    "/CONCEPT.md": 200
+  },
+  "star.pagefront.co.uk": {
+    "/PROGRESS.md": 200,
+    "/CONCEPT.md": 200
+  },
+  "barkerbloom.pagefront.co.uk": {
+    "note": "site returns 502 for all paths, pre-existing, not tested for redirects"
+  },
+  "expected_per_redirects_file": 404
+}
