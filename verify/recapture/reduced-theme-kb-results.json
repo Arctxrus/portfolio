@@ -1,0 +1,40 @@
+{
+  "reduced_motion_fade_block_transition": {
+    "transitionDuration": "0s",
+    "animationDuration": "1e-05s"
+  },
+  "reduced_motion_cta": {
+    "animationName": "none",
+    "backgroundPosition": "0% 0%, 0% 0%, 0% 0%"
+  },
+  "reduced_motion_star_media": [
+    {
+      "src": "http://localhost:8123/media/star-spark.webm?v=22",
+      "error": null,
+      "readyState": 4,
+      "paused": false
+    },
+    {
+      "src": "http://localhost:8123/media/star-afterglow.webm?v=22",
+      "error": null,
+      "readyState": 4,
+      "paused": false
+    },
+    {
+      "src": "http://localhost:8123/media/star-darkages.webm?v=22",
+      "error": null,
+      "readyState": 4,
+      "paused": true
+    }
+  ],
+  "reduced_motion_console_errors": [],
+  "theme_light_resolved": "light",
+  "theme_dark_resolved": "dark",
+  "kb_active_after_6_tabs": "<a href=\"mailto:hello@pagefront.co.uk\">hello@pagefront.co.uk</a>",
+  "kb_detail_hidden_after_enter": true,
+  "kb_aria_live_text": "",
+  "kb_focus_style_after_activate": {
+    "outline": "rgb(26, 111, 212) none 3px",
+    "boxShadow": "rgb(26, 111, 212) 0px 0px 0px 1px inset"
+  }
+}

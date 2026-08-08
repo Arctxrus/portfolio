@@ -1,0 +1,102 @@
+{
+  "first_load_bytes_approx": 267134,
+  "first_load_media_preselected": [],
+  "blackthorn_caption_style": {
+    "text": "The cover",
+    "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+    "fontSize": "10.5px",
+    "fontWeight": "400",
+    "letterSpacing": "0.42px",
+    "textTransform": "uppercase",
+    "color": "rgb(142, 142, 150)"
+  },
+  "blackthorn_media_state": [],
+  "star_media_state": [
+    {
+      "src": "http://localhost:8123/media/star-spark.webm?v=22",
+      "error": null,
+      "readyState": 4,
+      "paused": false,
+      "videoWidth": 1280,
+      "videoHeight": 720
+    },
+    {
+      "src": "http://localhost:8123/media/star-afterglow.webm?v=22",
+      "error": null,
+      "readyState": 4,
+      "paused": false,
+      "videoWidth": 1024,
+      "videoHeight": 576
+    },
+    {
+      "src": "http://localhost:8123/media/star-darkages.webm?v=22",
+      "error": null,
+      "readyState": 4,
+      "paused": true,
+      "videoWidth": 1280,
+      "videoHeight": 720
+    }
+  ],
+  "star_captions": [
+    {
+      "text": "The cover",
+      "textTransform": "uppercase",
+      "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+      "fontSize": "10.5px",
+      "letterSpacing": "0.42px"
+    },
+    {
+      "text": "The price menu",
+      "textTransform": "uppercase",
+      "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+      "fontSize": "10.5px",
+      "letterSpacing": "0.42px"
+    },
+    {
+      "text": "The barbers",
+      "textTransform": "uppercase",
+      "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+      "fontSize": "10.5px",
+      "letterSpacing": "0.42px"
+    },
+    {
+      "text": "In their words",
+      "textTransform": "uppercase",
+      "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+      "fontSize": "10.5px",
+      "letterSpacing": "0.42px"
+    },
+    {
+      "text": "The booking form",
+      "textTransform": "uppercase",
+      "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+      "fontSize": "10.5px",
+      "letterSpacing": "0.42px"
+    },
+    {
+      "text": "The spark",
+      "textTransform": "uppercase",
+      "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+      "fontSize": "10.5px",
+      "letterSpacing": "0.42px"
+    },
+    {
+      "text": "The afterglow",
+      "textTransform": "uppercase",
+      "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+      "fontSize": "10.5px",
+      "letterSpacing": "0.42px"
+    },
+    {
+      "text": "The dark ages",
+      "textTransform": "uppercase",
+      "fontFamily": "\"Martian Mono\", ui-monospace, SFMono-Regular, \"Cascadia Mono\", Menlo, Consolas, monospace",
+      "fontSize": "10.5px",
+      "letterSpacing": "0.42px"
+    }
+  ],
+  "blackthorn_revisit_media_requests": [],
+  "cls": 0,
+  "console_errors": [],
+  "page_errors": []
+}

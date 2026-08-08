@@ -33,7 +33,7 @@ Shared plumbing kept from the round-5 tour pipeline (they share the encode path)
 Usage (run from anywhere; paths resolve from this file):
   python tools/capture.py                       # everything
   python tools/capture.py --only star           # one project's sections
-  python tools/capture.py --section star-last    # a single section
+  python tools/capture.py --section star-darkages  # a single section
   python tools/capture.py --skip-capture        # re-process loops from raws
   python tools/capture.py --skip-process        # record raws only
 
@@ -53,19 +53,30 @@ MEDIA_DIR = os.path.join(REPO_ROOT, "media")
 RAW_DIR = os.path.join(TOOLS_DIR, "_raw")
 
 # 16:9 recording viewport (the section card box is a fixed 16:9). CDP screencast
-# returns CSS-pixel frames, so the raw is REC_W wide; page.screenshot (statics) does
-# honour deviceScaleFactor, so statics come out at DPR-2 and downscale crisply.
+# returns CSS-pixel frames (verified 2026-08-08: at DPR 2 a 1280x720 context still
+# yields 1280x720 screencast frames, maxWidth is only a downscale cap), so a loop
+# raw is only as wide as the CSS viewport. page.screenshot (statics) DOES honour
+# deviceScaleFactor, so statics come out at DPR-2 and downscale crisply regardless.
+# Default recording viewport (blackthorn, barker). Per project via PROJECT_CFG.
 REC_W, REC_H = 1280, 720
 DPR = 2
 
-# Loop output. 16:9, mod-16 (1280 = 80*16, 720 = 45*16) so VP9 macroblocks align and
-# hardware decode is efficient. Same profile-0 / SAR / colour hardening as round 5.
+# Loop output default. 16:9, mod-16 (1280 = 80*16, 720 = 45*16) so VP9 macroblocks
+# align and hardware decode is efficient. Same profile-0 / SAR / colour hardening as
+# round 5. Per-section `out_w` / `out_h` override this (star loops run 1600x900,
+# captured from a 1600-wide CSS viewport so the source is genuinely 1600 px wide, not
+# upscaled). 1600x900: width is mod-16 (100*16), height even (yuv420p safe); 900 is
+# not a multiple of 16, which VP9 pads internally, the closest 16:9 gets above 720.
 OUT_W, OUT_H = 1280, 720
 FPS = 30
 
-# Static output. DPR-2 capture (2560x1440) downscaled to ~1600 wide, jpg under 300KB.
+# Static output. DPR-2 capture downscaled to 1600 wide (cards render ~682 CSS px, so
+# DPR-2 needs ~1364 device px; 1600 clears that with margin). jpg quality is picked
+# highest-first: the best quality that fits STATIC_SOFT_KB, but never degraded past
+# STATIC_Q_FLOOR, so a busy frame keeps its detail and simply runs larger (noted).
 STATIC_W, STATIC_H = 1600, 900
-STATIC_MAX_KB = 290
+STATIC_SOFT_KB = 300     # aim under this where achievable
+STATIC_Q_FLOOR = 5       # never step jpg quality worse (higher -q:v) than this
 
 GPU_ARGS = [
     "--use-angle=d3d11",
@@ -75,11 +86,11 @@ GPU_ARGS = [
     "--disable-features=CalculateNativeWinOcclusion",
 ]
 
-SCREENCAST_QUALITY = 90
-SCREENCAST_MAX_W, SCREENCAST_MAX_H = REC_W * DPR, REC_H * DPR
+SCREENCAST_QUALITY = 92   # near-lossless jpeg frames; the VP9 CRF does the real work
 
-POSTER_MAX_KB = 98
+POSTER_MAX_KB = 100       # owner: posters under ~100KB preferred, quality wins if needed
 DEFAULT_CRF = 32          # 1280x720 is small, so 32 stays crisp and light
+STAR_CRF = 31             # 1600x900 star loops: one notch richer for the extra pixels
 VP9_CPU_USED = 2
 KEYFRAME_INTERVAL = 60    # a keyframe every 2s at 30fps
 CROSSFADE_S = 0.8         # seamless-loop tail->head dissolve
@@ -91,15 +102,24 @@ NO_SCROLLBAR_CSS = (
 )
 
 BT_URL = "https://blackthorn.pagefront.co.uk/"
-BK_URL = "https://barkerbloom.pagefront.co.uk/"
+# barkerbloom returned 502 from Cloudflare during this round; BK_URL_OVERRIDE lets the
+# run point at a locally served copy of C:\Dev\barker-bloom-demo (same code) instead.
+BK_URL = os.environ.get("BK_URL_OVERRIDE", "https://barkerbloom.pagefront.co.uk/")
 STAR_URL = "https://star.pagefront.co.uk/?tier=2"
 
-# Project-level session config (applied once after navigation).
+# Project-level session config (applied once after navigation). `viewport` is the CSS
+# recording viewport: blackthorn / barker keep 1280x720 (proven framing, DPR-2
+# statics are 2560-wide sources downscaled to 1600); star runs 1600x900 so its
+# screencast loop source is genuinely 1600 px wide (full-bleed aspect-driven WebGL,
+# same composition at either size, no container gutters).
 PROJECT_CFG = {
-    "blackthorn": {"url": BT_URL, "nvidia": False, "load_wait_ms": 0, "preloader": False},
-    "barker": {"url": BK_URL, "nvidia": False, "load_wait_ms": 0, "preloader": False},
+    "blackthorn": {"url": BT_URL, "nvidia": False, "load_wait_ms": 0, "preloader": False,
+                   "viewport": (1280, 720)},
+    "barker": {"url": BK_URL, "nvidia": False, "load_wait_ms": 0, "preloader": False,
+               "viewport": (1280, 720)},
     # The WebGL scene needs the discrete GPU (tier 2) and ~10s to fully initialise.
-    "star": {"url": STAR_URL, "nvidia": True, "load_wait_ms": 10000, "preloader": True},
+    "star": {"url": STAR_URL, "nvidia": True, "load_wait_ms": 10000, "preloader": True,
+             "viewport": (1600, 900)},
 }
 
 # Before/after compare slider: sweep the reveal smoothly (sine, so it is periodic and
@@ -160,19 +180,57 @@ SECTIONS = [
      "pos": {"sel": "#book", "off": 0}, "settle_ms": 2000},
 
     # ---- Until the Last Star (all loops, WebGL continuous) ----
-    # loop_min_s (verifier round-6 FAIL 1): the first cut produced ~3s loops that
-    # restarted often and pushed dropped frames over 5% solo. A longer loop (>= 5s)
-    # restarts less; loop_min_s bounds the head-anchor scan so the loop is at least
-    # this long (the crossfade is a diffuse plasma dissolve either way).
-    {"p": "star", "out": "star-first", "kind": "loop",
-     "pos": {"t": 0.40}, "settle_ms": 2500, "record_ms": 6000, "loop_min_s": 5.0,
-     "poster_out": "star-first-poster"},
-    {"p": "star", "out": "star-web", "kind": "loop",
-     "pos": {"t": 0.52}, "settle_ms": 2500, "record_ms": 6000, "loop_min_s": 5.0,
-     "poster_out": "star-web-poster"},
-    {"p": "star", "out": "star-last", "kind": "loop",
-     "pos": {"t": 0.88}, "settle_ms": 3000, "record_ms": 6000, "loop_min_s": 5.0,
-     "poster_out": "star-last-poster"},
+    # New owner-directed section list (2026-08-08), replacing first star / cosmic web /
+    # last star. 1600x900 loops from the 1600 CSS viewport (see PROJECT_CFG). t values
+    # chosen from a live luminance / structure sweep (PROGRESS "Media re-capture:
+    # post-migration"): spark 0.08 (bright, well-formed inflation flash), afterglow
+    # 0.13 (top of the proven bright plateau, warm plasma), dark-ages 0.275 (the most
+    # structured window in the 0.21-0.29 span, hydrogen gathering reads).
+    # loop_min_s bounds the head-anchor scan so each loop is >= 5s (restarts less,
+    # keeps dropped frames low); the crossfade dissolves the seam either way.
+    #
+    # Resolution decision (measured 2026-08-08, PROGRESS): captured at the 1600x900 CSS
+    # viewport but OUTPUT 1280x720. A genuine 1600x900 loop was built and measured; the
+    # dense/animated WebGL content pushed clips to 2.25-13.7MB (7-37 Mbps), far over the
+    # 300-500KB house budget (CONCEPT 5, mobile-first), for only a ~6% perceptual gain
+    # at the card's ~682px render size. Downscaling the 1600 raw to 1280 supersamples
+    # the starfield (crisper, smoother, cheaper to encode) and keeps clips near budget.
+    #
+    # THE SPARK carries `orbit`: a slow, GENTLE, small-amplitude scripted circular
+    # pointer orbit driven as real (isTrusted) mouse.move during the take, so the site's
+    # spring-smoothed camera parallax visibly responds. The amplitude is deliberately
+    # small: a large orbit globally translates the dense starfield every frame and
+    # defeats temporal compression (an amp-150 orbit ballooned the clip to 8-28MB), so a
+    # small amp keeps both the motion gentle (owner's brief) and the file near budget.
+    # The circle is periodic in position and velocity so the crossfade finds a matching
+    # phase; the CDP screencast draws no OS cursor (verified) and cursor:none is injected
+    # as belt-and-braces.
+    # Spark size note: even a gentle orbit makes this the one heavy card (multi-layer
+    # star parallax has no single motion vector and thousands of point-stars flip pixel
+    # state, so VP9 cannot compress it the way the no-parallax epochs compressed to
+    # ~300KB). Kept small: amp 30x20, a 6.2s record cut to a ~4.7s loop, crf 48 (which
+    # stays clean at this small amplitude; the dark-region blocking ceiling is ~46 only
+    # at the large amplitudes tested). This lands ~1.8MB, the accepted cost of the
+    # owner-requested visible parallax on a dense starfield.
+    {"p": "star", "out": "star-spark", "kind": "loop",
+     "pos": {"t": 0.08}, "settle_ms": 2500, "record_ms": 6200, "loop_min_s": 4.5,
+     "crf": 48,
+     "orbit": {"amp_x": 30, "amp_y": 20, "period_ms": 6500, "hz": 50},
+     "poster_out": "star-spark-poster"},
+    # Afterglow is FULL-FRAME smooth plasma motion (every block has residual every
+    # frame), which unlike the mostly-static spark / dark-ages the decoder cannot skip;
+    # at 1280x720 it dropped ~15% of frames in-page (continuous, not at the loop seam).
+    # Output at 1024x576 (mod-16, 16:9): 0.64x the pixels to decode + composite brings
+    # it under the 5% bar, and the softening is invisible on smooth plasma at the card
+    # size. crf 36 (a touch richer, the smaller frame keeps the file small anyway).
+    {"p": "star", "out": "star-afterglow", "kind": "loop",
+     "pos": {"t": 0.13}, "settle_ms": 2500, "record_ms": 7000, "loop_min_s": 5.0,
+     "crf": 36, "out_w": 1024, "out_h": 576,
+     "poster_out": "star-afterglow-poster"},
+    {"p": "star", "out": "star-darkages", "kind": "loop",
+     "pos": {"t": 0.275}, "settle_ms": 2500, "record_ms": 7000, "loop_min_s": 5.0,
+     "crf": 34,
+     "poster_out": "star-darkages-poster"},
 ]
 
 EASE_SCROLL_JS = """
@@ -291,19 +349,23 @@ def capture_static(page, section):
     page.wait_for_timeout(section.get("settle_ms", 1500))
     with tempfile.TemporaryDirectory() as td:
         shot = os.path.join(td, "shot.png")
-        # Full 16:9 viewport at DPR 2 (2560x1440). No clip needed: the viewport is 16:9.
+        # Full 16:9 viewport at DPR 2. No clip needed: the viewport is 16:9.
         page.screenshot(path=shot, animations="disabled")
         jpg = os.path.join(MEDIA_DIR, section["out"] + ".jpg")
+        # Highest quality first (lower -q:v is better). Step quality DOWN only until the
+        # frame fits STATIC_SOFT_KB, and never past STATIC_Q_FLOOR: a busy frame keeps
+        # its detail and simply runs larger (owner: highest quality, quality wins).
         chosen = None
-        for q in (3, 4, 5, 6, 8, 10, 12, 15):
+        for q in (2, 3, 4, 5):
             run(["ffmpeg", "-y", "-i", shot, "-vf",
                  f"scale={STATIC_W}:{STATIC_H}:flags=lanczos", "-q:v", str(q), jpg])
             size = kb(jpg)
             chosen = (q, size)
-            if size <= STATIC_MAX_KB:
+            if size <= STATIC_SOFT_KB or q >= STATIC_Q_FLOOR:
                 break
+        flag = "" if chosen[1] <= STATIC_SOFT_KB else "  (over soft cap: quality kept)"
         log(f"[{section['out']}] static jpg q={chosen[0]}: {chosen[1]:.0f}KB "
-            f"({STATIC_W}x{STATIC_H})")
+            f"({STATIC_W}x{STATIC_H}){flag}")
 
 
 # ---- loop recording -------------------------------------------------------------
@@ -343,7 +405,29 @@ def assemble_raw(frames, raw_path):
         run(cmd)
 
 
-def capture_loop(page, context, section):
+def drive_orbit(page, orbit, vp, record_ms):
+    """Drive a slow circular REAL (isTrusted) mouse orbit for record_ms while the
+    screencast records, so the star scene's spring-smoothed camera parallax responds.
+    Interleaves mouse.move with tiny waits (~orbit['hz'] Hz); each call pumps the sync
+    event loop so screencast frame acks keep flowing. Centred on the viewport, so the
+    orbit is periodic in position and velocity (clean crossfade phase)."""
+    import math
+    cx, cy = vp[0] / 2.0, vp[1] / 2.0
+    ax, ay = orbit["amp_x"], orbit["amp_y"]
+    period = orbit["period_ms"]
+    hz = orbit.get("hz", 50)
+    step_ms = max(5, int(round(1000.0 / hz)))
+    t0 = time.monotonic()
+    while (time.monotonic() - t0) * 1000.0 < record_ms:
+        el = (time.monotonic() - t0) * 1000.0
+        ang = (el / period) * 2.0 * math.pi
+        x = cx + ax * math.cos(ang)
+        y = cy + ay * math.sin(ang)
+        page.mouse.move(x, y)
+        page.wait_for_timeout(step_ms)
+
+
+def capture_loop(page, context, section, vp):
     """Record a fixed-position screencast take of an animated section to tools/_raw/."""
     os.makedirs(RAW_DIR, exist_ok=True)
     scroll_to(page, section["pos"])
@@ -354,6 +438,19 @@ def capture_loop(page, context, section):
         ok = page.evaluate(section["script"])
         if ok is False:
             log(f"    warning: [{section['out']}] loop script found no targets")
+
+    # Belt-and-braces: the CDP screencast does not draw the OS cursor (verified), but
+    # hide any cursor for the pointer-orbit takes so no artefact can appear.
+    orbit = section.get("orbit")
+    if orbit:
+        try:
+            page.add_style_tag(content="*{cursor:none !important}")
+        except Exception:
+            pass
+        # Seed the pointer at the orbit start so the parallax spring is already engaged
+        # (not decaying to rest) when recording begins.
+        page.mouse.move(vp[0] / 2.0 + orbit["amp_x"], vp[1] / 2.0)
+        page.wait_for_timeout(400)
 
     frames = []
 
@@ -370,11 +467,15 @@ def capture_loop(page, context, section):
     client.send("Page.startScreencast", {
         "format": "jpeg",
         "quality": SCREENCAST_QUALITY,
-        "maxWidth": SCREENCAST_MAX_W,
-        "maxHeight": SCREENCAST_MAX_H,
+        "maxWidth": vp[0] * DPR,
+        "maxHeight": vp[1] * DPR,
         "everyNthFrame": 1,
     })
-    page.wait_for_timeout(section.get("record_ms", 6000))
+    record_ms = section.get("record_ms", 6000)
+    if orbit:
+        drive_orbit(page, orbit, vp, record_ms)
+    else:
+        page.wait_for_timeout(record_ms)
     client.send("Page.stopScreencast")
     frames.append((time.monotonic(), None))
 
@@ -388,10 +489,10 @@ def capture_loop(page, context, section):
     return raw
 
 
-def vfilter():
+def vfilter(out_w=OUT_W, out_h=OUT_H):
     # scale to 16:9 output, square pixels, convert full-range/bt601 -> tv/bt709 so the
     # tags and pixels agree and hardware VP9 accepts it (round-5 hardening).
-    return (f"scale={OUT_W}:{OUT_H}:flags=lanczos"
+    return (f"scale={out_w}:{out_h}:flags=lanczos"
             f":in_range=full:out_range=tv:in_color_matrix=bt601:out_color_matrix=bt709"
             f",setsar=1:1")
 
@@ -409,9 +510,9 @@ def vp9_args(crf):
     ]
 
 
-def encode_crossfade(raw, out, ss, base_dur, crf, cross):
+def encode_crossfade(raw, out, ss, base_dur, crf, cross, out_w=OUT_W, out_h=OUT_H):
     d, c = base_dur, cross
-    spatial = vfilter()
+    spatial = vfilter(out_w, out_h)
     fc = (
         f"[0:v]{spatial},fps={FPS},format=yuv420p,setpts=PTS-STARTPTS,split[a][b];"
         f"[a]trim=0:{d - c:.3f},setpts=PTS-STARTPTS[hold];"
@@ -426,7 +527,7 @@ def encode_crossfade(raw, out, ss, base_dur, crf, cross):
     )
     run(cmd)
     log(f"    VP9 crf {crf} crossfade {c:.2f}s: {kb(out):.0f}KB "
-        f"({OUT_W}x{OUT_H}, loop {d - c:.2f}s)")
+        f"({out_w}x{out_h}, loop {d - c:.2f}s)")
 
 
 def seam_first_last_diff(out):
@@ -490,16 +591,16 @@ def choose_head_ss(raw, spatial, raw_dur, ss_max=None):
     return ss
 
 
-def make_poster(webm, poster):
+def make_poster(webm, poster, out_w=OUT_W, out_h=OUT_H):
     chosen = None
     for q in (3, 4, 5, 6, 8, 10, 12, 15, 18, 22, 26):
         run(["ffmpeg", "-y", "-i", webm, "-frames:v", "1",
-             "-q:v", str(q), "-vf", f"scale={OUT_W}:{OUT_H}", poster])
+             "-q:v", str(q), "-vf", f"scale={out_w}:{out_h}", poster])
         size = kb(poster)
         chosen = (q, size)
         if size <= POSTER_MAX_KB:
             break
-    log(f"    poster q={chosen[0]}: {chosen[1]:.0f}KB ({OUT_W} wide)")
+    log(f"    poster q={chosen[0]}: {chosen[1]:.0f}KB ({out_w} wide)")
 
 
 def process_loop(section):
@@ -510,18 +611,20 @@ def process_loop(section):
     out = os.path.join(MEDIA_DIR, section["out"] + ".webm")
     poster = os.path.join(MEDIA_DIR, section["poster_out"] + ".jpg")
     crf = section.get("crf", DEFAULT_CRF)
+    out_w = section.get("out_w", OUT_W)
+    out_h = section.get("out_h", OUT_H)
     # If a minimum loop length is asked for, cap the head start so the loop is at
     # least that long (loop = raw_dur - ss - TAIL_MARGIN_S - CROSSFADE_S).
     ss_max = None
     if section.get("loop_min_s"):
         ss_max = raw_dur - TAIL_MARGIN_S - CROSSFADE_S - section["loop_min_s"]
-    ss = choose_head_ss(raw, vfilter(), raw_dur, ss_max)
+    ss = choose_head_ss(raw, vfilter(out_w, out_h), raw_dur, ss_max)
     base = raw_dur - ss - TAIL_MARGIN_S
     log(f"[{section['out']}] loop (raw {raw_dur:.2f}s, ss={ss:.2f}s, base={base:.2f}s "
         f"-> {base - CROSSFADE_S:.2f}s, crf {crf})")
-    encode_crossfade(raw, out, ss, base, crf, CROSSFADE_S)
+    encode_crossfade(raw, out, ss, base, crf, CROSSFADE_S, out_w, out_h)
     seam = seam_first_last_diff(out)
-    make_poster(out, poster)
+    make_poster(out, poster, out_w, out_h)
     log(f"[{section['out']}] done: {os.path.basename(out)} {kb(out):.0f}KB, "
         f"{os.path.basename(poster)} {kb(poster):.0f}KB, seam first-vs-last {seam:.2f}")
 
@@ -542,11 +645,13 @@ def run_project(pname, sections, do_capture, do_process):
                 process_loop(s)
         return
 
-    log(f"[{pname}] launching headed Chromium with GPU args (DPR {DPR})")
+    vp = cfg.get("viewport", (REC_W, REC_H))
+    log(f"[{pname}] launching headed Chromium with GPU args "
+        f"(viewport {vp[0]}x{vp[1]}, DPR {DPR})")
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False, args=GPU_ARGS)
         context = browser.new_context(
-            viewport={"width": REC_W, "height": REC_H},
+            viewport={"width": vp[0], "height": vp[1]},
             device_scale_factor=DPR,
         )
         page = context.new_page()
@@ -585,7 +690,7 @@ def run_project(pname, sections, do_capture, do_process):
             if s["kind"] == "static":
                 capture_static(page, s)
             else:
-                capture_loop(page, context, s)
+                capture_loop(page, context, s, vp)
 
         context.close()
         browser.close()
@@ -598,7 +703,7 @@ def run_project(pname, sections, do_capture, do_process):
 def main():
     ap = argparse.ArgumentParser(description="Capture and process the section-card media.")
     ap.add_argument("--only", choices=list(PROJECT_CFG.keys()), help="one project")
-    ap.add_argument("--section", help="a single section out-name (e.g. star-last)")
+    ap.add_argument("--section", help="a single section out-name (e.g. star-darkages)")
     ap.add_argument("--skip-capture", action="store_true", help="reuse existing raws")
     ap.add_argument("--skip-process", action="store_true", help="record raws only")
     args = ap.parse_args()

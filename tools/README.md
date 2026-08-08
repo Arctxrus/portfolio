@@ -37,7 +37,7 @@ Re-run on any demo push that changes the visuals. Run from the repo root.
 
 - A single section by its out-name:
 
-      python tools/capture.py --section star-last
+      python tools/capture.py --section star-darkages
 
 - Re-process the loops only, reusing the raws in `tools/_raw/` (fast, no browser):
 
@@ -59,10 +59,13 @@ brief's rule (loop only for sections that genuinely cycle at rest).
 - `barker` : `barker-hero` (STATIC: the paw trail draws once, no rest loop),
   `barker-prices` (STATIC), `barker-beforeafter` (LOOP: the compare slider is
   scripted to sweep, `BA_SWEEP_JS`), `barker-booking` (STATIC).
-- `star` (all LOOP: the WebGL scene animates continuously), parked at three bright
-  epochs after a 10s load wait: `star-first` (t 0.40, "A star is lit"),
-  `star-web` (t 0.52, "Structure, everywhere"), `star-last` (t 0.88, the lensed
-  black hole finale). NVIDIA renderer re-confirmed in-context before each session.
+- `star` (all LOOP: the WebGL scene animates continuously), captured at a 1600x900
+  CSS viewport (supersampled down to a 1280x720 output) after a 10s load wait, new
+  owner-directed list (2026-08-08): `star-spark` (t 0.08, "The spark", carries a
+  gentle scripted pointer-parallax orbit), `star-afterglow` (t 0.13, "The afterglow",
+  the bright plasma plateau), `star-darkages` (t 0.275, "The dark ages", the most
+  structured window in the dark span). NVIDIA renderer re-confirmed in-context before
+  each session. The old `star-first` / `star-web` / `star-last` are retired.
 
 ## Output shape and budget
 

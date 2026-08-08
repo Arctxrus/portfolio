@@ -3921,3 +3921,108 @@ refs (index.html 23, css 2). No git commands run.
   <link rel="canonical" href="https://pagefront.co.uk/"> beside og:url, and
   updated the CANONICAL SITE URL comment to list the canonical link alongside
   og:url / og:image / twitter:image as the tags carrying the domain literally.
+
+## Media re-capture: post-migration (2026-08-08, owner-directed)
+
+All section media for the three projects re-captured with tools/capture.py after the
+Cloudflare Pages migration, and the STAR section list changed per the owner. ?v bumped
+21 -> 22 across index.html (23 refs) and css/styles.css (2 font refs); zero ?v=21
+remain in the live files. Cache-bust only, media filenames carry no version.
+
+### STAR: new owner-directed section list (SUPERSESSION)
+- The old star cards (star-first t0.40, star-web t0.52, star-last t0.88 = first star /
+  cosmic web / last star) are RETIRED and their six files deleted. Replaced by:
+  - THE SPARK      -> star-spark      (timeline t 0.08, the inflation flash)
+  - THE AFTERGLOW  -> star-afterglow  (t 0.13, the bright plasma plateau)
+  - THE DARK AGES  -> star-darkages   (t 0.275, the hydrogen-gathering structure)
+- t values chosen from a live headed-GPU luminance / structure sweep across the
+  spark (0.04-0.12), afterglow (0.12-0.21) and dark-ages (0.21-0.29) epochs
+  (content.js EPOCHS ranges). Afterglow bright plateau reconfirmed on the new site:
+  lum t0.13=60, 0.14=58, 0.15=55, 0.16=50, 0.17=42 (holds bright, matches the old
+  0.13-0.17 finding). Dark-ages most-structured window is t0.26-0.275 (std ~22,
+  gradient ~2.1); t0.275 chosen, the gathering cluster reads clearly.
+- LUMINANCE FLOOR SUPERSEDED for the dark-ages card by explicit owner direction: the
+  old bright-epoch luminance floor does NOT apply. star-darkages is intentionally dark
+  (mean lum ~20) but framed on the most structured window so the structure reads.
+- THE SPARK carries the pointer-parallax effect (owner: scene must visibly respond).
+  Reused the round-4 parallax driving: a slow, gentle, SMALL scripted circular mouse
+  orbit driven as real (isTrusted) page.mouse.move at ~50Hz during the take; the site
+  binds pointermove to a spring-smoothed camera orbit. Cursor NOT visible in the CDP
+  screencast (verified on a test frame; cursor:none injected as belt-and-braces).
+  Parallax confirmed in the OUTPUT: frames 2s apart differ by mean 7.86 and an
+  amplified diff shows the whole starfield shifted coherently (a camera orbit, not
+  twinkle) plus the central spark displaced.
+
+### Quality bar / resolution trade (MEASURED, not guessed)
+- STATICS: captured at DPR-2, exported 1600x900, jpg quality highest-first (q=2 = best;
+  step down only to fit ~300KB, never past a q=5 floor so a busy frame keeps detail).
+  All eight statics came out at q=2 (highest) and under 300KB. Fine text is crisp at
+  DPR-2 (1600 > the ~1364 device px a ~682px card needs at DPR-2, with margin).
+- LOOPS: the owner asked to raise 1280x720 -> 1600x900 if playback stays clean. Two
+  findings forced 1280x720 instead, reported as the trade:
+  1. The CDP screencast returns CSS-pixel frames regardless of deviceScaleFactor
+     (verified: a 1280 DPR-2 context yields 1280x720 frames), so a genuine 1600 loop
+     needs a 1600-wide CSS viewport. Star is full-bleed aspect-driven WebGL, so it was
+     captured at a 1600x900 viewport (no gutters, same composition) - but:
+  2. A true 1600x900 build measured 2.25-13.7MB per clip (7-37 Mbps) on the dense /
+     animated WebGL, far over the 300-500KB house budget (CONCEPT 5, mobile-first), for
+     only ~6% perceptual gain at the card's render size. So star loops OUTPUT 1280x720,
+     downscaled from the 1600 raw (supersampled: crisper, smoother, cheaper to encode).
+  Barker before/after kept its proven 1280x720 framing (a responsive page; a 1600
+  viewport would reframe the tuned gallery for marginal gain on a photo wipe).
+- SPARK SIZE (the one heavy card): the parallax moves near/far star layers by different
+  amounts (true 3D parallax = no single motion vector) and thousands of point-stars
+  flip pixel state, which is maximally adversarial for VP9 (the no-parallax epochs
+  compressed to ~300KB; an amp-150 orbit ballooned to 8-28MB). Minimised with a small
+  gentle orbit (amp 30x20, period 6.5s), a ~4.7s loop and crf 48 (crf 50 blocks the
+  dark navy; 48 stays clean at this small amplitude): 1.84MB. Accepted as the cost of
+  the owner-requested visible parallax on a dense starfield.
+- AFTERGLOW RESOLUTION: full-frame smooth plasma motion (every block has residual every
+  frame, unlike the mostly-static spark/dark-ages the decoder skips). Output at
+  1024x576 (mod-16, 16:9) to cut its per-frame decode+composite cost; softening is
+  invisible on smooth plasma at the card size. crf 36. 602KB.
+- CRF/seam summary: spark 1280x720 crf48 4.73s seam 7.47 (diffuse starfield dissolve,
+  no legible ghosting); afterglow 1024x576 crf36 4.97s seam 2.94; dark-ages 1280x720
+  crf34 4.97s seam 1.75; barker before/after 1280x720 crf32 4.33s seam 0.72. All VP9
+  Profile 0 / yuv420p / SAR 1:1 / tv-range / bt709 tags / 30fps CFR (ffprobe-confirmed).
+
+### BARKER captured from LOCAL (barkerbloom 502 / DNS down)
+- barkerbloom.pagefront.co.uk returned net::ERR_NAME_NOT_RESOLVED from Chromium (the
+  subdomain is down; star and blackthorn subdomains resolved fine in the same run), so
+  per the owner's instruction Barker was captured from a locally served
+  C:\Dev\barker-bloom-demo (same code) via python -m http.server, using the
+  BK_URL_OVERRIDE env hook added to capture.py. Unsplash hero / gallery images loaded
+  (the headed capture browser has network); section ids and .ba__ slider classes match.
+- BLACKTHORN captured from the live site; the owner's capped rounded-pill header bar is
+  reflected in every frame and no framing went stale (all five sections frame cleanly).
+
+### Integration / in-page verification (headed GPU, occlusion flag on)
+- Renderer confirmed NVIDIA RTX 3060 in-context each session; star sessions used a 10s
+  load wait and re-confirmed the renderer before capture.
+- On the real page: every project's cards resolve the NEW media at ?v=22; all videos
+  readyState 4, MediaError null; autoplay when in view, pause when out of view (observer
+  gating, threshold 0.5, confirmed lastPausedOutOfView). Cumulative layout shift 0.016
+  (well under 0.1; the card fade is transform-only, not a layout shift).
+- PERSISTENCE (Blackthorn -> Star -> Blackthorn): media request counter was {} empty on
+  the round trip - zero media re-fetched, no double fetch (the persistent per-project
+  stacks are unhidden, not rebuilt).
+- PLAYBACK dropped-frames: the RTX 3060 decodes these clips cleanly - in isolation (a
+  minimal page) ALL clips measured 0% dropped over 12s x3 runs (spark/dark-ages 1280,
+  afterglow 1024, plus the accepted barker control 1280). On the full portfolio page
+  this session, drops inflated to 10-15% for EVERY clip because the desktop was
+  saturated (nvidia-smi showed Discord, Zoom, three browsers, Camo Studio etc. all on
+  the GPU at ~41% baseline) and the page runs its own canvas rAF; the numbers were not
+  reproducible (an unchanged file swung 4.9% -> 10.9% between runs). PARITY control: the
+  already-shipped, accepted barker before/after clip dropped 12.97% in the SAME on-page
+  session, mid-range of the star clips (spark 10.1%, afterglow 15.5%, dark-ages 13.7%),
+  proving the drops are environmental, not a regression. Verdict: clips are decode-clean
+  and on par with production; the literal <5% on-page bar is a quiescent-machine metric
+  (met in round 6) and should be re-confirmed by the verifier on an unloaded machine.
+
+### capture.py changes (build-only tool, ships nothing)
+- Per-project `viewport` in PROJECT_CFG (star 1600x900, others 1280x720); per-section
+  `out_w`/`out_h` (default 1280x720) and `crf`; a `drive_orbit` real-mouse driver for
+  `orbit` sections; cursor:none injection on orbit takes; static jpg quality reworked
+  highest-first with a floor; BK_URL_OVERRIDE env hook for the local Barker fallback;
+  vfilter/encode_crossfade/make_poster/process_loop threaded with output dimensions.
+- tools/README.md section-plan updated to the new star list.

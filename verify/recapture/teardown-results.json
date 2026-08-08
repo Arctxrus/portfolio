@@ -1,0 +1,27 @@
+{
+  "video_count_in_star_stack": 4,
+  "all_video_elements_in_dom": 4,
+  "video_states_after_exit_to_index": [
+    {
+      "src": "http://localhost:8123/media/star-spark.webm?v=22",
+      "paused": true,
+      "currentTime": 0
+    },
+    {
+      "src": "http://localhost:8123/media/star-afterglow.webm?v=22",
+      "paused": true,
+      "currentTime": 0
+    },
+    {
+      "src": "http://localhost:8123/media/star-darkages.webm?v=22",
+      "paused": true,
+      "currentTime": 0
+    },
+    {
+      "src": "http://localhost:8123/media/barker-beforeafter.webm?v=22",
+      "paused": true,
+      "currentTime": 0
+    }
+  ],
+  "console_errors": []
+}

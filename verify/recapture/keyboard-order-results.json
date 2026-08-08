@@ -1,0 +1,192 @@
+{
+  "tab_order_first_30": [
+    {
+      "tag": "BUTTON",
+      "cls": "about-toggle",
+      "dataView": null,
+      "text": "More"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "dataView": "blackthorn",
+      "text": "01\n            Blackthorn & Co"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "dataView": "barker",
+      "text": "02\n            Barker & Bloom\n"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "dataView": "star",
+      "text": "03\n            Until the Last "
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta",
+      "dataView": "form",
+      "text": "04\n            Get in touch\n  "
+    },
+    {
+      "tag": "A",
+      "cls": "",
+      "dataView": null,
+      "text": "hello@pagefront.co.uk"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "copy-email",
+      "dataView": null,
+      "text": "Copy"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "dataView": null,
+      "text": ""
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "dataView": null,
+      "text": ""
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "dataView": null,
+      "text": ""
+    },
+    {
+      "tag": "BODY",
+      "cls": "",
+      "dataView": null,
+      "text": "Pagefront\n        Freelance / "
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "about-toggle",
+      "dataView": null,
+      "text": "More"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "dataView": "blackthorn",
+      "text": "01\n            Blackthorn & Co"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "dataView": "barker",
+      "text": "02\n            Barker & Bloom\n"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "dataView": "star",
+      "text": "03\n            Until the Last "
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta",
+      "dataView": "form",
+      "text": "04\n            Get in touch\n  "
+    },
+    {
+      "tag": "A",
+      "cls": "",
+      "dataView": null,
+      "text": "hello@pagefront.co.uk"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "copy-email",
+      "dataView": null,
+      "text": "Copy"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "dataView": null,
+      "text": ""
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "dataView": null,
+      "text": ""
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "dataView": null,
+      "text": ""
+    },
+    {
+      "tag": "BODY",
+      "cls": "",
+      "dataView": null,
+      "text": "Pagefront\n        Freelance / "
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "about-toggle",
+      "dataView": null,
+      "text": "More"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "dataView": "blackthorn",
+      "text": "01\n            Blackthorn & Co"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "dataView": "barker",
+      "text": "02\n            Barker & Bloom\n"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row",
+      "dataView": "star",
+      "text": "03\n            Until the Last "
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "row row--cta",
+      "dataView": "form",
+      "text": "04\n            Get in touch\n  "
+    },
+    {
+      "tag": "A",
+      "cls": "",
+      "dataView": null,
+      "text": "hello@pagefront.co.uk"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "copy-email",
+      "dataView": null,
+      "text": "Copy"
+    },
+    {
+      "tag": "BUTTON",
+      "cls": "theme-opt",
+      "dataView": null,
+      "text": ""
+    }
+  ],
+  "blackthorn_row_tab_index": 1,
+  "blackthorn_row_focus_style": {
+    "dataView": "blackthorn",
+    "outline": "rgb(20, 20, 22) none 3px",
+    "boxShadow": "rgba(0, 0, 0, 0) 0px 0px 0px 0px inset"
+  },
+  "after_enter_detail_hidden": false,
+  "after_enter_live_text": "Preview / Blackthorn & Co."
+}

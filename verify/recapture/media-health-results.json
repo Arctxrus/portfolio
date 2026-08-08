@@ -1,0 +1,94 @@
+{
+  "blackthorn": {
+    "imgs": [
+      {
+        "src": "http://localhost:8123/media/blackthorn-cover.jpg?v=22",
+        "complete": true,
+        "naturalWidth": 1600,
+        "naturalHeight": 900
+      },
+      {
+        "src": "http://localhost:8123/media/blackthorn-prices.jpg?v=22",
+        "complete": true,
+        "naturalWidth": 1600,
+        "naturalHeight": 900
+      },
+      {
+        "src": "http://localhost:8123/media/blackthorn-barbers.jpg?v=22",
+        "complete": true,
+        "naturalWidth": 1600,
+        "naturalHeight": 900
+      },
+      {
+        "src": "http://localhost:8123/media/blackthorn-reviews.jpg?v=22",
+        "complete": true,
+        "naturalWidth": 1600,
+        "naturalHeight": 900
+      },
+      {
+        "src": "http://localhost:8123/media/blackthorn-booking.jpg?v=22",
+        "complete": true,
+        "naturalWidth": 1600,
+        "naturalHeight": 900
+      }
+    ],
+    "vids": []
+  },
+  "barker": {
+    "imgs": [
+      {
+        "src": "http://localhost:8123/media/barker-hero.jpg?v=22",
+        "complete": true,
+        "naturalWidth": 1600,
+        "naturalHeight": 900
+      },
+      {
+        "src": "http://localhost:8123/media/barker-prices.jpg?v=22",
+        "complete": true,
+        "naturalWidth": 1600,
+        "naturalHeight": 900
+      },
+      {
+        "src": "http://localhost:8123/media/barker-booking.jpg?v=22",
+        "complete": true,
+        "naturalWidth": 1600,
+        "naturalHeight": 900
+      }
+    ],
+    "vids": [
+      {
+        "src": "http://localhost:8123/media/barker-beforeafter.webm?v=22",
+        "error": null,
+        "readyState": 4,
+        "videoWidth": 1280,
+        "videoHeight": 720
+      }
+    ]
+  },
+  "star": {
+    "imgs": [],
+    "vids": [
+      {
+        "src": "http://localhost:8123/media/star-spark.webm?v=22",
+        "error": null,
+        "readyState": 4,
+        "videoWidth": 1280,
+        "videoHeight": 720
+      },
+      {
+        "src": "http://localhost:8123/media/star-afterglow.webm?v=22",
+        "error": null,
+        "readyState": 4,
+        "videoWidth": 1024,
+        "videoHeight": 576
+      },
+      {
+        "src": "http://localhost:8123/media/star-darkages.webm?v=22",
+        "error": null,
+        "readyState": 4,
+        "videoWidth": 1280,
+        "videoHeight": 720
+      }
+    ]
+  }
+}
