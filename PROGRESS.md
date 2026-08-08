@@ -4026,3 +4026,92 @@ remain in the live files. Cache-bust only, media filenames carry no version.
   highest-first with a floor; BK_URL_OVERRIDE env hook for the local Barker fallback;
   vfilter/encode_crossfade/make_poster/process_loop threaded with output dimensions.
 - tools/README.md section-plan updated to the new star list.
+
+## Light CTA definition pass (2026-08-08, owner-approved; revertible)
+
+Goal: give the light-mode CTA the same crisp edge definition the dark CTA has,
+translated to light-theme logic. The dark CTA reads crisp because its rim is
+LIGHTER than its fill; the light CTA had a white rim on a pale fill, so its edge
+dissolved into the #FAFAFA ground. The light theme is the inverse case, so it
+needs a rim DARKER than its fill. Owner can revert; the prior commit is the
+fallback. Dark theme untouched (computed dark values verified byte-identical
+before/after, see below).
+
+### What changed (css/styles.css)
+A new labelled amendment `:root` block was added immediately before the round-5
+`[data-theme="dark"]` block (same established pattern as the round-1
+`--shadow-row-active` amendment: a plain `:root` override placed BEFORE the dark
+block, which re-declares the same properties at equal specificity and later
+source order, so the dark theme wins for dark and the 3.1 token block stays
+verbatim). Two edits, light theme only:
+
+1. Deepened the three pastel drift layers ~9% toward the sea-blue accent (each
+   stop blended 0.09 of the way to #1A6FD4), keeping the pale-water character.
+   The drift keyframes and `--cta-bg-size` are unchanged. Exact values chosen:
+   - `--cta-layer1`: `#DCEEF9` -> `#CBE3F6` (stop rgb 220,238,249 -> 203,227,246);
+     transparent stop `rgba(220,238,249,0)` -> `rgba(203,227,246,0)`.
+   - `--cta-layer2`: `#CFDDF3` -> `#BFD3F0` (207,221,243 -> 191,211,240);
+     transparent `rgba(207,221,243,0)` -> `rgba(191,211,240,0)`.
+   - `--cta-layer3` stops: `#D6E9F7` -> `#C5DEF4`, `#C6D9F1` -> `#B7D0EE`,
+     `#D9E7F6` -> `#C8DCF3`, `#D6E9F7` -> `#C5DEF4`.
+2. Replaced the rim's first component (the 1px all-round inset line) with an
+   accent-tinted sea-blue line, KEEPING the white top-highlight (second
+   component) for the glass feel. Composed with `--shadow-row-active` in the open
+   state exactly as before.
+   - `--cta-rim` light: `inset 0 0 0 1px rgba(255,255,255,0.62), inset 0 1px 0
+     rgba(255,255,255,0.85)` -> `inset 0 0 0 1px rgba(26,111,212,0.28), inset
+     0 1px 0 rgba(255,255,255,0.85)`.
+   - Rim alpha chosen by eye: started from `--accent-hairline` (0.16), tuned up
+     to 0.28 (inside the expected 0.22 to 0.35 band). At 0.28 the edge reads
+     crisply against both the pastel fill and the #FAFAFA ground without going
+     heavy; 0.16 was still too faint, 0.35 started to look like a hard stroke.
+
+Unchanged as required: hover mist, drift speeds (22s/14s, 30s/19s), press bloom,
+CTA filter (saturate 1.25 / brightness 1.03), edge lift, light pass, `--cta-text`,
+`--cta-index`, all radii/border-width/shadow discipline. No new tokens or radii.
+
+### States checked (light, screenshots in verify/cta-pass/)
+- Rest: accent rim traces the 16px edge crisply against the ground.
+- Hover: drift quickens + saturate/brighten applied; the accent rim stays a clean
+  blue line, NOT muddy (the filter lifts the fill, the rim reads through).
+- Open/grown: rim + `--shadow-row-active` card elevation + the +4px grow, all as
+  before, composed correctly.
+- Focus-visible (rest): `--shadow-field-focus` (solid full-alpha accent inset
+  ring) REPLACES the rim, so the focus indicator is unmistakable. Both are blue
+  but the ring is solid #1A6FD4 vs the rim's 0.28 alpha, so it reads distinctly.
+- Focus-visible (open): the solid ring is layered on top of the rim + white
+  top-highlight + card shadow (ring drawn first = topmost); still a distinct
+  full-alpha indicator over the low-alpha rim.
+- Press bloom: fires from the pointer/tap point and is cleanly clipped by the
+  pill's overflow:hidden, including near the rounded corners. No spill.
+
+### Contrast re-measured on the deepened fill (WCAG)
+- `--cta-text` #141416 (row name, 15.5px/600): 11.63:1 worst case on the deepest
+  new stop (was 12.79:1). Passes its bar with huge margin.
+- `--cta-index` rgba(20,20,22,0.5) desktop-rest: ~3.09 to 3.25:1 (was ~3.18 to
+  3.33:1). This is the SAME documented desktop-rest sub-AA exception already on
+  record (alongside the grey tags); the deepening nudges it down ~0.06, still
+  within that accepted exception class. The real AA bars are unaffected: the
+  mobile-at-rest and focus-visible remediation to `--ink-mid` (#54545C) still
+  passes AA on the deepened fill (4.74:1 worst case).
+
+### Dark theme byte-identical (verified)
+Dumped getComputedStyle for all `--cta-*`, `--shadow-row-active`, `--accent*`
+plus the CTA element's resolved box-shadow and background-image in BOTH themes,
+before and after (verify/cta-pass/before-vars.json vs after-vars.json). The
+entire dark object is identical; light changed exactly `--cta-layer1..3` and
+`--cta-rim` (and their two derived computed properties). No dark-theme edits.
+
+### Cache-bust
+?v=22 -> ?v=23 across index.html (23 refs) and css/styles.css (2 font refs);
+zero ?v=22 remain in the live files. NOT bumped: the descriptive prose in this
+PROGRESS.md (a historical record of the v22 media round) and the historical
+verify/recapture/* test artifacts, which document past state and are not live
+asset references. Flagged for the orchestrator.
+
+### Deliverables (verify/cta-pass/)
+Side-by-side composites: sxs-light-rest.png, sxs-light-hover.png,
+sxs-light-fullrow.png; dark reference ref-dark.png; per-state light shots
+after-light-open.png, after-light-focus-rest.png, after-light-focus-open.png,
+after-light-press.png; raw before-/after- crops and *-vars.json. Helper scripts
+(_shot.py, _compose.py, _states.py, _focus.py) kept for reproducibility.

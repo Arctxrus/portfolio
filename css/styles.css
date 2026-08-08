@@ -33,7 +33,7 @@
   font-weight: 400 600;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/archivo-latin-var.woff2?v=22') format('woff2');
+  src: url('../fonts/archivo-latin-var.woff2?v=23') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -43,7 +43,7 @@
   font-weight: 300 500;
   font-stretch: 100%;
   font-display: swap;
-  src: url('../fonts/martian-mono-latin-var.woff2?v=22') format('woff2');
+  src: url('../fonts/martian-mono-latin-var.woff2?v=23') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -142,6 +142,38 @@
 
 :root {
   --shadow-row-active: 0 1px 3px rgba(20, 20, 22, 0.06);
+}
+
+/* --------------------------------------------------------------------------
+   Owner-approved amendment (Light CTA definition pass, 2026-08-08). The light
+   CTA edge read soft and under-defined next to the dark CTA, which gets its
+   crispness from a rim LIGHTER than its fill. The light theme is the inverse
+   case, so it needs a rim DARKER than its fill. Two changes, light theme only:
+
+   1. The three pastel drift layers are deepened ~9% toward the sea-blue accent
+      (each stop blended 0.09 of the way to #1A6FD4), keeping the pale water
+      character while giving the fill more body to sit against the page ground.
+      The drift keyframes and --cta-bg-size are unchanged (theme-neutral).
+   2. The 1px inset rim's first component becomes an accent-tinted sea-blue line
+      (rgba(26,111,212,0.28), tuned up from --accent-hairline's 0.16 by eye so
+      the edge reads crisply against both the pastel fill and the ground). The
+      white top-highlight (second component) is KEPT for the glass feel.
+
+   The 3.1 token block stays verbatim; these override --cta-layer1..3 and
+   --cta-rim here, in a labelled :root, exactly as earlier amendment rounds did.
+   This block sits BEFORE the [data-theme="dark"] block below, which re-declares
+   the same properties at equal specificity and later source order, so the dark
+   theme is untouched (verified computed dark values byte-identical). Only the
+   deepened fill and the accent rim are new; edge lift, light pass, hover mist,
+   press bloom, drift speeds and the CTA filter are all unchanged.
+   Recorded in PROGRESS.md ("Light CTA definition pass"); owner can revert.
+   -------------------------------------------------------------------------- */
+
+:root {
+  --cta-layer1: radial-gradient(70% 180% at 20% 15%, #CBE3F6 0%, rgba(203,227,246,0) 62%);
+  --cta-layer2: radial-gradient(60% 170% at 75% 85%, #BFD3F0 0%, rgba(191,211,240,0) 64%);
+  --cta-layer3: linear-gradient(100deg, #C5DEF4, #B7D0EE, #C8DCF3, #C5DEF4);
+  --cta-rim:    inset 0 0 0 1px rgba(26,111,212,0.28), inset 0 1px 0 rgba(255,255,255,0.85);
 }
 
 /* --------------------------------------------------------------------------

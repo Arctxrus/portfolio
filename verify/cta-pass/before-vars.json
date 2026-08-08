@@ -1,0 +1,40 @@
+{
+  "light": {
+    "theme": "light",
+    "--cta-layer1": "radial-gradient(70% 180% at 20% 15%, #DCEEF9 0%, rgba(220,238,249,0) 62%)",
+    "--cta-layer2": "radial-gradient(60% 170% at 75% 85%, #CFDDF3 0%, rgba(207,221,243,0) 64%)",
+    "--cta-layer3": "linear-gradient(100deg, #D6E9F7, #C6D9F1, #D9E7F6, #D6E9F7)",
+    "--cta-bg-size": "260% 260%, 240% 240%, 300% 200%",
+    "--cta-lightpass": "radial-gradient(55% 150% at 50% 50%, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0) 68%)",
+    "--cta-edge-lift": "radial-gradient(120% 160% at 50% 50%, rgba(255,255,255,0) 42%, rgba(255,255,255,0.34) 100%)",
+    "--cta-rim": "inset 0 0 0 1px rgba(255,255,255,0.62), inset 0 1px 0 rgba(255,255,255,0.85)",
+    "--cta-hover-mist": "radial-gradient(circle, rgba(233,246,253,0.55) 0%, rgba(233,246,253,0.26) 44%, rgba(233,246,253,0) 72%)",
+    "--cta-press-mist": "radial-gradient(circle, rgba(255,255,255,0.75) 0%, rgba(255,255,255,0.40) 42%, rgba(255,255,255,0) 72%)",
+    "--cta-text": "#141416",
+    "--cta-index": "rgba(20,20,22,0.5)",
+    "--shadow-row-active": "0 1px 3px rgba(20, 20, 22, 0.06)",
+    "--accent-hairline": "rgba(26,111,212,0.16)",
+    "--accent": "#1A6FD4",
+    "cta.boxShadow": "rgba(255, 255, 255, 0.62) 0px 0px 0px 1px inset, rgba(255, 255, 255, 0.85) 0px 1px 0px 0px inset",
+    "cta.backgroundImage": "radial-gradient(70% 180% at 20% 15%, rgb(220, 238, 249) 0%, rgba(220, 238, 249, 0) 62%), radial-gradient(60% 170% at 75% 85%, rgb(207, 221, 243) 0%, rgba(207, 221, 243, 0) 64%), linear-gradient(100deg, rgb(214, 233, 247), rgb(198, 217, 241), rgb(217, 231, 246), rgb(214, 233, 247))"
+  },
+  "dark": {
+    "theme": "dark",
+    "--cta-layer1": "radial-gradient(70% 180% at 20% 15%, #1B3A5C 0%, rgba(27,58,92,0) 62%)",
+    "--cta-layer2": "radial-gradient(60% 170% at 75% 85%, #16324A 0%, rgba(22,50,74,0) 64%)",
+    "--cta-layer3": "linear-gradient(100deg, #163049, #12283D, #183453, #163049)",
+    "--cta-bg-size": "260% 260%, 240% 240%, 300% 200%",
+    "--cta-lightpass": "radial-gradient(55% 150% at 50% 50%, rgba(150,190,235,0.14) 0%, rgba(150,190,235,0) 68%)",
+    "--cta-edge-lift": "radial-gradient(120% 160% at 50% 50%, rgba(150,190,235,0) 42%, rgba(150,190,235,0.16) 100%)",
+    "--cta-rim": "inset 0 0 0 1px rgba(190,216,244,0.20), inset 0 1px 0 rgba(200,224,248,0.30)",
+    "--cta-hover-mist": "radial-gradient(circle, rgba(120,170,230,0.30) 0%, rgba(120,170,230,0.14) 44%, rgba(120,170,230,0) 72%)",
+    "--cta-press-mist": "radial-gradient(circle, rgba(200,224,248,0.40) 0%, rgba(200,224,248,0.20) 42%, rgba(200,224,248,0) 72%)",
+    "--cta-text": "#EAF2FB",
+    "--cta-index": "rgba(234, 242, 251, 0.55)",
+    "--shadow-row-active": "0 1px 3px rgba(0, 0, 0, 0.45)",
+    "--accent-hairline": "rgba(26,111,212,0.16)",
+    "--accent": "#4E95E8",
+    "cta.boxShadow": "rgba(190, 216, 244, 0.2) 0px 0px 0px 1px inset, rgba(200, 224, 248, 0.3) 0px 1px 0px 0px inset",
+    "cta.backgroundImage": "radial-gradient(70% 180% at 20% 15%, rgb(27, 58, 92) 0%, rgba(27, 58, 92, 0) 62%), radial-gradient(60% 170% at 75% 85%, rgb(22, 50, 74) 0%, rgba(22, 50, 74, 0) 64%), linear-gradient(100deg, rgb(22, 48, 73), rgb(18, 40, 61), rgb(24, 52, 83), rgb(22, 48, 73))"
+  }
+}
